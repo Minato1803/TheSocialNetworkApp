@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">My SNS</string>
+    <string name="str_error">Lỗi</string>
+    <string name="str_error_socket_timeout">Ngắt kết nối với máy chủ, xin vui lòng thử lại sau</string>
+    <string name="str_cancel">Hủy</string>
+    <string name="str_error_default">Có lỗi xảy ra từ hệ thống. Chân thành xin lỗi vì sự bất tiện này!</string>
+    <string name="str_denied_title_permission">Mở cài đặt quyền truy cập của ứng dụng</string>
+    <string name="str_denied_message_permission"><![CDATA[\"Cấp quyền truy cập cho ứng dụng bằng cách vào [Cài đặt] -> [Quyền truy cập ứng dụng] \"]]></string>
+    <string name="str_error_data">Lỗi xử lý dữ liệu, xin vui lòng thử lại.</string>
+    <string name="label_home_menu">Trang chủ</string>
+    <string name="label_friends_menu">Bạn bè</string>
+    <string name="label_chat_menu">Tin nhắn</string>
+    <string name="label_profile_menu">Cá nhân</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="str_login_with_google">Tiếp tục với Google</string>
+    <string name="err_no_exist">Không tồn tại</string>
 </resources>

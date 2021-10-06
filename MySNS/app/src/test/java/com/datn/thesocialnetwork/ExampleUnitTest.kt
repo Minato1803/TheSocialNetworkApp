@@ -1,4 +1,4 @@
-package com.datn.TheSocialNetwork
+package com.datn.thesocialnetwork
 
 import org.junit.Test
 

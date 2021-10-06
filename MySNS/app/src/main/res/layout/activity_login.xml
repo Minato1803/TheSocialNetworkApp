@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_weight="4"
+            android:src="@drawable/ic_login"
+            android:scaleType="centerCrop"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            tools:ignore="ContentDescription" />
+        <View
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_margin="?actionBarSize"
+            android:textStyle="bold"
+            android:textSize="40sp"
+            android:textColor="#fff"
+            android:text="My SNS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/tv_email"
+            android:textColor="#fff"
+            android:textColorHint="#eee"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:hint="Email"
+            android:layout_margin="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="@drawable/rounded_corner"
+            android:textSize="17sp" />
+        <EditText
+            android:id="@+id/tv_password"
+            android:textColor="#fff"
+            android:textColorHint="#eee"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:layout_margin="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="@drawable/rounded_corner"
+            android:textSize="17sp" />
+        <Button
+            android:id="@+id/btn_login"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:background="@drawable/round_corner_button"
+            android:text="Đăng nhập"
+            android:textColor="#777"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp" />
+        <TextView
+            android:id="@+id/tv_forgot_password"
+            android:layout_marginTop="20dp"
+            android:textColor="#fff"
+            android:text="Quên mật khẩu?"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_marginBottom="10dp"
+            android:text="Hoặc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:id="@+id/btn_login_with_google"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+            <ImageButton
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_google"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+            <TextView
+                android:id="@+id/tvLoginWithGoogle"
+                style="@style/defaultTitleTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/str_login_with_google"
+                android:textAlignment="center"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="BottomNavigationMenu" parent="@style/Widget.Design.BottomNavigationView">
+        <item name="android:textSize" tools:override="true">@dimen/_10sp</item>
+        <item name="colorPrimary">@color/colorFF954CFB</item>
+        <item name="itemTextAppearanceInactive">@color/color666666</item>
+        <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="defaultTitleTextStyle" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">@dimen/_16sp</item>
+        <item name="android:textColor">@color/color333333</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="@style/Theme.Design.Light.BottomSheetDialog">
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="@style/Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/background_corner_top_solid_window</item>
+    </style>
+
+    <style name="defaultFontFamily" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">@dimen/_14sp</item>
+        <item name="android:textColor">@color/colorTextContent</item>
+    </style>
+
+
+</resources>
