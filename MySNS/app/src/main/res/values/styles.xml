@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+
+        <item name="android:textViewStyle">@style/defaultFontFamily</item>
+        <item name="android:windowBackground">@color/colorBackgroundWindow</item>
+    </style>
+
     <style name="BottomNavigationMenu" parent="@style/Widget.Design.BottomNavigationView">
         <item name="android:textSize" tools:override="true">@dimen/_10sp</item>
         <item name="colorPrimary">@color/colorFF954CFB</item>
@@ -26,5 +42,79 @@
         <item name="android:textColor">@color/colorTextContent</item>
     </style>
 
+    <style name="LoginTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorLoginPrimaryDark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.MySNS.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+
+    <style name="parent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="viewParent">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="parent.TextLayout">
+        <item name="android:layout_marginLeft">15dp</item>
+    </style>
+
+    <style name="modifiedEditText" parent="parent">
+        <item name="android:textSize">@dimen/_16sp</item>
+    </style>
+
+    <style name="ShapeableImageViewAvatar">
+        <item name="android:background">@color/white</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="strokeColor">@color/black</item>
+        <item name="strokeWidth">0.5dp</item>
+        <item name="shapeAppearanceOverlay">@style/circleImageView</item>
+    </style>
+
+    <style name="circleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="IconButton" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">start</item>
+        <item name="android:layout_width">48dp</item>
+        <item name="android:shadowColor">@android:color/transparent</item>
+        <item name="strokeColor">@android:color/transparent</item>
+    </style>
+
+    <style name="textEditProfileStyle" parent="defaultTitleTextStyle">
+        <item name="android:background">@drawable/background_corner_stroke_light_gray</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:inputType">textCapWords</item>
+        <item name="android:paddingStart">@dimen/_20dp</item>
+        <item name="android:paddingEnd">@dimen/_16dp</item>
+        <item name="android:textColor">@color/color333333</item>
+        <item name="android:textSize">@dimen/_16sp</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="FullScreenDialogTheme" parent="@style/AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
 
 </resources>

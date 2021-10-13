@@ -23,11 +23,6 @@ class UserRepository @Inject constructor(
     suspend fun getAllUserNode(): DataSnapshot =
         mUserFirebase.getDatabase().get().await()
 
-    suspend fun updateUser(
-        uidUser: String,
-        accFirebaseAuth: FirebaseAuthAccount,
-    ) = mUserFirebase.updateUser(uidUser, accFirebaseAuth)
-
     suspend fun updateUser(uidUser: String, userDetail: UserDetail) =
         mUserFirebase.updateUser(uidUser, userDetail)
 
@@ -35,8 +30,8 @@ class UserRepository @Inject constructor(
     suspend fun uploadUserAvatar(uidUser: String, imgByteAvatar: ByteArray) =
         mUserFirebase.uploadUserAvatar(uidUser, imgByteAvatar)
 
-    suspend fun signInWithCredential(credential: AuthCredential): AuthResult =
-        mUserFirebase.getAuth().signInWithCredential(credential).await()
+    suspend fun getUserById(uidUser: String): DataSnapshot =
+        mUserFirebase.getUserById(uidUser)
 
     fun getCurrentUserFirebase() = mUserFirebase.getAuth().currentUser
 }

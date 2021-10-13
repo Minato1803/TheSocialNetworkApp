@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -12,13 +13,19 @@ import androidx.annotation.RequiresApi
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.LoadingScreen
 import com.datn.thesocialnetwork.core.api.Response
+import com.datn.thesocialnetwork.core.util.FirebaseNode
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils
+import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.databinding.ActivityLoginBinding
 import com.datn.thesocialnetwork.feature.login.viewmodel.LoginViewModel
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
+import com.datn.thesocialnetwork.feature.register.view.RegisterActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -32,6 +39,8 @@ class LoginActivity : AppCompatActivity() {
     lateinit var mGoogleSignInClient: GoogleSignInClient
     private val mLoginViewModel: LoginViewModel by viewModels()
 
+    private var email: String = ""
+    private var password: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,15 +57,15 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setObserveData() {
         mLoginViewModel.liveDataLogin.observe(this, { response ->
-            observeLogin(response)
+            observeDataLogin(response)
         })
 
-        mLoginViewModel.liveDataVerifyLogin.observe(this, { response ->
-            observeVerifyLogin(response)
+        mLoginViewModel.liveLoginUser.observe(this, { response ->
+            observeLoginUser(response)
         })
     }
 
-    private fun observeVerifyLogin(response: Response<String>?) {
+    private fun observeLoginUser(response: Response<FirebaseUser>) {
         when (response) {
             is Response.Loading -> LoadingScreen.show(this)
 
@@ -67,7 +76,9 @@ class LoginActivity : AppCompatActivity() {
 
             is Response.Success -> {
                 LoadingScreen.hide()
-                sendToMainActivity()
+                response.data?.let {
+                    mLoginViewModel.getInfoUser(it)
+                }
             }
         }
     }
@@ -78,62 +89,52 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun observeLogin(response: Response<UserResponse>?) {
+    private fun observeDataLogin(response: Response<UserResponse>?) {
         when (response) {
             is Response.Loading -> LoadingScreen.show(this)
 
             is Response.Error -> {
                 LoadingScreen.hide()
-                if (response.message == getString(R.string.err_no_exist)) {
-                    //register
-                } else {
-                    SystemUtils.showDialogError(this, response.message)
-                }
+                SystemUtils.showDialogError(this, response.message)
             }
 
             is Response.Success -> {
                 LoadingScreen.hide()
-                sendToMainActivity()
+                response.data.let {
+                    GlobalValue.USER = it
+                    sendToMainActivity()
+                }
             }
         }
     }
 
     private fun setEvent() {
-        bd.btnLoginWithGoogle.setOnClickListener { clickLoginWithGG() }
-
         bd.btnLogin.setOnClickListener { clickLogin() }
+
+        bd.btnRegisterNow.setOnClickListener {
+            val mainIntent = Intent(this.applicationContext, RegisterActivity::class.java)
+            startActivity(mainIntent)
+        }
     }
 
     private fun clickLogin() {
-        val email = bd.tvEmail.text.toString().trim()
-        val password = bd.tvPassword.text.toString().trim()
-        //validate
-        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            bd.tvEmail.error = "sai Email!"
-            bd.tvEmail.isFocusable = true
-        } else if (password.length < 6) {
-            bd.tvPassword.error = "Độ dài mật khẩu phải lớn hơn 6 kí tự!"
-            bd.tvPassword.isFocusable = true
+        if(validInput()) {
+            mLoginViewModel.LoginWithEmailPassword(email, password)
+        }
+    }
+
+    private fun validInput(): Boolean {
+        var isValid = false
+        email = bd.edtEmail.text.toString().trim()
+        password = bd.edtPassword.text.toString().trim()
+
+        if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            bd.edtEmail.error = "Email không hợp lệ!"
+            bd.edtEmail.isFocusable = true
         } else {
-            mLoginViewModel.verifyLogin(email, password, this)
+            isValid = true
         }
-    }
 
-    private fun clickLoginWithGG() {
-        getGoogleAccount()
+        return isValid
     }
-
-    private fun getGoogleAccount() {
-        resultActivityPickAccGG.launch(mGoogleSignInClient.signInIntent)
-    }
-
-    private val resultActivityPickAccGG =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val accGG = GoogleSignIn.getSignedInAccountFromIntent(result.data).result
-                accGG?.let {
-                    mLoginViewModel.checkUserExist(accGG)
-                }
-            }
-        }
 }

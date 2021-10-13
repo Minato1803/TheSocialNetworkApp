@@ -5,6 +5,10 @@
       <config />
     </shared>
   </component>
+  <component name="AndroidLogFilters">
+    <option name="TOOL_WINDOW_LOG_LEVEL" value="debug" />
+    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
@@ -28,7 +32,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e51ce4aa-de06-4acf-85ab-6d04a554251e" name="Default Changelist" comment="creater core app">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/GlobalValue.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/ModelMapping.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/view/EditProfileFragment.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/register/viewmodel/RegisterViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/background_corner_stroke_light_gray.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/google_button.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_arrow_down.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_calendar_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_description_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_face_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_login_button.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_round_close_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_save_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/login_hero_image.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_edit_profile.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/google-services.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/Const.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/Const.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/firebase/UserFirebase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/firebase/UserFirebase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/remote/model/UserResponse.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/remote/model/UserResponse.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/UserRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/UserRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/login/view/LoginActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/login/view/LoginActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/login/viewmodel/LoginViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/login/viewmodel/LoginViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/register/view/RegisterActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/register/view/RegisterActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/dimens.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/dimens.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,11 +110,11 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Sealed Class" />
-        <option value="Kotlin Object" />
         <option value="valueResourceFile" />
-        <option value="resourceFile" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Class" />
+        <option value="Kotlin Object" />
+        <option value="resourceFile" />
       </list>
     </option>
   </component>
@@ -96,7 +130,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/app/src/main/res/drawable" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/res/drawable-v24" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/src/main/res/drawable" />
     <property name="settings.editor.selected.configurable" value="AndroidSdkUpdater" />
   </component>
   <component name="RecentsManager">
@@ -112,8 +146,8 @@
       <recent name="com.datn.thesocialnetwork.feature.login.view" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\code\BaiTapOTruong\TotNghiep\TheSocialNetworkApp\MySNS\app\src\main\res\drawable-v24" />
       <recent name="E:\code\BaiTapOTruong\TotNghiep\TheSocialNetworkApp\MySNS\app\src\main\res\drawable" />
+      <recent name="E:\code\BaiTapOTruong\TotNghiep\TheSocialNetworkApp\MySNS\app\src\main\res\drawable-v24" />
       <recent name="E:\code\BaiTapOTruong\TotNghiep\TheSocialNetworkApp\MySNS\app\src\main\res" />
       <recent name="E:\code\BaiTapOTruong\TotNghiep\TheSocialNetworkApp\MySNS\app\src\main\res\layout" />
       <recent name="E:\code\BaiTapOTruong\TotNghiep\TheSocialNetworkApp\MySNS" />
@@ -264,42 +298,50 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="349" y="167" key="AndroidCreateResourceDirectoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1633173590059" />
-    <state x="349" y="167" width="838" height="474" key="AndroidCreateResourceFileDialog" timestamp="1633478321388">
+    <state x="218" y="219" width="838" height="470" key="AndroidCreateResourceFileDialog" timestamp="1634081248826">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="349" y="167" width="838" height="474" key="AndroidCreateResourceFileDialog/0.0.1536.824@0.0.1536.824" timestamp="1633478321388" />
-    <state x="614" y="202" key="AndroidCreateXmlResourceDialog" timestamp="1633478444379">
+    <state x="218" y="219" width="838" height="470" key="AndroidCreateResourceFileDialog/0.0.1536.824@0.0.1536.824" timestamp="1634081248826" />
+    <state x="622" y="286" key="AndroidCreateXmlResourceDialog" timestamp="1634081400300">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="614" y="202" key="AndroidCreateXmlResourceDialog/0.0.1536.824@0.0.1536.824" timestamp="1633478444379" />
-    <state width="1493" height="121" key="GridCell.Tab.0.bottom" timestamp="1633479413881">
+    <state x="622" y="286" key="AndroidCreateXmlResourceDialog/0.0.1536.824@0.0.1536.824" timestamp="1634081400300" />
+    <state x="549" y="153" key="FileChooserDialogImpl" timestamp="1634081472074">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="121" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1633479413881" />
-    <state width="1493" height="121" key="GridCell.Tab.0.center" timestamp="1633479413881">
+    <state x="549" y="153" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1634081472074" />
+    <state width="1493" height="218" key="GridCell.Tab.0.bottom" timestamp="1634093109385">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="121" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1633479413881" />
-    <state width="1493" height="121" key="GridCell.Tab.0.left" timestamp="1633479413881">
+    <state width="1493" height="218" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1634093109385" />
+    <state width="1493" height="218" key="GridCell.Tab.0.center" timestamp="1634093109384">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="121" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1633479413881" />
-    <state width="1493" height="121" key="GridCell.Tab.0.right" timestamp="1633479413881">
+    <state width="1493" height="218" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1634093109384" />
+    <state width="1493" height="218" key="GridCell.Tab.0.left" timestamp="1634093109384">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="121" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1633479413881" />
+    <state width="1493" height="218" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1634093109384" />
+    <state width="1493" height="218" key="GridCell.Tab.0.right" timestamp="1634093109384">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="218" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1634093109384" />
     <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1633479538879">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1633479538879" />
-    <state x="584" y="190" key="chooseDestDirectoryDialog" timestamp="1633462788487">
+    <state x="584" y="190" key="chooseDestDirectoryDialog" timestamp="1633838031410">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="584" y="190" key="chooseDestDirectoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1633462788487" />
-    <state x="425" y="187" width="672" height="677" key="run.anything.popup" timestamp="1633099198248">
+    <state x="584" y="190" key="chooseDestDirectoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1633838031410" />
+    <state x="478" y="145" width="726" height="534" key="find.popup" timestamp="1634092469836">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="425" y="187" width="672" height="677" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1633099198248" />
+    <state x="478" y="145" width="726" height="534" key="find.popup/0.0.1536.824@0.0.1536.824" timestamp="1634092469836" />
+    <state x="425" y="187" width="672" height="677" key="run.anything.popup" timestamp="1634086834177">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="425" y="187" width="672" height="677" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1634086834177" />
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1633475314102">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

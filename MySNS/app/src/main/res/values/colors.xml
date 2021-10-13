@@ -15,4 +15,8 @@
     <color name="color333333">#333333</color>
     <color name="colorBackgroundWindow">#f5f5f5</color>
     <color name="colorTextContent">#666666</color>
+    <color name="colorLoginPrimaryDark">#FDFFFF</color>
+    <color name="color838387">#838387</color>
+    <color name="color0070F2">#0070F2</color>
+    <color name="colorE3E3E3">#E3E3E3</color>
 </resources>

@@ -12,7 +12,27 @@
     <string name="label_chat_menu">Tin nhắn</string>
     <string name="label_profile_menu">Cá nhân</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment">Coming soon</string>
     <string name="str_login_with_google">Tiếp tục với Google</string>
     <string name="err_no_exist">Không tồn tại</string>
+    <string name="str_error_verify">Lỗi kiểm tra đăng nhập</string>
+    <string name="str_had_account">Đã có tài khoản?</string>
+    <string name="str_not_have_account">Không có tài khoản?</string>
+    <string name="str_login_now">Đăng nhập ngay</string>
+    <string name="str_register_now">Đăng kí ngay</string>
+    <string name="str_or">Hoặc</string>
+    <string name="str_login">Đăng nhập</string>
+    <string name="str_register">Đăng kí</string>
+    <string name="str_email">email</string>
+    <string name="str_username">Tên người dùng</string>
+    <string name="str_fullname">fullname</string>
+    <string name="str_password">password</string>
+    <string name="str_confirm_password">confirm password</string>
+    <string name="str_firstName">Tên</string>
+    <string name="str_lastName">Họ</string>
+    <string name="user_avatar">user avatar</string>
+    <string name="change_profile_photo">Đổi ảnh đại diện</string>
+    <string name="change_password">Thay đổi password</string>
+    <string name="str_descrp">Giới thiệu</string>
+    <string name="str_birthday">Nhập ngày sinh</string>
 </resources>

@@ -14,6 +14,9 @@ object Const {
     const val avatarDefaultUrl =
         "https://firebasestorage.googleapis.com/v0/b/mysns-3ef38.appspot.com/o/MySNS%2Favatar%2Favatar_default.png?alt=media&token=c422d047-dba9-4069-aafe-94d67f44026c"
 
+    const val REGEX_LETTER = "[a-zA-z]"
+    const val REGEX_NUMBER = "[0-9]"
+    const val REGEX_SPECIAL_CHAR = "[!@#\$%&*()_+=|<>?{}\\\\[\\\\]~-]"
 
 }
 
