@@ -18,6 +18,8 @@ object Const {
     const val REGEX_NUMBER = "[0-9]"
     const val REGEX_SPECIAL_CHAR = "[!@#\$%&*()_+=|<>?{}\\\\[\\\\]~-]"
 
+    const val DATE_FORMAT = "dd-MM-yyyy"
+
 }
 
 object FirebaseNode {

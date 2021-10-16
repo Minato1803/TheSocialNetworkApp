@@ -134,7 +134,7 @@ class RegisterActivity : AppCompatActivity() {
         confirmPassword = bd.edtConfirmPassword.text.toString().trim()
         //validate
         if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            bd.edtEmail.error = "Email không hợp lệ!"
+            bd.textInputEmail.error = "Email không hợp lệ!"
             bd.edtEmail.isFocusable = true
         } else if(userName.isEmpty() && Regex(Const.REGEX_SPECIAL_CHAR).containsMatchIn(userName)) {
             bd.edtUsername.error = "userName không hợp lệ!"

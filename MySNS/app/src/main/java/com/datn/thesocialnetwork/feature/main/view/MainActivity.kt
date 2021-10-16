@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         if (!SystemUtils.hasInternetConnection(this)) {
             SystemUtils.showDialogNoInternetConnection(this)
         }
+        setSupportActionBar(bd.toolbar)
         setCurrentFragment(fragHome)
     }
 

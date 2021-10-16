@@ -29,25 +29,32 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInput_Email"
-        style="@style/parent.TextLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:startIconDrawable="@drawable/ic_profile_24"
         android:layout_marginTop="5dp">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edt_Email"
-            style="@style/modifiedEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
-            android:background="@android:color/transparent"
             android:maxLines="1"
             android:hint="Email"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInput_Password"
-        style="@style/parent.TextLayout"
-        android:layout_marginTop="@dimen/_5dp"
-        android:layout_marginBottom="@dimen/_20dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:endIconMode="password_toggle"
+        app:startIconDrawable="@drawable/ic_password_24"
+        android:layout_marginTop="@dimen/_5dp">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edt_Password"
-            style="@style/modifiedEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:hint="@string/str_password"
             android:autofillHints="@string/str_password"
@@ -55,13 +62,32 @@
             android:inputType="textPassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ImageView
-        android:id="@+id/btn_login"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_login_button"
-        android:layout_marginBottom="@dimen/_20dp"
-        android:layout_gravity="end"/>
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quên mật khẩu?"
+            android:textColor="@color/color0070F2"
+            android:textStyle="bold"
+            android:padding="@dimen/_8dp"
+            android:layout_marginStart="@dimen/_16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/btn_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_login_button"
+            android:layout_marginTop="@dimen/_20dp"
+            android:layout_gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -70,7 +96,8 @@
         android:textStyle="bold"
         android:textColor="@color/black"
         android:textSize="@dimen/_16sp"
-        android:text="@string/str_not_have_account"/>
+        android:text="@string/str_not_have_account"
+        android:layout_marginTop="@dimen/_20dp"/>
 
     <TextView
         android:id="@+id/btn_register_now"
@@ -80,7 +107,8 @@
         android:textStyle="bold"
         android:textColor="@color/color0070F2"
         android:textSize="@dimen/_16sp"
-        android:text="@string/str_register_now"/>
+        android:text="@string/str_register_now"
+        android:padding="@dimen/_4dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -112,9 +140,4 @@
             android:drawablePadding="@dimen/_10dp"
             app:drawableStartCompat="@drawable/ic_google" />
     </LinearLayout>
-
-
-
-
-
 </LinearLayout>
