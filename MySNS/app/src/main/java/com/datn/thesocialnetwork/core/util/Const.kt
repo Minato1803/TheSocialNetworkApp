@@ -27,6 +27,7 @@ object FirebaseNode {
 
     const val uidUser = "uidUser"
     const val uidGoogle = "uidGoogle"
+    const val userName = "userName"
     const val firstName = "firstName"
     const val lastName = "lastName"
     const val birthday = "birthday"
@@ -34,4 +35,7 @@ object FirebaseNode {
     const val email = "email"
     const val password = "password"
     const val avatarUrl = "avatarUrl"
+    const val phoneNumber = "phoneNumber"
+    const val onlineStatus = "onlineStatus"
+    const val description = "description"
 }

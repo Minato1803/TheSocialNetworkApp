@@ -1,77 +1,76 @@
 package com.datn.thesocialnetwork.feature.login.view
 
-import android.app.Activity
 import android.content.Intent
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
-import com.datn.thesocialnetwork.R
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.datn.thesocialnetwork.core.api.LoadingScreen
 import com.datn.thesocialnetwork.core.api.Response
-import com.datn.thesocialnetwork.core.util.FirebaseNode
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
-import com.datn.thesocialnetwork.databinding.ActivityLoginBinding
+import com.datn.thesocialnetwork.databinding.FragmentLoginBinding
 import com.datn.thesocialnetwork.feature.login.viewmodel.LoginViewModel
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
-import com.datn.thesocialnetwork.feature.register.view.RegisterActivity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.datn.thesocialnetwork.feature.register.view.RegisterFragment
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LoginActivity : AppCompatActivity() {
+class LoginFragment : Fragment() {
 
-    private lateinit var bd: ActivityLoginBinding
+    private lateinit var bd: FragmentLoginBinding
 
     @Inject
     lateinit var mGoogleSignInClient: GoogleSignInClient
     private val mLoginViewModel: LoginViewModel by viewModels()
+    private val fragRegister = RegisterFragment()
 
     private var email: String = ""
     private var password: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bd = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(bd.root)
+    }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        // Inflate the layout for this fragment
+        bd = FragmentLoginBinding.inflate(layoutInflater, container, false)
         setInit()
         setObserveData()
         setEvent()
+        return bd.root
     }
 
     private fun setInit() {
     }
 
     private fun setObserveData() {
-        mLoginViewModel.liveDataLogin.observe(this, { response ->
+        mLoginViewModel.liveDataLogin.observe(viewLifecycleOwner, { response ->
             observeDataLogin(response)
         })
 
-        mLoginViewModel.liveLoginUser.observe(this, { response ->
+        mLoginViewModel.liveLoginUser.observe(viewLifecycleOwner, { response ->
             observeLoginUser(response)
         })
     }
 
     private fun observeLoginUser(response: Response<FirebaseUser>) {
         when (response) {
-            is Response.Loading -> LoadingScreen.show(this)
+            is Response.Loading -> LoadingScreen.show(requireContext())
 
             is Response.Error -> {
                 LoadingScreen.hide()
-                SystemUtils.showDialogError(this, response.message)
+                SystemUtils.showDialogError(requireContext(), response.message)
             }
 
             is Response.Success -> {
@@ -84,18 +83,16 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun sendToMainActivity() {
-        val mainIntent = Intent(this.applicationContext, MainActivity::class.java)
-        startActivity(mainIntent)
-        finish()
+        startActivity(Intent(context, MainActivity::class.java))
     }
 
     private fun observeDataLogin(response: Response<UserResponse>?) {
         when (response) {
-            is Response.Loading -> LoadingScreen.show(this)
+            is Response.Loading -> LoadingScreen.show(requireContext())
 
             is Response.Error -> {
                 LoadingScreen.hide()
-                SystemUtils.showDialogError(this, response.message)
+                SystemUtils.showDialogError(requireContext(), response.message)
             }
 
             is Response.Success -> {
@@ -112,8 +109,9 @@ class LoginActivity : AppCompatActivity() {
         bd.btnLogin.setOnClickListener { clickLogin() }
 
         bd.btnRegisterNow.setOnClickListener {
-            val mainIntent = Intent(this.applicationContext, RegisterActivity::class.java)
-            startActivity(mainIntent)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(id, fragRegister, "sendToRegister")
+                .commit()
         }
     }
 

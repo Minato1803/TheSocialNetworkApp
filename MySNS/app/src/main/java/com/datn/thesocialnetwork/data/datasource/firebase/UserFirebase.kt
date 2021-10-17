@@ -42,12 +42,12 @@ class UserFirebase @Inject constructor(
         val node = getDatabase()
             .child(uidUser)
         node.child(FirebaseNode.avatarUrl).setValue(userDetail.avatarUrl)
+        node.child(FirebaseNode.userName).setValue(userDetail.userName)
         node.child(FirebaseNode.firstName).setValue(userDetail.firstName)
         node.child(FirebaseNode.lastName).setValue(userDetail.lastName)
-        node.child(FirebaseNode.email).setValue(userDetail.email)
-        node.child(FirebaseNode.password).setValue(userDetail.password)
         node.child(FirebaseNode.birthday).setValue(userDetail.birthday)
         node.child(FirebaseNode.gender).setValue(userDetail.gender)
+        node.child(FirebaseNode.description).setValue(userDetail.description)
         return getUserById(uidUser)
     }
 

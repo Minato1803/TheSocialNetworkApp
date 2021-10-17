@@ -48,4 +48,5 @@
     <string name="settings">Cài đặt</string>
     <string name="help">Giúp đỡ</string>
     <string name="save">Lưu</string>
+    <string name="str_message_update_success">Cập nhật thành công</string>
 </resources>

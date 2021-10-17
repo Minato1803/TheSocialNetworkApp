@@ -9,12 +9,18 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
+import com.datn.thesocialnetwork.core.api.LoadingScreen
+import com.datn.thesocialnetwork.core.api.Response
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils
+import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.databinding.FragmentEditProfileBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
+import com.datn.thesocialnetwork.feature.profile.editprofile.viewmodel.EditProfileViewModel
+import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import com.gun0912.tedpermission.PermissionListener
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,6 +39,7 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
     lateinit var bd: FragmentEditProfileBinding
     lateinit var mMainActivity: MainActivity
 
+    private val mEditProfileViewModel: EditProfileViewModel by viewModels()
     private lateinit var mEditProfileHelper: EditProfileHelper
     private val user = GlobalValue.USER!!
 
@@ -78,6 +85,17 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
     private fun clickUpdate() {
         setDataInput()
         setValidData()
+        val imgAvatarByte: ByteArray? = imgAvatarBitmap?.let { SystemUtils.convertBitmapToJPG(it) }
+        val userDetail = UserDetail(
+            userName = userName,
+            firstName = firstName,
+            lastName = lastName,
+            description = descrip,
+            birthday = birthday,
+            gender = gender,
+            avatarUrl = user.userDetail.avatarUrl
+        )
+        mEditProfileViewModel.updateUserDetail(user.uidUser, userDetail, imgAvatarByte)
     }
 
     private fun setValidData() {
@@ -114,7 +132,28 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
     }
 
     private fun setObserveData() {
-        //not implement yet
+        mEditProfileViewModel.liveDataUpdateUserDetail.observe(this, { response ->
+            observeUpdateUserDetail(response)
+        })
+    }
+
+    private fun observeUpdateUserDetail(response: Response<UserDetail>?) {
+        when (response) {
+            is Response.Loading -> LoadingScreen.show(context)
+
+            is Response.Error -> {
+                LoadingScreen.hide()
+                SystemUtils.showDialogError(context, response.message)
+            }
+
+            is Response.Success -> {
+                LoadingScreen.hide()
+                response.data?.let { userDetail ->
+                    GlobalValue.USER?.userDetail = userDetail
+                    SystemUtils.showMessage(context, getString(R.string.str_message_update_success))
+                }
+            }
+        }
     }
 
     private fun setEvent() {
@@ -125,7 +164,10 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
     }
 
     private fun clickActionbar() {
-        requireActivity().onBackPressed()
+        val profileFrag = ProfileFragment()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(id, profileFrag,"sendToProfileFragment")
+            .commit()
     }
 
     private fun clickBirthDay() {

@@ -1,19 +1,17 @@
 package com.datn.thesocialnetwork.feature.main.view
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
-import androidx.core.app.ActivityCompat
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.datn.thesocialnetwork.R
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.databinding.ActivityMainBinding
 import com.datn.thesocialnetwork.feature.chat.view.ChatFragment
 import com.datn.thesocialnetwork.feature.friends.view.FriendsFragment
 import com.datn.thesocialnetwork.feature.home.view.HomeFragment
+import com.datn.thesocialnetwork.feature.login.view.LoginFragment
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private val fragFriends = FriendsFragment()
     private val fragChat = ChatFragment()
     private val fragProfile = ProfileFragment()
+        private val fragLogin = LoginFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +50,11 @@ class MainActivity : AppCompatActivity() {
             SystemUtils.showDialogNoInternetConnection(this)
         }
         setSupportActionBar(bd.toolbar)
-        setCurrentFragment(fragHome)
+        if(GlobalValue.USER == null) {
+            setCurrentFragment(fragLogin)
+        }
+        else
+            setCurrentFragment(fragHome)
     }
 
     private fun clickNavigateSubScreen(menuItem: MenuItem): Boolean {

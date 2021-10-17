@@ -1,36 +1,33 @@
 package com.datn.thesocialnetwork.feature.register.view
 
-import android.app.Activity
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
-import androidx.activity.viewModels
-import com.datn.thesocialnetwork.R
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.datn.thesocialnetwork.core.api.LoadingScreen
 import com.datn.thesocialnetwork.core.api.Response
 import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
-import com.datn.thesocialnetwork.databinding.ActivityLoginBinding
-import com.datn.thesocialnetwork.databinding.ActivityRegisterBinding
-import com.datn.thesocialnetwork.feature.login.view.LoginActivity
-import com.datn.thesocialnetwork.feature.login.viewmodel.LoginViewModel
-import com.datn.thesocialnetwork.feature.main.view.MainActivity
+import com.datn.thesocialnetwork.databinding.FragmentRegisterBinding
+import com.datn.thesocialnetwork.feature.login.view.LoginFragment
 import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment
-import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import com.datn.thesocialnetwork.feature.register.viewmodel.RegisterViewModel
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class RegisterActivity : AppCompatActivity() {
+class RegisterFragment : Fragment() {
 
-    private lateinit var bd: ActivityRegisterBinding
+    private lateinit var bd: FragmentRegisterBinding
 
     private val mRegisterViewModel: RegisterViewModel by viewModels()
+    private val fragLogin = LoginFragment()
 
     private var email: String = ""
     private var userName: String = ""
@@ -39,14 +36,16 @@ class RegisterActivity : AppCompatActivity() {
     private var password: String = ""
     private var confirmPassword: String = ""
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        bd = ActivityRegisterBinding.inflate(layoutInflater)
-        setContentView(bd.root)
-
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        // Inflate the layout for this fragment
+        bd = FragmentRegisterBinding.inflate(layoutInflater, container, false)
         setInit()
         setObserveData()
         setEvent()
+        return bd.root
     }
 
     private fun setInit() {
@@ -54,22 +53,22 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setObserveData() {
-        mRegisterViewModel.liveDataRegisterUser.observe(this, { response ->
+        mRegisterViewModel.liveDataRegisterUser.observe(viewLifecycleOwner, { response ->
             observeRegisterUser(response)
         })
 
-        mRegisterViewModel.liveDataInsertUser.observe(this, { response ->
+        mRegisterViewModel.liveDataInsertUser.observe(viewLifecycleOwner, { response ->
             observeInsertUser(response)
         })
     }
 
     private fun observeInsertUser(response: Response<UserResponse>?) {
         when (response) {
-            is Response.Loading -> LoadingScreen.show(this)
+            is Response.Loading -> LoadingScreen.show(requireContext())
 
             is Response.Error -> {
                 LoadingScreen.hide()
-                SystemUtils.showDialogError(this, response.message)
+                SystemUtils.showDialogError(requireContext(), response.message)
             }
 
             is Response.Success -> {
@@ -87,8 +86,9 @@ class RegisterActivity : AppCompatActivity() {
         bd.buttonRegister.setOnClickListener { clickRegister() }
 
         bd.buttonLoginNow.setOnClickListener {
-            val mainIntent = Intent(this.applicationContext, RegisterActivity::class.java)
-            startActivity(mainIntent)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(id, fragLogin, "sendToDetailAddress")
+                .commit()
         }
     }
 
@@ -101,11 +101,11 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun observeRegisterUser(response: Response<FirebaseUser>?) {
         when (response) {
-            is Response.Loading -> LoadingScreen.show(this)
+            is Response.Loading -> LoadingScreen.show(requireContext())
 
             is Response.Error -> {
                 LoadingScreen.hide()
-                SystemUtils.showDialogError(this, response.message)
+                SystemUtils.showDialogError(requireContext(), response.message)
             }
 
             is Response.Success -> {
@@ -166,14 +166,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun sendToProfile() {
-//        val fragEditProfile = EditProfileFragment()
-//        val fragProfile = ProfileFragment()
-
-//        supportFragmentManager.beginTransaction()
-//            .replace(R.id.fragContainer, fragEditProfile)
-//            .commit()
         EditProfileFragment.newInstance()
-            .show(supportFragmentManager, "EditProfileFragmentFragment")
-        finish()
+            .show(parentFragmentManager, "EditProfileFragment")
     }
 }
