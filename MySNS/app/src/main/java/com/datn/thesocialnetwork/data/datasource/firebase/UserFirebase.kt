@@ -6,6 +6,8 @@ import com.datn.thesocialnetwork.core.util.FirebaseNode
 import com.datn.thesocialnetwork.core.util.FirebaseNode.uidUser
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
+import com.datn.thesocialnetwork.data.repository.FollowRespository
+import com.datn.thesocialnetwork.data.repository.UserRepository
 import com.datn.thesocialnetwork.data.repository.model.FirebaseAuthAccount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -20,12 +22,22 @@ class UserFirebase @Inject constructor(
     private val mStorage: FirebaseStorage,
     private val mDatabase: FirebaseDatabase,
     private val mAuth: FirebaseAuth,
+    private val repository: FollowRespository
 ) {
 
     fun getDatabase() = mDatabase.getReference(FirebaseNode.user)
 
     fun getAuth() = mAuth
     private fun getStorage() = mStorage.reference
+
+    init
+    {
+        mAuth.addAuthStateListener {
+            it.currentUser?.let { user ->
+                repository.loadLoggedUserFollowing(user.uid)
+            }
+        }
+    }
 
     suspend fun insertUser(userRes: UserResponse): DataSnapshot {
         Log.d("insert", userRes.userDetail.email)

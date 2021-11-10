@@ -102,8 +102,16 @@ dependencies {
 
     // Ted Permission
     implementation 'io.github.ParkSangGwon:tedpermission:2.3.0'
+
     // bitmap
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
+
+    // SocialView https://github.com/hendraanggrian/socialview
+    implementation "com.hendraanggrian.appcompat:socialview:0.3-rc1"
+
+    // coil https://github.com/coil-kt/coil
+    implementation "io.coil-kt:coil:1.1.1"
+    implementation "io.coil-kt:coil-svg:1.1.1"
 
 
 }

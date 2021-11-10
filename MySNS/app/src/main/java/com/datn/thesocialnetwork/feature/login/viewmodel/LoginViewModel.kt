@@ -32,6 +32,7 @@ class LoginViewModel @Inject constructor(
 
     val liveLoginUser = MutableLiveData<Response<FirebaseUser>>()
     val liveDataLogin = MutableLiveData<Response<UserResponse>>()
+    val liveDataCheckLogin = MutableLiveData<UserResponse?>()
 
     private val mAuth = FirebaseAuth.getInstance()
 
@@ -81,7 +82,28 @@ class LoginViewModel @Inject constructor(
     ) {
         val userResponse =
             UserResponse(userNode.key.toString(), userNode.getValue(UserDetail::class.java)!!)
+
         liveData.postValue(Response.Success(userResponse))
+    }
+
+    private fun getUserById(userId: String) =
+        viewModelScope.launch(Dispatchers.IO) {
+            var userResponse: UserResponse? = null
+            val userNode = mUserRepository.getUserById(userId)
+            userResponse =
+                UserResponse(userId, userNode.getValue(UserDetail::class.java)!!)
+            liveDataCheckLogin.postValue(userResponse)
+        }
+
+    fun setRememberUserId(userId: String?) {
+        mUserRepository.setRememberUserId(userId)
+    }
+
+    fun checkLogin() {
+        val userId = mUserRepository.getUserIdLogin()
+        if (mUserRepository.getCurrentUserFirebase() != null && userId.isNotBlank()) {
+            getUserById(userId)
+        } else liveDataCheckLogin.postValue(null)
     }
 
 }

@@ -10,7 +10,7 @@
     </item>
     <item>
         <shape>
-            <solid android:color="@color/colorBackgroundLayout" />
+            <solid android:color="@color/colorBackgroundWindow" />
         </shape>
     </item>
 </layer-list>

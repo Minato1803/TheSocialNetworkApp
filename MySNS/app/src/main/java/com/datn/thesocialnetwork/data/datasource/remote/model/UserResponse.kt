@@ -2,13 +2,15 @@ package com.datn.thesocialnetwork.data.datasource.remote.model
 
 import com.datn.thesocialnetwork.core.util.Const
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class UserResponse (
     @SerializedName("uidUser") var uidUser: String = "",
     @SerializedName("userDetail") var userDetail: UserDetail,
-)
+) : Serializable
 
 data class UserDetail(
+    @SerializedName("uidUser") var uidUser: String = "",
     @SerializedName("uidPhone") var uidGoogle: String = "",
     @SerializedName("userName") var userName: String = "",
     @SerializedName("firstName") var firstName: String = "",
@@ -20,7 +22,7 @@ data class UserDetail(
     @SerializedName("password") var password: String = "",
     @SerializedName("avatarUrl") var avatarUrl: String = Const.avatarDefaultUrl,
     @SerializedName("onlineStatus") var onlineStatus: Int = 0,
-)
+) : Serializable
 
 enum class Gender(val nameType: String) {
     UNDEFINED("Không xác định"),

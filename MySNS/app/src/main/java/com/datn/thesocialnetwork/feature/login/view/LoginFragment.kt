@@ -26,17 +26,16 @@ import javax.inject.Inject
 class LoginFragment : Fragment() {
 
     private lateinit var bd: FragmentLoginBinding
+    lateinit var mMainActivity: MainActivity
 
-    @Inject
-    lateinit var mGoogleSignInClient: GoogleSignInClient
     private val mLoginViewModel: LoginViewModel by viewModels()
-    private val fragRegister = RegisterFragment()
 
     private var email: String = ""
     private var password: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mMainActivity = activity as MainActivity
     }
 
     override fun onCreateView(
@@ -52,6 +51,9 @@ class LoginFragment : Fragment() {
     }
 
     private fun setInit() {
+        mMainActivity.bd.bottomAppBar.visibility = View.GONE
+        mMainActivity.bd.fabAdd.visibility = View.GONE
+        mMainActivity.bd.toolbar.visibility = View.GONE
     }
 
     private fun setObserveData() {
@@ -99,6 +101,7 @@ class LoginFragment : Fragment() {
                 LoadingScreen.hide()
                 response.data.let {
                     GlobalValue.USER = it
+                    mLoginViewModel.setRememberUserId(GlobalValue.USER?.uidUser)
                     sendToMainActivity()
                 }
             }
@@ -109,6 +112,7 @@ class LoginFragment : Fragment() {
         bd.btnLogin.setOnClickListener { clickLogin() }
 
         bd.btnRegisterNow.setOnClickListener {
+            val fragRegister = RegisterFragment()
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(id, fragRegister, "sendToRegister")
                 .commit()

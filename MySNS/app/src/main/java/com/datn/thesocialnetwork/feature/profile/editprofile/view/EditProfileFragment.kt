@@ -7,8 +7,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
+class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
 
     companion object {
         fun newInstance() = EditProfileFragment()
@@ -44,6 +44,7 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
     private val user = GlobalValue.USER!!
 
     var imgAvatarBitmap: Bitmap? = null
+    lateinit var actionBarDrawerToggle : ActionBarDrawerToggle
     private var gender = ""
     private var birthday = ""
     private var firstName = ""
@@ -53,7 +54,6 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, R.style.FullScreenDialogTheme)
         mMainActivity = activity as MainActivity
         setHasOptionsMenu(true)
     }
@@ -112,9 +112,10 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
     }
 
     private fun setInit() {
-        (activity as AppCompatActivity?)!!.setSupportActionBar(mMainActivity.bd.toolbar)
         mMainActivity.bd.toolbar.title = "Sửa thông tin cá nhân"
         mMainActivity.bd.toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_arrow_back_24)
+        mMainActivity.bd.bottomAppBar.visibility = View.GONE
+        mMainActivity.bd.fabAdd.visibility = View.GONE
         mEditProfileHelper = EditProfileHelper(this)
         setDataOutput()
     }
@@ -132,7 +133,7 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
     }
 
     private fun setObserveData() {
-        mEditProfileViewModel.liveDataUpdateUserDetail.observe(this, { response ->
+        mEditProfileViewModel.liveDataUpdateUserDetail.observe(viewLifecycleOwner, { response ->
             observeUpdateUserDetail(response)
         })
     }
@@ -161,6 +162,9 @@ class EditProfileFragment : DialogFragment(R.layout.fragment_edit_profile) {
         bd.tvGender.setOnClickListener { clickGender() }
         bd.tvBirthday.setOnClickListener { clickBirthDay() }
         mMainActivity.bd.toolbar.setOnClickListener { clickActionbar() }
+        mMainActivity.bd.toolbar.setNavigationOnClickListener {
+            mMainActivity.onBackPressed()
+        }
     }
 
     private fun clickActionbar() {

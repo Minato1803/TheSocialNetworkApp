@@ -1,12 +1,17 @@
 package com.datn.thesocialnetwork.di
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatActivity
+import coil.ImageLoader
+import coil.decode.SvgDecoder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.util.Const
+import com.datn.thesocialnetwork.core.util.KEY
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -22,6 +27,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -77,4 +83,22 @@ object AppModule {
             .error(R.drawable.ic_image_fail)
             .diskCacheStrategy(DiskCacheStrategy.DATA)
     )
+
+    @Provides
+    @Singleton
+    fun provideImageLoader(
+        @ApplicationContext context: Context
+    ): ImageLoader = ImageLoader.Builder(context)
+        .componentRegistry {
+            add(SvgDecoder(context))
+        }
+        .placeholder(R.drawable.ic_image_temp)
+        .error(R.drawable.ic_image_fail)
+        .build()
+
+    @Singleton
+    @Provides
+    @Named(KEY.LOGIN)
+    fun provideLoginSharedPrefs(@ApplicationContext context: Context): SharedPreferences =
+        context.getSharedPreferences(KEY.LOGIN, AppCompatActivity.MODE_PRIVATE)
 }

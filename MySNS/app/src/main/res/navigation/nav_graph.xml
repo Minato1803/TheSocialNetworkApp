@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/fragment_home">
+
+    <fragment
+        android:id="@+id/fragment_home"
+        android:name="com.datn.thesocialnetwork.feature.home.view.HomeFragment"
+        android:label="@string/app_name">
+        <action
+            android:id="@+id/action_homeFragment_to_userFragment"
+            app:destination="@id/userFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.datn.thesocialnetwork.feature.search.view.SearchFragment"
+        android:label="@string/find_user">
+        <action
+            android:id="@+id/action_searchFragment_to_userFragment"
+            app:destination="@id/userFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/userFragment"
+        android:name="com.datn.thesocialnetwork.feature.search.view.UserFragment">
+        <argument
+            android:name="user"
+            app:argType="com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse" />
+        <argument
+            android:name="loadUserFromDb"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_userFragment_self"
+            app:destination="@id/userFragment" />
+        <action
+            android:id="@+id/action_userFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.datn.thesocialnetwork.feature.profile.view.ProfileFragment"
+        android:label="ProfileFragment">
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_userFragment"
+            app:destination="@id/userFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/messagesFragment"
+        android:name="com.datn.thesocialnetwork.feature.chat.view.MessageFragment"
+        android:label="@string/chattyer" >
+        <action
+            android:id="@+id/action_messagesFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment"
+        android:label="@string/edit_profile" >
+        <action
+            android:id="@+id/action_editProfileFragment_to_changePasswdFragment"
+            app:destination="@id/changePasswdFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/changePasswdFragment"
+        android:name="com.datn.thesocialnetwork.feature.profile.editprofile.view.ChangePasswdFragment"
+        android:label="@string/change_password" />
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.datn.thesocialnetwork.feature.chat.view.ChatFragment"
+        android:label="ChatFragment" >
+        <argument
+            android:name="user"
+            app:argType="com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse" />
+    </fragment>
+</navigation>

@@ -6,8 +6,10 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.LoadingScreen
 import com.datn.thesocialnetwork.core.api.Response
 import com.datn.thesocialnetwork.core.util.Const
@@ -16,6 +18,7 @@ import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.databinding.FragmentRegisterBinding
 import com.datn.thesocialnetwork.feature.login.view.LoginFragment
+import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment
 import com.datn.thesocialnetwork.feature.register.viewmodel.RegisterViewModel
 import com.google.firebase.auth.FirebaseUser
@@ -25,9 +28,10 @@ import dagger.hilt.android.AndroidEntryPoint
 class RegisterFragment : Fragment() {
 
     private lateinit var bd: FragmentRegisterBinding
+    lateinit var mMainActivity: MainActivity
 
     private val mRegisterViewModel: RegisterViewModel by viewModels()
-    private val fragLogin = LoginFragment()
+
 
     private var email: String = ""
     private var userName: String = ""
@@ -35,6 +39,11 @@ class RegisterFragment : Fragment() {
     private var lastName: String = ""
     private var password: String = ""
     private var confirmPassword: String = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mMainActivity = activity as MainActivity
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,7 +58,9 @@ class RegisterFragment : Fragment() {
     }
 
     private fun setInit() {
-        //not implement yet
+        mMainActivity.bd.bottomAppBar.visibility = View.GONE
+        mMainActivity.bd.fabAdd.visibility = View.GONE
+        mMainActivity.bd.toolbar.visibility = View.GONE
     }
 
     private fun setObserveData() {
@@ -86,6 +97,7 @@ class RegisterFragment : Fragment() {
         bd.buttonRegister.setOnClickListener { clickRegister() }
 
         bd.buttonLoginNow.setOnClickListener {
+            val fragLogin = LoginFragment()
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(id, fragLogin, "sendToDetailAddress")
                 .commit()
@@ -166,7 +178,9 @@ class RegisterFragment : Fragment() {
     }
 
     private fun sendToProfile() {
-        EditProfileFragment.newInstance()
-            .show(parentFragmentManager, "EditProfileFragment")
+
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(id, EditProfileFragment.newInstance(), "tag")
+            .commit()
     }
 }

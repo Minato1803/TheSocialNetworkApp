@@ -1,6 +1,7 @@
 package com.datn.thesocialnetwork.core.util
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.ConnectivityManager
@@ -13,15 +14,20 @@ import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import com.datn.thesocialnetwork.R
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import java.io.ByteArrayOutputStream
+import java.util.*
 
 object SystemUtils {
 
@@ -121,4 +127,27 @@ object SystemUtils {
         vectorDrawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
+
+    fun signOut(mGoogleSignInClient: GoogleSignInClient, context: Context) {
+        mGoogleSignInClient.signOut()
+        Firebase.auth.signOut()
+        GlobalValue.USER = null
+        val prefs = context.getSharedPreferences(KEY.USER, AppCompatActivity.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.remove(KEY.USER)
+        editor.apply()
+    }
+
+    fun String.normalize(): String = this.lowercase(Locale.ENGLISH).trim()
+
+    fun String.formatQuery(): String = this.lowercase(Locale.getDefault()).trim()
+
+    val Int.dp: Int
+        get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+    val Int.px: Int
+        get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
+    private val onlyEmojiRegex = "[^\\p{L}\\p{N}\\p{P}\\p{Z}]".toRegex()
+    val String.isOnlyEmoji
+        get() = replace(onlyEmojiRegex, "") == ""
 }
