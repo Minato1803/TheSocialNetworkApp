@@ -11,6 +11,8 @@ import androidx.fragment.app.viewModels
 import com.datn.thesocialnetwork.core.api.LoadingScreen
 import com.datn.thesocialnetwork.core.api.Response
 import com.datn.thesocialnetwork.core.util.GlobalValue
+import com.datn.thesocialnetwork.core.util.ModelMapping
+import com.datn.thesocialnetwork.core.util.ModelMapping.mapToUserModel
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.databinding.FragmentLoginBinding
@@ -101,6 +103,7 @@ class LoginFragment : Fragment() {
                 LoadingScreen.hide()
                 response.data.let {
                     GlobalValue.USER = it
+                    GlobalValue.USER_DETAIL = ModelMapping.mapToUserModel(GlobalValue.USER!!)
                     mLoginViewModel.setRememberUserId(GlobalValue.USER?.uidUser)
                     sendToMainActivity()
                 }

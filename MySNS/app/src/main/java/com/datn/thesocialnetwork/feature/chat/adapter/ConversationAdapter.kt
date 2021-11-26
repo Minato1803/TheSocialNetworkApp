@@ -9,6 +9,7 @@ import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.ChatRespository
 import com.datn.thesocialnetwork.data.repository.UserRepository
 import com.datn.thesocialnetwork.data.repository.model.ConversationItem
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.feature.chat.viewholder.ConversationViewHolder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
@@ -18,7 +19,7 @@ class ConversationAdapter @Inject constructor(
     private val repository: ChatRespository
 ) : ListAdapter<ConversationItem, ConversationViewHolder>(ConversationDiffCallback)
 {
-    var actionMessageClick: (UserDetail) -> Unit = {}
+    var actionMessageClick: (UserModel) -> Unit = {}
 
     private fun cancelListeners(
         userListenerId: Int,

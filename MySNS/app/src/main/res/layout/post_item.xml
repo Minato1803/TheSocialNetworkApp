@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/_8dp"
+    android:layout_marginBottom="@dimen/_8dp"
+    android:elevation="@dimen/_8dp"
+    app:cardCornerRadius="@dimen/_8dp"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imgAvatar"
+            android:layout_width="@dimen/_48dp"
+            android:layout_height="@dimen/_48dp"
+            android:layout_marginStart="@dimen/_8dp"
+            android:layout_marginTop="@dimen/_8dp"
+            android:contentDescription="@string/user_avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/avatars"
+            style="@style/ShapeableImageViewAvatar"
+            />
+
+        <TextView
+            android:id="@+id/txtOwner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_8dp"
+            android:layout_marginTop="@dimen/_8dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            app:layout_constraintStart_toEndOf="@+id/imgAvatar"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Jack Megan"
+            />
+
+        <TextView
+            android:id="@+id/txtTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_8dp"
+            android:layout_marginTop="@dimen/_4dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toEndOf="@+id/imgAvatar"
+            app:layout_constraintTop_toBottomOf="@+id/txtOwner"
+            tools:text="34 minutes ago"
+            />
+
+        <Button
+            android:id="@+id/butMore"
+            style="@style/IconButton"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_8dp"
+            app:icon="@drawable/ic_more_vert_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <!-- ellipsize doesn't work in SocialTextView -->
+        <com.hendraanggrian.appcompat.widget.SocialTextView
+            android:id="@+id/txtDesc"
+            style="@style/SocialTextViewStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_8dp"
+            android:layout_marginTop="@dimen/_8dp"
+            android:layout_marginEnd="@dimen/_8dp"
+            android:ellipsize="end"
+            android:maxLines="@integer/max_lines_post_desc"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imgAvatar"
+            tools:text="@string/lorem"
+            />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/item_feed_photos"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_marginTop="@dimen/_8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtDesc"/>
+
+        <RelativeLayout
+            android:id="@+id/linLayCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_feed_photos"
+            >
+
+            <ImageView
+                android:id="@+id/item_feed_heart"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="15dp"
+                android:contentDescription="@string/like"
+                android:src="@drawable/ic_heart"/>
+
+            <ImageView
+                android:id="@+id/item_feed_comment"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="15dp"
+                android:layout_toEndOf="@id/item_feed_heart"
+                android:contentDescription="@string/comment"
+                android:src="@drawable/ic_bubble" />
+
+            <ImageView
+                android:id="@+id/item_feed_dm"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_toEndOf="@id/item_feed_comment"
+                android:contentDescription="@string/share"
+                android:src="@drawable/ic_share" />
+
+            <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                android:id="@+id/item_feed_photo_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                app:dotsColor="#AFAFAF"
+                app:dotsCornerRadius="2.5dp"
+                app:dotsSize="5dp"
+                app:dotsSpacing="2dp"
+                app:dotsWidthFactor="1"
+                app:selectedDotColor="#0095FF" />
+
+            <ImageView
+                android:id="@+id/item_feed_storage"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentEnd="true"
+                android:contentDescription="@string/storage"
+                android:src="@drawable/ic_bookmark" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/item_feed_like_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="@dimen/_8dp"
+            android:text="@string/ex_like_count"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/linLayCounter"/>
+
+        <TextView
+            android:id="@+id/item_feed_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:paddingHorizontal="10dp"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_feed_like_count"/>
+
+        <TextView
+            android:id="@+id/item_feed_comment_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="5dp"
+            android:text="@string/ex_comment_count"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_feed_content"/>
+
+        <LinearLayout
+            android:id="@+id/item_feed_first_comment_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_feed_comment_count">
+
+            <TextView
+                android:id="@+id/item_feed_first_comment_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:text="@string/username"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/item_feed_first_comment_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="comment"
+                android:textColor="@color/black" />
+
+            <ImageView
+                android:id="@+id/item_feed_first_comment_heart"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_heart" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/item_feed_upload_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:text="@string/ex_upload_date"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_feed_first_comment_layout"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

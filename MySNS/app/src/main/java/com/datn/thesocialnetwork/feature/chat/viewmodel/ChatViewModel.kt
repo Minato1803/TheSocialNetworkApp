@@ -9,10 +9,9 @@ import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.mapNeighbours
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.ChatRespository
+import com.datn.thesocialnetwork.data.repository.FirebaseRepository
 import com.datn.thesocialnetwork.data.repository.UserRepository
-import com.datn.thesocialnetwork.data.repository.model.ChatMessage
-import com.datn.thesocialnetwork.data.repository.model.MessageModel
-import com.datn.thesocialnetwork.data.repository.model.getTypeFromSenders
+import com.datn.thesocialnetwork.data.repository.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -23,94 +22,60 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@ExperimentalCoroutinesApi
 class ChatViewModel @Inject constructor(
     private val repository: ChatRespository
-) : ViewModel() {
-    val messageText: MutableLiveData<String> = MutableLiveData()
+) : ViewModel()
+{
 
-    private val _allMassages: MutableStateFlow<GetStatus<List<MessageModel>>> = MutableStateFlow(
+    private val _conversations: MutableStateFlow<GetStatus<List<ConversationItem>>> = MutableStateFlow(
         GetStatus.Sleep
     )
-    val allMassages = _allMassages.asStateFlow()
-
-    private val _sendingMessageStatus: MutableStateFlow<FirebaseStatus> = MutableStateFlow(
-        FirebaseStatus.Sleep
-    )
-    val sendingMessageStatus = _sendingMessageStatus.asStateFlow()
-
-    private lateinit var selectedUser: UserResponse
-    private lateinit var loggedUserId: String
-
+    val conversation = _conversations.asStateFlow()
 
     @ExperimentalCoroutinesApi
-    fun initViewModel(user: UserResponse)
+    private fun getConversations()
     {
-        this.selectedUser = user
-        this.loggedUserId = GlobalValue.USER!!.uidUser
-
         viewModelScope.launch {
-            repository.getMessages(user.uidUser).collectLatest { getStatus ->
-                _allMassages.value = when (getStatus)
+            repository.getAllConversations().collectLatest { status ->
+                when (status)
                 {
                     GetStatus.Sleep ->
                     {
-                        GetStatus.Sleep
+                        _conversations.value = GetStatus.Sleep
                     }
                     GetStatus.Loading ->
                     {
-                        GetStatus.Loading
-                    }
-                    is GetStatus.Success ->
-                    {
-                        val m: List<MessageModel> = getStatus.data.mapNeighbours { previous, current, next ->
-
-                            val type = getTypeFromSenders(
-                                previous?.sender,
-                                current.sender,
-                                next?.sender
-                            )
-
-                            if (current.sender == loggedUserId)
-                            {
-                                MessageModel.OwnMessage(current, type)
-                            }
-                            else
-                            {
-                                MessageModel.OtherMessage(current, type, selectedUser)
-                            }
-                        }
-
-                        GetStatus.Success(m)
+                        _conversations.value = GetStatus.Loading
                     }
                     is GetStatus.Failed ->
                     {
-                        getStatus
+                        _conversations.value = GetStatus.Failed(status.message)
+                    }
+                    is GetStatus.Success ->
+                    {
+                        _conversations.value = GetStatus.Success(status.data.sortedByDescending { it.lastMessage.time })
                     }
                 }
-
             }
         }
     }
 
     @ExperimentalCoroutinesApi
-    fun sendMessage()
+    fun updateConversations()
     {
-        messageText.value?.let {
-            if (it.isNotBlank())
-            {
-                val msg = ChatMessage(
-                    textContent = it,
-                    time = System.currentTimeMillis(),
-                    imageUrl = null,
-                    sender = GlobalValue.USER!!.uidUser
-                )
-
-                viewModelScope.launch {
-                    repository.sendMessage(selectedUser.uidUser, msg).collectLatest { status ->
-                        _sendingMessageStatus.value = status
-                    }
+        viewModelScope.launch {
+            repository.getAllConversations().collectLatest { status ->
+                if (status is GetStatus.Success)
+                {
+                    _conversations.value = GetStatus.Success(status.data.sortedByDescending { it.lastMessage.time })
                 }
             }
         }
+    }
+
+    init
+    {
+        getConversations()
     }
 }

@@ -1,17 +1,17 @@
 package com.datn.thesocialnetwork.data.repository
 
+import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.Message
 import com.datn.thesocialnetwork.core.api.status.GetStatus
+import com.datn.thesocialnetwork.core.util.FirebaseNode
+import com.datn.thesocialnetwork.core.util.ModelMapping
+import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.data.datasource.firebase.FirebaseListener
 import com.datn.thesocialnetwork.data.datasource.firebase.UserFirebase
 import com.datn.thesocialnetwork.data.datasource.local.sharedprefs.LoginSharedPrefs
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
-import com.datn.thesocialnetwork.R
-import com.datn.thesocialnetwork.core.util.FirebaseNode
-import com.datn.thesocialnetwork.data.repository.model.FirebaseAuthAccount
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.AuthResult
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.HashMap
+import java.util.*
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
@@ -30,14 +30,9 @@ class UserRepository @Inject constructor(
     private val mLoginSharedPrefs: LoginSharedPrefs,
     private val mFirebaseDb: FirebaseDatabase,
 ) {
-    companion object {
-        @Volatile
-        var userListenerId: Int = 0
-            @Synchronized get() = field++
-            @Synchronized private set
-    }
+
     fun getUserFirebaseAuth() = mUserFirebase.getAuth()
-    private val userListeners: HashMap<Int, FirebaseListener<GetStatus<UserDetail>>> = hashMapOf()
+    private val userListeners: HashMap<Int, FirebaseListener<GetStatus<UserModel>>> = hashMapOf()
 
     fun removeUserListener(ownerHash: Int)
     {
@@ -49,7 +44,7 @@ class UserRepository @Inject constructor(
     fun getUser(
         ownerHash: Int,
         userId: String,
-    ): Flow<GetStatus<UserDetail>>
+    ): Flow<GetStatus<UserModel>>
     {
         return channelFlow {
 
@@ -63,7 +58,8 @@ class UserRepository @Inject constructor(
                 {
                     snapshot.getValue(UserDetail::class.java)?.let { user ->
                         launch {
-                            val v = GetStatus.Success(user)
+                            val userResponse = UserResponse(userId,user)
+                            val v = GetStatus.Success(ModelMapping.mapToUserModel(userResponse))
                             send(v)
                         }
                     }
@@ -103,6 +99,16 @@ class UserRepository @Inject constructor(
 
     suspend fun getUserById(uidUser: String): DataSnapshot =
         mUserFirebase.getUserById(uidUser)
+
+    fun getUserByID(uidUser: String) =
+        mFirebaseDb.getReference(FirebaseNode.user)
+            .orderByChild(FirebaseNode.uidUser)
+            .equalTo(uidUser)
+
+    fun getUserByName(username: String) =
+        mFirebaseDb.getReference(FirebaseNode.user)
+            .orderByChild(FirebaseNode.userName)
+            .equalTo(username.normalize())
 
     fun getCurrentUserFirebase() = mUserFirebase.getAuth().currentUser
 

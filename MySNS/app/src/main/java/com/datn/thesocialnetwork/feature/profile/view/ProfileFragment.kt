@@ -4,22 +4,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.fragment.app.Fragment
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
-import com.datn.thesocialnetwork.core.api.LoadingScreen
-import com.datn.thesocialnetwork.core.api.Response
+import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.api.status.SearchFollowStatus
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils
-import com.datn.thesocialnetwork.core.util.exhaustive
+import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentProfileBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment
-import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileHelper
 import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -57,8 +56,10 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         setEvent()
         setInit()
         setObserveData()
+//        initRecyclers(true)
         return binding!!.root
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_profile, menu)
@@ -90,6 +91,52 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         }
     }
 
+    override fun profileClick(postOwner: String) {
+        if (viewModel.isOwnAccountId(postOwner)) // user  clicked on own profile
+        {
+            binding!!.userLayout.showSnackbarGravity(
+                message = getString(R.string.you_are_currently_on_your_profile)
+            )
+        }
+        else
+        {
+            val userFragment = UserFragment.newInstance(UserModel(uidUser = postOwner), true)
+            navigateFragment(userFragment, "userFragment")
+        }
+    }
+
+    override fun likeClick(postId: String, status: Boolean) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun commentClick(postId: String) {
+        //Todo: navigate to comment
+    }
+
+    override fun shareClick(postId: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun likeCounterClick(postId: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun tagClick(tag: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun linkClick(link: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun mentionClick(mention: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun menuReportClick(postId: String) {
+        //TODO("Not yet implemented")
+    }
+
     private fun setObserveData() {
         mProfileViewModel.updateFollowList()
         /**
@@ -115,7 +162,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
                     {
                         binding!!.txtCounterFollowers.text = status.result.size.toString()
                     }
-                }.exhaustive
+                }
             }
         }
 
@@ -134,14 +181,46 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
                     {
                         binding!!.txtCounterFollowing.text = status.result.size.toString()
                     }
-                }.exhaustive
+                }
             }
         }
 
+        /**
+         * Collect number of posts
+         */
+        lifecycleScope.launchWhenStarted {
+            mProfileViewModel.uploadedPosts.collectLatest {
+                if (it is GetStatus.Success) {
+                    binding!!.txtCounterPosts.text = it.data.size.toString()
+                }
+            }
+        }
 
+        /**
+         * Collect selected category
+         */
+        lifecycleScope.launchWhenStarted {
+            mProfileViewModel.category.collectLatest { selected ->
+                binding!!.tabsPostType.getTabAt(
+                    categories.filterValues {
+                        it == selected
+                    }.keys.elementAt(0)
+                )?.select()
+
+            }
+        }
     }
 
     private fun setInit() {
+        if (!mProfileViewModel.isInitialized.value)
+        {
+            mProfileViewModel.initWithLoggedUser()
+        }
+        else
+        {
+            mProfileViewModel.refreshUser()
+        }
+        mProfileViewModel.initUser(GlobalValue.USER_DETAIL!!)
         // setting main view
         mMainActivity.bd.toolbar.title = "thông tin cá nhân"
         mMainActivity.bd.appBarLayout.isVisible = true
@@ -167,8 +246,6 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
             .fitCenter()
             .centerCrop()
             .into(binding!!.imgAvatar)
-//        mProfileViewModel.getListFollower(GlobalValue.USER!!.uidUser)
-//        mProfileViewModel.getListFollowing(GlobalValue.USER!!.uidUser)
 
     }
 
@@ -181,7 +258,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         openDialogWithListOfUsers(
             statusFlow = mProfileViewModel.getFollowing(),
             title = R.string.following,
-            emptyText = R.string.user_have_no_followers,
+            emptyText = R.string.user_have_no_following,
             errorText = R.string.something_went_wrong
         )
     }
@@ -190,7 +267,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         openDialogWithListOfUsers(
             statusFlow = mProfileViewModel.getFollowers(),
             title = R.string.followers,
-            emptyText = R.string.user_have_no_following,
+            emptyText = R.string.user_have_no_followers,
             errorText = R.string.something_went_wrong
         )
     }
@@ -205,5 +282,11 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     private fun sendToMainActivity() {
         startActivity(Intent(context, MainActivity::class.java))
     }
+
+    private val categories = hashMapOf(
+        0 to ProfileViewModel.DisplayPostCategory.UPLOADED,
+        1 to ProfileViewModel.DisplayPostCategory.MENTIONS,
+        2 to ProfileViewModel.DisplayPostCategory.LIKED
+    )
 
 }

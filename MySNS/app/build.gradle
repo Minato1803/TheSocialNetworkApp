@@ -1,9 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-android-extensions'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
-    id 'kotlin-parcelize'
     id 'com.google.gms.google-services'
 }
 
@@ -52,6 +52,10 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation "androidx.recyclerview:recyclerview:1.2.0"
+
+    //view pager
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -113,5 +117,22 @@ dependencies {
     implementation "io.coil-kt:coil:1.1.1"
     implementation "io.coil-kt:coil-svg:1.1.1"
 
+    //zoom, drag, ... image
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+
+    //round corners imageview
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+
+    //play video
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
+
+    // auto size edit text
+    implementation 'com.github.ViksaaSkool:AutoFitEditText:53238e2d29'
+
+    // SocialView https://github.com/hendraanggrian/socialview
+    implementation "com.hendraanggrian.appcompat:socialview:0.3-rc1"
+
+    // circle indicator
+    implementation 'com.tbuonomo.andrui:viewpagerdotsindicator:4.1.2'
 
 }

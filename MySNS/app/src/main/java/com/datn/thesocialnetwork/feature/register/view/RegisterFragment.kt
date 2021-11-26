@@ -14,6 +14,7 @@ import com.datn.thesocialnetwork.core.api.LoadingScreen
 import com.datn.thesocialnetwork.core.api.Response
 import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.core.util.GlobalValue
+import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.databinding.FragmentRegisterBinding
@@ -86,6 +87,7 @@ class RegisterFragment : Fragment() {
                 LoadingScreen.hide()
                 response.data?.let {
                     GlobalValue.USER = it
+                    GlobalValue.USER_DETAIL = ModelMapping.mapToUserModel(GlobalValue.USER!!)
                     Log.d("TAG",it.uidUser + " " + it.userDetail.email)
                     sendToProfile()
                 }

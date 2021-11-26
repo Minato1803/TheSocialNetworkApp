@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
+@ExperimentalCoroutinesApi
 class SearchViewModel @Inject constructor(
     private val mApp: Application,
     private val respository: SearchRespository
@@ -39,7 +40,6 @@ class SearchViewModel @Inject constructor(
 
     private var currentSearchResult: Flow<SearchStatus>? = null
 
-    @ExperimentalCoroutinesApi
     fun search(query: String): Flow<SearchStatus>
     {
         val searchType = _currentSearchType.value

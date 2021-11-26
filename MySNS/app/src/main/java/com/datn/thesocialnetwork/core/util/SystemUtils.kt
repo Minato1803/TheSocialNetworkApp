@@ -6,7 +6,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.util.Log
+import android.util.Size
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -28,6 +30,8 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import java.io.ByteArrayOutputStream
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 object SystemUtils {
 
@@ -138,6 +142,58 @@ object SystemUtils {
         editor.apply()
     }
 
+    fun getAdjustedRatio(ratio: String): String {
+        val size = getSize(ratio)
+        val floatRatio = size.width / size.height.toFloat()
+        val adjustedRatio = min(max(floatRatio, 0.8f), 2f)
+        val newHeight: Int
+        val newWidth: Int
+        if (size.width > size.height) {
+            newHeight = size.height
+            newWidth = (newHeight * adjustedRatio).toInt()
+        } else {
+            newWidth = size.width
+            newHeight = (newWidth / adjustedRatio).toInt()
+        }
+        return "$newWidth:$newHeight"
+    }
+
+    //width , height
+    fun getSize(ratio: String): Size {
+        return ratio.split(":").let { Size(it[0].toInt(), it[1].toInt()) }
+    }
+
+    //callTime: seconds
+    fun getVideoDurationFormat(duration: Int): String {
+        var time = duration.toLong()
+        val res = StringBuilder()
+
+        if (time > 3600) {
+            val hours = time / 3600
+            res.append("${if (hours < 10) "0" else ""}$hours:")
+            time -= hours * 3600
+        }
+
+        val mins = time / 60
+        res.append("${if (mins < 10) "0" else ""}$mins:")
+        time -= mins * 60
+
+        val secs = time
+        res.append("${if (secs < 10) "0" else ""}$secs")
+        return res.toString()
+    }
+
+    private val uriCache = HashMap<String, Uri>()
+
+    fun getUri(uriString: String): Uri {
+        var res = uriCache[uriString]
+        if (res == null) {
+            res = Uri.parse(uriString)
+            uriCache[uriString] = res
+        }
+        return res!!
+    }
+
     fun String.normalize(): String = this.lowercase(Locale.ENGLISH).trim()
 
     fun String.formatQuery(): String = this.lowercase(Locale.getDefault()).trim()
@@ -150,4 +206,16 @@ object SystemUtils {
     private val onlyEmojiRegex = "[^\\p{L}\\p{N}\\p{P}\\p{Z}]".toRegex()
     val String.isOnlyEmoji
         get() = replace(onlyEmojiRegex, "") == ""
+
+    fun Long.formatWithSpaces(): String
+    {
+        val sb = StringBuilder().append(this)
+
+        for (i in sb.length - 3 downTo 1 step 3)
+        {
+            sb.insert(i, ' ')
+        }
+
+        return sb.toString()
+    }
 }

@@ -40,7 +40,7 @@ class OtherMessageViewHolder private constructor(
         with(binding)
         {
             glide
-                .load(message.user.userDetail.avatarUrl)
+                .load(message.user.avatarUrl)
                 .into(imgAvatar)
 
             // region card styling

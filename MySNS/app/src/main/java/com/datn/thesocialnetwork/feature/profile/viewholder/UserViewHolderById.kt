@@ -8,10 +8,8 @@ import coil.ImageLoader
 import coil.request.ImageRequest
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
-import com.datn.thesocialnetwork.data.repository.ChatRespository.Companion.userListenerId
-import com.datn.thesocialnetwork.data.repository.UserRepository
-import com.datn.thesocialnetwork.data.repository.model.User
+import com.datn.thesocialnetwork.data.repository.FirebaseRepository
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.UserItemBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,18 +56,18 @@ class UserViewHolderById private constructor(
         cancelListeners(userListenerId)
     }
 
-    private lateinit var userClick: (UserDetail) -> Unit
+    private lateinit var userClick: (UserModel) -> Unit
 
     fun bind(
         userId: String,
-        userFlow: (Int, String) -> Flow<GetStatus<UserDetail>>,
-        userClick: (UserDetail) -> Unit
+        userFlow: (Int, String) -> Flow<GetStatus<UserModel>>,
+        userClick: (UserModel) -> Unit
     )
     {
         cancelJobs()
 
         userJob = scope.launch {
-            userListenerId = UserRepository.userListenerId
+            userListenerId = FirebaseRepository.userListenerId
             userFlow(userListenerId, userId).collectLatest {
                 setUserData(it)
             }
@@ -79,7 +77,7 @@ class UserViewHolderById private constructor(
     }
 
     private fun setUserData(
-        status: GetStatus<UserDetail>,
+        status: GetStatus<UserModel>,
     )
     {
         when (status)

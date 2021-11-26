@@ -15,6 +15,8 @@ import com.datn.thesocialnetwork.data.repository.model.ConversationItem
 import com.datn.thesocialnetwork.databinding.ConversationItemBinding
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
+import com.datn.thesocialnetwork.data.repository.FirebaseRepository
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -65,14 +67,14 @@ class ConversationViewHolder private constructor (
 
     fun bind(
         conversationItem: ConversationItem,
-        actionConversationClick: (UserDetail) -> Unit,
-        userFlow: (Int, String) -> Flow<GetStatus<UserDetail>>,
+        actionConversationClick: (UserModel) -> Unit,
+        userFlow: (Int, String) -> Flow<GetStatus<UserModel>>,
     )
     {
         cancelJobs()
 
         userJob = scope.launch {
-            userListenerId = ChatRespository.userListenerId
+            userListenerId = FirebaseRepository.userListenerId
             userFlow(userListenerId, conversationItem.userId).collectLatest {
                 setUserData(it)
             }
@@ -88,10 +90,10 @@ class ConversationViewHolder private constructor (
         }
     }
 
-    private var loadedUser: UserDetail? = null
+    private var loadedUser: UserModel? = null
 
     private fun setUserData(
-        status: GetStatus<UserDetail>,
+        status: GetStatus<UserModel>,
     )
     {
         when (status)

@@ -1,41 +1,54 @@
 package com.datn.thesocialnetwork.feature.chat.view
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.datn.thesocialnetwork.R
-import com.datn.thesocialnetwork.core.api.status.FirebaseStatus
 import com.datn.thesocialnetwork.core.api.status.GetStatus
-import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
-import com.datn.thesocialnetwork.data.repository.model.ChatMessage
+import com.datn.thesocialnetwork.core.util.SystemUtils
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentChatBinding
-import com.datn.thesocialnetwork.feature.chat.adapter.ChatAdapter
+import com.datn.thesocialnetwork.feature.chat.adapter.ConversationAdapter
 import com.datn.thesocialnetwork.feature.chat.viewmodel.ChatViewModel
-import com.datn.thesocialnetwork.feature.chat.adapter.MessageClickListener
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
+import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment
+import com.datn.thesocialnetwork.feature.profile.view.UserFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class ChatFragment : Fragment(R.layout.fragment_chat) {
-    @Inject
-    lateinit var chatAdapter: ChatAdapter
+    companion object {
+        private const val USER_DATA = "USER_DATA"
+        fun newInstance(
+            userModel: UserModel
+        ): ChatFragment {
+            val chatFragment = ChatFragment()
+            val arg = Bundle()
+            arg.putParcelable(USER_DATA, userModel)
+            chatFragment.arguments = arg
+            return chatFragment
+        }
+    }
 
-    private var binding: FragmentChatBinding? = null
-    lateinit var bd: FragmentChatBinding
+    @Inject
+    lateinit var conversationAdapter: ConversationAdapter
+
+    private var bd: FragmentChatBinding? = null
+    lateinit var binding: FragmentChatBinding
     lateinit var mMainActivity: MainActivity
     private val viewModel: ChatViewModel by viewModels()
+
+    private var userModel : UserModel? = null
+    lateinit var actionBarDrawerToggle : ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,176 +61,123 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         savedInstanceState: Bundle?,
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentChatBinding.inflate(layoutInflater, container, false)
-        bd = binding!!
+        bd = FragmentChatBinding.inflate(layoutInflater, container, false)
+        binding = bd!!
         setInit()
         setObserveData()
         setEvent()
-        setupRecycler()
-        return binding!!.root
+        SystemUtils.hideKeyboard(requireContext())
+        return binding.root
+    }
+
+    private fun extractData() {
+        userModel = arguments?.getParcelable(USER_DATA)
     }
 
     private fun setInit() {
-        //TODO("Not yet implemented")
+        extractData()
+        mMainActivity.bd.appBarLayout.isVisible = true
+        mMainActivity.bd.bottomAppBar.isVisible = true
+        mMainActivity.bd.fabAdd.isVisible = true
+        actionBarDrawerToggle = ActionBarDrawerToggle(
+            requireActivity(),
+            mMainActivity.bd.drawerLayout,
+            mMainActivity.bd.toolbar,
+            R.string.open, R.string.close)
+        actionBarDrawerToggle.isDrawerIndicatorEnabled = true
+        actionBarDrawerToggle.syncState()
+
+        binding.rvConversations.adapter = conversationAdapter.apply {
+            actionMessageClick = ::conversationClick
+        }
+    }
+
+    private fun conversationClick(user: UserModel)
+    {
+        val messageFragment = MessageFragment.newInstance(user)
+        navigateFragment(messageFragment,"messageFragment")
     }
 
     private fun setObserveData() {
         lifecycleScope.launchWhenStarted {
-            viewModel.allMassages.collectLatest { status ->
-                when (status)
+            viewModel.conversation.collectLatest {
+
+                when (it)
                 {
                     GetStatus.Sleep ->
                     {
-                        binding!!.progressBarMessages.isVisible = false
-                        binding!!.linLayNoMsg.isVisible = false
+                        binding.proBarLoadingConversations.isVisible = false
+                        binding.linLayEmptyState.isVisible = false
+                        binding.linLayErrorState.isVisible = false
+                        binding.rvConversations.isVisible = false
                     }
                     GetStatus.Loading ->
                     {
-                        binding!!.progressBarMessages.isVisible = true
-                        binding!!.linLayNoMsg.isVisible = false
+                        binding.proBarLoadingConversations.isVisible = true
+                        binding.linLayEmptyState.isVisible = false
+                        binding.linLayErrorState.isVisible = false
+                        binding.rvConversations.isVisible = false
                     }
                     is GetStatus.Success ->
                     {
-                        binding!!.progressBarMessages.isVisible = false
+                        binding.proBarLoadingConversations.isVisible = false
+                        binding.linLayEmptyState.isVisible = it.data.isEmpty()
+                        binding.rvConversations.isVisible = it.data.isNotEmpty()
+                        binding.linLayErrorState.isVisible = false
 
-                        chatAdapter.submitList(status.data)
-                        binding!!.linLayNoMsg.isVisible = status.data.isEmpty()
-//                        binding.rvMessages.post {
-//                            binding.rvMessages.scrollToPosition(0)
-//                        }
+                        conversationAdapter.submitList(it.data)
                     }
                     is GetStatus.Failed ->
                     {
-                        binding!!.progressBarMessages.isVisible = false
-                        binding!!.linLayNoMsg.isVisible = false
-
-                        binding!!.cdRoot.showSnackbarGravity(
-                            message = status.message.getFormattedMessage(
-                                requireContext()
-                            )
-                        )
+                        binding.proBarLoadingConversations.isVisible = false
+                        binding.linLayEmptyState.isVisible = false
+                        binding.linLayErrorState.isVisible = true
+                        binding.rvConversations.isVisible = false
                     }
                 }
             }
         }
+        //
 
-        lifecycleScope.launchWhenStarted {
-            viewModel.sendingMessageStatus.collectLatest {
-                when (it)
-                {
-                    FirebaseStatus.Sleep ->
-                    {
-                        binding!!.progressBarSending.isVisible = false
-                    }
-                    FirebaseStatus.Loading ->
-                    {
-                        binding!!.progressBarSending.isVisible = true
-                    }
-                    is FirebaseStatus.Success ->
-                    {
-                        binding!!.progressBarSending.isVisible = false
-                        binding!!.edTxtMessage.setText("")
-                    }
-                    is FirebaseStatus.Failed ->
-                    {
-                        binding!!.progressBarSending.isVisible = false
-                        binding!!.cdRoot.showSnackbarGravity(
-                            message = it.message.getFormattedMessage(
-                                requireContext()
-                            )
-                        )
-                    }
-                }
-            }
-        }
     }
 
     private fun setEvent() {
         //TODO("Not yet implemented")
     }
 
-    private fun copyTextClick(chatMessage: ChatMessage)
-    {
-        chatMessage.textContent?.let { textToCopy ->
-            val clipboardManager = requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = ClipData.newPlainText(getString(R.string.copied_message), textToCopy)
-            clipboardManager.setPrimaryClip(clipData)
-        }
+    private fun navigateFragment(fragment: Fragment, tag: String) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(id, fragment, tag)
+            .addToBackStack(null)
+            .commit()
     }
 
-    private fun deleteMessageClick(chatMessage: ChatMessage)
-    {
-        //Todo: not implement yet
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_add, menu)
     }
 
-
-    private fun setupRecycler()
-    {
-        val linearLayoutManager = LinearLayoutManager(requireContext())
-        linearLayoutManager.reverseLayout = true
-
-
-        chatAdapter.messageClickListener = MessageClickListener(
-            copyText = ::copyTextClick,
-            deleteMessage = ::deleteMessageClick
-        )
-
-        with(binding!!.rvMessages)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId)
         {
-            adapter = chatAdapter
-            layoutManager = linearLayoutManager
-        }
-
-        chatAdapter.registerAdapterDataObserver(
-            object : RecyclerView.AdapterDataObserver()
+            R.id.miAdd ->
             {
-                override fun onChanged()
-                {
-                    binding!!.rvMessages.smoothScrollToPosition(0)
-                }
-
-                override fun onItemRangeRemoved(
-                    positionStart: Int,
-                    itemCount: Int
-                )
-                {
-                    binding!!.rvMessages.smoothScrollToPosition(0)
-                }
-
-                override fun onItemRangeMoved(
-                    fromPosition: Int,
-                    toPosition: Int,
-                    itemCount: Int
-                )
-                {
-                    binding!!.rvMessages.smoothScrollToPosition(0)
-                }
-
-                override fun onItemRangeInserted(
-                    positionStart: Int,
-                    itemCount: Int
-                )
-                {
-                    binding!!.rvMessages.smoothScrollToPosition(0)
-                }
-
-                override fun onItemRangeChanged(
-                    positionStart: Int,
-                    itemCount: Int
-                )
-                {
-                    binding!!.rvMessages.smoothScrollToPosition(0)
-                }
-
-                override fun onItemRangeChanged(
-                    positionStart: Int,
-                    itemCount: Int,
-                    payload: Any?
-                )
-                {
-                    binding!!.rvMessages.smoothScrollToPosition(0)
-                }
+                // create group chat
+                true
             }
-        )
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+
+    override fun onResume()
+    {
+        super.onResume()
+        viewModel.updateConversations()
+    }
+
+    override fun onDestroyView()
+    {
+        super.onDestroyView()
+        conversationAdapter.cancelScopes()
     }
 }

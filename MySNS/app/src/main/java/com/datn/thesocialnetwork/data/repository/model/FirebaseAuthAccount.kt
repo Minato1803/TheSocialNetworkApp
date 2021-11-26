@@ -1,7 +1,7 @@
 package com.datn.thesocialnetwork.data.repository.model
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class FirebaseAuthAccount (

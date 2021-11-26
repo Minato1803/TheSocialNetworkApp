@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/userFragment"
-        android:name="com.datn.thesocialnetwork.feature.search.view.UserFragment">
+        android:name="com.datn.thesocialnetwork.feature.profile.view.UserFragment">
         <argument
             android:name="user"
             app:argType="com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse" />

@@ -6,7 +6,6 @@ import android.view.*
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -22,12 +21,12 @@ import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.core.util.SystemUtils.hideKeyboard
 import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
 import com.datn.thesocialnetwork.core.util.isFragmentAlive
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.model.TagModel
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentSearchBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
+import com.datn.thesocialnetwork.feature.profile.view.UserFragment
 import com.datn.thesocialnetwork.feature.search.viewmodel.SearchModelAdapter
 import com.datn.thesocialnetwork.feature.search.viewmodel.SearchViewModel
 import com.google.firebase.auth.ktx.auth
@@ -161,6 +160,8 @@ class SearchFragment : Fragment() {
             if (query.isEmpty())
             {
                 //todo: post rcv
+                displayEmptyResult(false)
+
             }
             else
             {
@@ -210,13 +211,13 @@ class SearchFragment : Fragment() {
     }
 
     private fun setEvent() {
-
+        setupAdapters()
+        setupRecycler()
     }
 
     private fun setInit() {
         setMainView()
-        setupAdapters()
-        setupRecycler()
+
     }
 
     private fun setMainView() {
@@ -253,7 +254,7 @@ class SearchFragment : Fragment() {
 //        TODO: postAdapter
     }
 
-    private fun selectUser(user: UserDetail)
+    private fun selectUser(user: UserModel)
     {
         if (Firebase.auth.currentUser?.uid == user.uidUser)
         {
@@ -263,7 +264,7 @@ class SearchFragment : Fragment() {
         else
         {
             //todo: send data user
-            val userFragment = UserFragment.newInstance(user)
+            val userFragment = UserFragment.newInstance(user, false)
             navigateFragment(userFragment, "userFragment")
         }
     }
@@ -304,7 +305,7 @@ class SearchFragment : Fragment() {
 
     private fun navigateFragment(fragment: Fragment, tag: String) {
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(id, fragment, "tag")
+            .replace(id, fragment, tag)
             .addToBackStack(null)
             .commit()
     }

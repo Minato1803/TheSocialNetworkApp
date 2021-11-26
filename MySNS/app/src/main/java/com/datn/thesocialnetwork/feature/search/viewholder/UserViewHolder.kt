@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.UserItemBinding
 
 class UserViewHolder private constructor(
@@ -26,8 +27,8 @@ class UserViewHolder private constructor(
 
 
     fun bind(
-        user: UserDetail,
-        clickListener: ((UserDetail) -> Unit)?,
+        user: UserModel,
+        clickListener: ((UserModel) -> Unit)?,
         glide: RequestManager
     )
     {

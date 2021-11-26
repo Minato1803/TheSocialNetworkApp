@@ -1,13 +1,26 @@
 package com.datn.thesocialnetwork.data.repository.model
 
-import java.io.Serializable
+import com.datn.thesocialnetwork.core.util.FirebaseNode
 
 data class PostsModel(
-    var id: String = "",
     var createdTime: Long = 0L,
+    var updatedTime: Long = 0L,
     var ownerId: String = "",
     var content: String = "",
     var reactCount: Int = 0,
     var commentCount: Int = 0,
     var shareCount: Int = 0,
-) : Serializable
+    val image: HashMap<String, PostsImage>? = null,
+)
+
+data class PostsImage(
+    val imageUrl: String = "",
+)
+{
+    var id: String = ""
+
+    val toHashMap: HashMap<String, Any?>
+        get() = hashMapOf(
+            FirebaseNode.imagePost to imageUrl,
+        )
+}

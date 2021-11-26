@@ -3,12 +3,14 @@ package com.datn.thesocialnetwork.data.repository
 import android.util.Log
 import com.datn.thesocialnetwork.core.api.status.SearchStatus
 import com.datn.thesocialnetwork.core.util.FirebaseNode
+import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils.formatQuery
 import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.model.SearchModel
 import com.datn.thesocialnetwork.data.repository.model.TagModel
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -42,7 +44,10 @@ class SearchRespository@Inject constructor(
 
                     snapshot.children.forEach { dataSnapshot ->
                         dataSnapshot.getValue(UserDetail::class.java)?.let { user ->
-                            u.add(SearchModel.UserItem(user))
+                            val userResponse = dataSnapshot.key?.let { UserResponse(it,user) }
+                            u.add(SearchModel.UserItem(userResponse?.let {
+                                ModelMapping.mapToUserModel(it)
+                            }))
                         }
                     }
 

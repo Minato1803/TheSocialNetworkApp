@@ -1,6 +1,6 @@
 package com.datn.thesocialnetwork.data.repository.model
 
-data class ConversationItem(
+data class GroupChat (
     val userId: String,
     val lastMessage: ChatMessage
 )

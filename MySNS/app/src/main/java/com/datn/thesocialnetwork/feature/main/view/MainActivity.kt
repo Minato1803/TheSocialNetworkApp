@@ -1,6 +1,7 @@
 package com.datn.thesocialnetwork.feature.main.view
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -10,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.util.GlobalValue
+import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.databinding.ActivityMainBinding
@@ -18,13 +20,18 @@ import com.datn.thesocialnetwork.feature.search.view.SearchFragment
 import com.datn.thesocialnetwork.feature.home.view.HomeFragment
 import com.datn.thesocialnetwork.feature.login.view.LoginFragment
 import com.datn.thesocialnetwork.feature.login.viewmodel.LoginViewModel
+import com.datn.thesocialnetwork.feature.post.view.CreatePostFragment
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
     @Inject
@@ -58,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun setEvent() {
         bd.bottomNavMain.setOnNavigationItemSelectedListener { menuItem ->
             clickNavigateSubScreen(menuItem)
@@ -65,17 +73,21 @@ class MainActivity : AppCompatActivity() {
         actionBarDrawerToggle.setToolbarNavigationClickListener {
             
         }
+        bd.fabAdd.setOnClickListener {
+            CreatePostFragment.newInstance().show(supportFragmentManager, "CreatePostDialogFragment")
+        }
     }
 
     private fun setObserveData() {
         mLoginViewModel.liveDataCheckLogin.observe(this, { data ->
-            observeGetUserByPhoneNumber(data)
+            observeGetUser(data)
         })
     }
 
-    private fun observeGetUserByPhoneNumber(data: UserResponse?) {
+    private fun observeGetUser(data: UserResponse?) {
         if (data != null) {
             GlobalValue.USER = data
+            GlobalValue.USER_DETAIL = ModelMapping.mapToUserModel(GlobalValue.USER!!)
         } else {
             SystemUtils.signOut(mGoogleSignInClient, this)
         }
@@ -148,5 +160,38 @@ class MainActivity : AppCompatActivity() {
 
         val paramToolbar = bd.toolbar.layoutParams as AppBarLayout.LayoutParams
         paramToolbar.scrollFlags = 0
+    }
+
+    fun showSnackbar(
+        message: String,
+        buttonText: String? = null,
+        action: () -> Unit = {},
+        length: Int = Snackbar.LENGTH_LONG,
+        gravity: Int = Gravity.TOP
+    ) = bd.host.showSnackbarGravity(message, buttonText, action, length, gravity)
+
+    fun CoordinatorLayout.showSnackbarGravity(
+        message: String,
+        buttonText: String? = null,
+        action: () -> Unit = {},
+        length: Int = Snackbar.LENGTH_LONG,
+        gravity: Int = Gravity.TOP
+    )
+    {
+        val s = Snackbar
+            .make(this, message, length)
+
+        buttonText?.let {
+            s.setAction(it) {
+                action()
+            }
+        }
+
+        val params = s.view.layoutParams as CoordinatorLayout.LayoutParams
+        params.gravity = gravity
+        s.view.layoutParams = params
+        s.animationMode = BaseTransientBottomBar.ANIMATION_MODE_FADE
+
+        s.show()
     }
 }

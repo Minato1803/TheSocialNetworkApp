@@ -5,10 +5,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.model.SearchModel
 import com.datn.thesocialnetwork.data.repository.model.TagModel
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.feature.search.viewholder.TagViewHolder
 import com.datn.thesocialnetwork.feature.search.viewholder.UserViewHolder
 import dagger.hilt.android.scopes.ActivityScoped
@@ -18,7 +17,7 @@ import javax.inject.Inject
 class SearchModelAdapter @Inject constructor(private val glide: RequestManager) :
     ListAdapter<SearchModel, RecyclerView.ViewHolder>(UserDiffCallback) {
 
-    var userListener: ((UserDetail) -> Unit)? = null
+    var userListener: ((UserModel) -> Unit)? = null
     var tagListener: ((TagModel) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
@@ -39,11 +38,13 @@ class SearchModelAdapter @Inject constructor(private val glide: RequestManager) 
         getItem(position).let {
             when (it) {
                 is SearchModel.TagItem -> (holder as TagViewHolder).bind(it.tag, tagListener)
-                is SearchModel.UserItem -> (holder as UserViewHolder).bind(
-                    it.user,
-                    userListener,
-                    glide
-                )
+                is SearchModel.UserItem -> it.user?.let { user ->
+                    (holder as UserViewHolder).bind(
+                        user,
+                        userListener,
+                        glide
+                    )
+                }
             }
         }
     }

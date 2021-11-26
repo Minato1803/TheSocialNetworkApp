@@ -117,4 +117,28 @@
         <item name="android:windowFullscreen">false</item>
     </style>
 
+    <style name="ButtonTheme.RoundCorners" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">@dimen/_20dp</item>
+        <item name="android:paddingTop">@dimen/_12dp</item>
+        <item name="android:paddingBottom">@dimen/_12dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="SocialViewStyle" parent="Widget.SocialView">
+        <item name="socialFlags">hashtag|mention|hyperlink</item>
+        <item name="mentionColor">@color/mention_color</item>
+        <item name="hyperlinkColor">@color/hyperlink_color</item>
+        <item name="hashtagColor">@color/hashtag_color</item>
+    </style>
+
+    <style name="roundedImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="SocialTextViewStyle" parent="SocialViewStyle">
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
+    </style>
+
+    <color name="hashtag_color">#C40233</color>
 </resources>

@@ -145,8 +145,9 @@ class FollowRespository @Inject constructor(
                 {
 
                     val followingUsers = followers.map {
-                        it.value.sourceId
+                        it.value.desId
                     }
+                    Log.d("TAG", followingUsers.get(0).toString())
 
                     launch {
                         send(SearchFollowStatus.Success(followingUsers))
@@ -225,7 +226,7 @@ class FollowRespository @Inject constructor(
                     launch {
                         send(GetStatus.Success(
                             followers?.map {
-                                it.value.sourceId
+                                it.value.desId
                             } ?: listOf()
                         ))
                         close()

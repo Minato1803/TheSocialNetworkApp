@@ -3,11 +3,11 @@ package com.datn.thesocialnetwork.data.repository.model
 import android.os.Parcelable
 import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.data.datasource.remote.model.Gender
-import com.google.gson.annotations.SerializedName
-import kotlinx.parcelize.Parcelize
+import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class User(
+data class UserModel(
+    var uidUser: String = "",
     var uidGoogle: String = "",
     var userName: String = "",
     var firstName: String = "",

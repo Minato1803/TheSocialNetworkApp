@@ -3,9 +3,8 @@ package com.datn.thesocialnetwork.feature.profile.adapter
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import coil.ImageLoader
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
-import com.datn.thesocialnetwork.data.repository.FollowRespository
 import com.datn.thesocialnetwork.data.repository.UserRepository
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.feature.profile.viewholder.UserViewHolderById
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
@@ -15,7 +14,7 @@ class UserAdapter @Inject constructor(
     private val repository: UserRepository
 ) : ListAdapter<String, UserViewHolderById>(UserDiffCallback)
 {
-    lateinit var userClick: (UserDetail) -> Unit
+    lateinit var userClick: (UserModel) -> Unit
 
     private val holders: MutableList<() -> Unit> = mutableListOf()
 

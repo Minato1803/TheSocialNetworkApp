@@ -1,8 +1,7 @@
-package com.datn.thesocialnetwork.feature.search.view
+package com.datn.thesocialnetwork.feature.profile.view
 
 import android.os.Bundle
 import android.view.*
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -11,12 +10,10 @@ import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.SearchFollowStatus
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.core.util.exhaustive
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
-import com.datn.thesocialnetwork.databinding.FragmentEditProfileBinding
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentUserBinding
+import com.datn.thesocialnetwork.feature.chat.view.MessageFragment
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
-import com.datn.thesocialnetwork.feature.profile.view.AbstractDialog
 import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,12 +26,15 @@ import javax.inject.Inject
 class UserFragment : AbstractDialog(R.layout.fragment_user) {
     companion object {
         private const val USER_DATA = "USER_DATA"
+        private const val IS_LOAD_FROM_DB = "IS_LOAD_FROM_DB"
         fun newInstance(
-            userDetail: UserDetail
+            userModel: UserModel,
+            isLoadFromDb : Boolean
         ): UserFragment {
             val userFragment = UserFragment()
             val arg = Bundle()
-            arg.putSerializable(USER_DATA, userDetail)
+            arg.putParcelable(USER_DATA, userModel)
+            arg.putBoolean(IS_LOAD_FROM_DB, isLoadFromDb)
             userFragment.arguments = arg
             return userFragment
         }
@@ -48,7 +48,8 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     lateinit var binding: FragmentUserBinding
     lateinit var mMainActivity: MainActivity
     private val mProfileViewModel : ProfileViewModel by viewModels()
-    private lateinit var userDetail : UserDetail
+    private var userModel : UserModel? = null
+    private var isLoadFromDb : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +64,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
         setEvent()
         setInit()
         setObserveData()
+        initRecyclers(false)
     }
 
     private fun setObserveData() {
@@ -98,7 +100,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
          */
         lifecycleScope.launchWhenStarted {
             mProfileViewModel.canDoFollowUnfollowOperation.collectLatest { canBeClicked ->
-                binding!!.btnFollow.isEnabled = canBeClicked
+                binding.btnFollow.isEnabled = canBeClicked
             }
         }
 
@@ -143,7 +145,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
 
     private fun setInit() {
         extractData()
-        mMainActivity.bd.toolbar.title = userDetail.userName
+        mMainActivity.bd.toolbar.title = userModel?.userName ?: ""
         mMainActivity.bd.toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_arrow_back_24)
         mMainActivity.bd.bottomAppBar.visibility = View.GONE
         mMainActivity.bd.fabAdd.visibility = View.GONE
@@ -152,19 +154,30 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
 
 
     private fun initDataUser() {
-        mProfileViewModel.initUser(userDetail)
-        binding.tvFullName.text = userDetail.userName
-        if(userDetail.description.trim().isNotEmpty())
-            binding.tvDesc.text = userDetail.description
-        glide
-            .load(userDetail.avatarUrl)
-            .fitCenter()
-            .centerCrop()
-            .into(binding.imgAvatar)
+        //todo: notfound
+        if(isLoadFromDb) {
+            if (userModel!!.userName.isNotEmpty())
+                viewModel.initWithUsername(userModel!!.userName)
+            else
+                viewModel.initWithUserId(userModel!!.uidUser)
+        } else {
+            viewModel.initUser(userModel!!)
+        }
+        userModel?.let { userModel ->
+            binding.tvFullName.text = userModel.userName
+            if (userModel.description.trim().isNotEmpty())
+                binding.tvDesc.text = userModel.description
+            glide
+                .load(userModel.avatarUrl)
+                .fitCenter()
+                .centerCrop()
+                .into(binding.imgAvatar)
+        }
     }
 
     private fun extractData() {
-        userDetail = (arguments?.getSerializable(USER_DATA)) as UserDetail
+        userModel = arguments?.getParcelable(USER_DATA)
+        isLoadFromDb = arguments?.getBoolean(IS_LOAD_FROM_DB) ?: false
     }
 
     private fun setEvent() {
@@ -176,7 +189,8 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             setObserveData()
         }
         binding.btnMessage.setOnClickListener {
-            SystemUtils.showMessage(requireContext(),"TODO:message")
+            val messageFragment = MessageFragment.newInstance(userModel!!)
+            navigateFragment(messageFragment, "messageFragment")
         }
         //ToDo: open dialog list
         binding.linLayFollowers.setOnClickListener { openFollowers() }
@@ -187,7 +201,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
         openDialogWithListOfUsers(
             statusFlow = mProfileViewModel.getFollowing(),
             title = R.string.following,
-            emptyText = R.string.user_have_no_followers,
+            emptyText = R.string.user_have_no_following,
             errorText = R.string.something_went_wrong
         )
     }
@@ -196,7 +210,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
         openDialogWithListOfUsers(
             statusFlow = mProfileViewModel.getFollowers(),
             title = R.string.followers,
-            emptyText = R.string.user_have_no_following,
+            emptyText = R.string.user_have_no_followers,
             errorText = R.string.something_went_wrong
         )
     }
@@ -207,5 +221,48 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
          return super.onOptionsItemSelected(item)
+    }
+
+    override fun profileClick(postOwner: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun likeClick(postId: String, status: Boolean) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun commentClick(postId: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun shareClick(postId: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun likeCounterClick(postId: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun tagClick(tag: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun linkClick(link: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun mentionClick(mention: String) {
+        //TODO("Not yet implemented")
+    }
+
+    override fun menuReportClick(postId: String) {
+        //TODO("Not yet implemented")
+    }
+
+    private fun navigateFragment(fragment: Fragment, tag: String) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(id, fragment, tag)
+            .addToBackStack(null)
+            .commit()
     }
 }

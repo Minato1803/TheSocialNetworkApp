@@ -30,14 +30,14 @@ class UserFirebase @Inject constructor(
     fun getAuth() = mAuth
     private fun getStorage() = mStorage.reference
 
-    init
-    {
-        mAuth.addAuthStateListener {
-            it.currentUser?.let { user ->
-                repository.loadLoggedUserFollowing(user.uid)
-            }
-        }
-    }
+//    init
+//    {
+//        mAuth.addAuthStateListener {
+//            it.currentUser?.let { user ->
+//                repository.loadLoggedUserFollowing(user.uid)
+//            }
+//        }
+//    }
 
     suspend fun insertUser(userRes: UserResponse): DataSnapshot {
         Log.d("insert", userRes.userDetail.email)

@@ -15,21 +15,17 @@ import javax.inject.Inject
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.FirebaseStatus
 import com.datn.thesocialnetwork.core.util.FirebaseNode.conversationsType
+import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.data.datasource.firebase.FirebaseListener
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.model.ConversationItem
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import java.util.HashMap
 
 class ChatRespository @Inject constructor(
     private val mFirebaseDb: FirebaseDatabase,
 ) {
-    companion object {
-        @Volatile
-        var userListenerId: Int = 0
-            @Synchronized get() = field++
-            @Synchronized private set
-    }
     fun getDatabaseChat() = mFirebaseDb.getReference(FirebaseNode.chat)
     fun getDatabaseUser(uidUser: String) = mFirebaseDb.getReference(FirebaseNode.user).child(uidUser)
 
@@ -208,7 +204,7 @@ class ChatRespository @Inject constructor(
     fun getUser(
         ownerHash: Int,
         userId: String,
-    ): Flow<GetStatus<UserDetail>>
+    ): Flow<GetStatus<UserModel>>
     {
         return channelFlow {
 
@@ -222,7 +218,8 @@ class ChatRespository @Inject constructor(
                 {
                     snapshot.getValue(UserDetail::class.java)?.let { user ->
                         launch {
-                            val v = GetStatus.Success(user)
+                            val userResponse = UserResponse(userId,user)
+                            val v = GetStatus.Success(ModelMapping.mapToUserModel(userResponse))
                             send(v)
                         }
                     }

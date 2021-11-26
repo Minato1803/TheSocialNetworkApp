@@ -12,7 +12,7 @@ sealed class MessageModel(val chatMessage: ChatMessage, val type: MessageType)
     data class OtherMessage(
         val message: ChatMessage,
         val t: MessageType,
-        val user: UserResponse,
+        val user: UserModel,
     ) : MessageModel(message, t)
 }
 

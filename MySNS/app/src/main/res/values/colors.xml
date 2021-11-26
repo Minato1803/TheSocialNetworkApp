@@ -25,4 +25,8 @@
     <color name="color3C9DB7">#3C9DB7</color>
     <color name="colorC79A00">#C79A00</color>
     <color name="colorF5F5F0">#F5F5F0</color>
+    <color name="colorA86EFA">#A86EFA</color>
+    <color name="blackTransparent">#30000000</color>
+    <color name="hyperlink_color">#3C9DB7</color>
+    <color name="mention_color">#C79A00</color>
 </resources>

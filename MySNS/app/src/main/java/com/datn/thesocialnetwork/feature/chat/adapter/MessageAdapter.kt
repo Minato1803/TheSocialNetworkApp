@@ -10,15 +10,11 @@ import com.datn.thesocialnetwork.feature.chat.viewholder.OtherMessageViewHolder
 import com.datn.thesocialnetwork.feature.chat.viewholder.OwnMessageViewHolder
 import javax.inject.Inject
 
-class ChatAdapter @Inject constructor(
+class MessageAdapter @Inject constructor(
     private val glide: RequestManager
 ) : ListAdapter<MessageModel, RecyclerView.ViewHolder>(ChatMessageDiffCallback)
 {
 
-    /**
-     * [messageClickListener] has to be initialized before
-     * [ChatAdapter] is assigned to [RecyclerView]
-     */
     lateinit var messageClickListener: MessageClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
