@@ -1,26 +1,22 @@
 package com.datn.thesocialnetwork.feature.login.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.Response
-import com.datn.thesocialnetwork.core.util.FirebaseNode
-import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.UserRepository
-import com.datn.thesocialnetwork.data.repository.model.FirebaseAuthAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.*
 import com.google.firebase.database.DataSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
@@ -76,7 +72,7 @@ class LoginViewModel @Inject constructor(
             }
         }
 
-    private suspend fun signIn(
+    fun signIn(
         userNode: DataSnapshot,
         liveData: MutableLiveData<Response<UserResponse>>,
     ) {
@@ -90,6 +86,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             var userResponse: UserResponse? = null
             val userNode = mUserRepository.getUserById(userId)
+
             userResponse =
                 UserResponse(userId, userNode.getValue(UserDetail::class.java)!!)
             liveDataCheckLogin.postValue(userResponse)

@@ -23,10 +23,12 @@ import com.datn.thesocialnetwork.feature.profile.editprofile.viewmodel.EditProfi
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import com.gun0912.tedpermission.PermissionListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
 
     companion object {

@@ -30,21 +30,21 @@ class HomeViewModel @Inject constructor(
 
     fun loadPosts()
     {
-//        viewModelScope.launch {
-//            postRepository.getPostsFromFollowers(GlobalValue.USER!!.uidUser).collectLatest {
-//                _postToDisplay.value = it
-//            }
-//        }
+        viewModelScope.launch {
+            postRepository.getPostsFromFollowers(GlobalValue.USER!!.uidUser).collectLatest {
+                _postToDisplay.value = it
+            }
+        }
     }
 
     init
     {
-//        loadPosts()
+        loadPosts()
     }
 
     override val tryAgain: (() -> Unit)
         get() = {
 
-//            loadPosts()
+            loadPosts()
         }
 }

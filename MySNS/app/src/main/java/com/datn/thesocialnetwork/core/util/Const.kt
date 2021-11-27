@@ -99,6 +99,7 @@ object FirebaseNode {
     {}
     // image posts
     const val imagePost = "imageUrl"
+    const val imageCreated = "imageCreated"
     val imageType = object : GenericTypeIndicator<HashMap<String, PostsImage>>()
     {}
     //hashtag and mentions

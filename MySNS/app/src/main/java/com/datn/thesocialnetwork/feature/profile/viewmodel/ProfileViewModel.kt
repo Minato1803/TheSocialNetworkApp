@@ -116,6 +116,7 @@ class ProfileViewModel @Inject constructor(
     {
         _isInitialized.value = true
         _selectedUser.value = user
+        Log.d("selectedUser", "${user.uidUser} ${user.userName}")
 
         viewModelScope.launch {
             followRespository.getUserFollowersFlow(user.uidUser).collectLatest {
@@ -129,24 +130,24 @@ class ProfileViewModel @Inject constructor(
             }
         }
 
-//        viewModelScope.launch {
-//            Log.d("TAG", "crash")
-//            postRepository.getUserPostsFlow(user.uidUser).collectLatest {
-//                _uploadedPosts.value = it
-//            }
-//        }
-//
-//        viewModelScope.launch {
-//            postRepository.getMentionedPosts(user.userName.lowercase()).collectLatest {
-//                _mentionPosts.value = it
-//            }
-//        }
-//
-//        viewModelScope.launch {
-//            postRepository.getLikedPostByUserId(user.uidUser).collectLatest {
-//                _likedPosts.value = it
-//            }
-//        }
+        viewModelScope.launch {
+            Log.d("TAG", "get own post")
+            postRepository.getUserPostsFlow(user.uidUser).collectLatest {
+                _uploadedPosts.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            postRepository.getMentionedPosts(user.userName.lowercase()).collectLatest {
+                _mentionPosts.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            postRepository.getLikedPostByUserId(user.uidUser).collectLatest {
+                _likedPosts.value = it
+            }
+        }
     }
 
     @ExperimentalCoroutinesApi
@@ -171,6 +172,7 @@ class ProfileViewModel @Inject constructor(
                             if (u != null)
                             {
                                 val userResponse = UserResponse(userId,u)
+                                Log.d("getUserFromDB", "${userResponse.uidUser} ${userResponse.userDetail}")
                                 initUser(ModelMapping.mapToUserModel(userResponse))
                             }
                             else

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -23,6 +24,8 @@ import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.FirebaseStatus
 import com.datn.thesocialnetwork.core.listener.BaseOnEventListener
+import com.datn.thesocialnetwork.core.util.GlobalValue
+import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.core.util.SystemUtils.hideKeyboard
 import com.datn.thesocialnetwork.core.util.ViewUtils.setViewAndChildrenEnabled
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
@@ -32,6 +35,7 @@ import com.datn.thesocialnetwork.feature.post.adapter.PostFeedAdapter
 import com.datn.thesocialnetwork.feature.post.viewmodel.CreatePostViewModel
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import com.google.android.material.snackbar.Snackbar
+import com.gun0912.tedpermission.PermissionListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -82,8 +86,8 @@ class CreatePostFragment : DialogFragment(R.layout.fragment_create_post), BaseOn
         _bd = FragmentCreatePostBinding.bind(view)
         binding = _bd!!
 
-        setInit()
         checkReadStoragePermAndLoadImages()
+        setInit()
         setObserveData()
         setEvent()
     }
@@ -287,16 +291,31 @@ class CreatePostFragment : DialogFragment(R.layout.fragment_create_post), BaseOn
     }
 
     private fun checkReadStoragePermAndLoadImages() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            setStoragePermissionStatus(true)
-            viewModel.loadAllImagesFromGallery()
-        } else {
-            setStoragePermissionStatus(false)
-        }
+        SystemUtils.requestPermission(context,
+            GlobalValue.listPermissionSetAvatar,
+            object : PermissionListener {
+                override fun onPermissionGranted() {
+                    setStoragePermissionStatus(true)
+                    viewModel.loadAllImagesFromGallery()
+                }
+
+                override fun onPermissionDenied(deniedPermissions: List<String>) {
+                    setStoragePermissionStatus(false)
+                    Toast.makeText(context,
+                        getString(R.string.str_deny_message),
+                        Toast.LENGTH_SHORT).show()
+                }
+            })
+//        if (ContextCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.READ_EXTERNAL_STORAGE
+//            ) == PackageManager.PERMISSION_GRANTED
+//        ) {
+//            setStoragePermissionStatus(true)
+//            viewModel.loadAllImagesFromGallery()
+//        } else {
+//            setStoragePermissionStatus(false)
+//        }
     }
 
     private val requestCameraPermissions =
@@ -370,7 +389,7 @@ class CreatePostFragment : DialogFragment(R.layout.fragment_create_post), BaseOn
 
     fun navigateFragment(fragment: Fragment, tag: String) {
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(id, fragment, "tag")
+            .replace(R.id.host, fragment, tag)
             .commit()
     }
 }

@@ -2,6 +2,7 @@ package com.datn.thesocialnetwork.feature.profile.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
@@ -13,6 +14,7 @@ import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.api.status.SearchFollowStatus
 import com.datn.thesocialnetwork.core.util.GlobalValue
+import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.data.repository.model.UserModel
@@ -35,7 +37,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     lateinit var mGoogleSignInClient: GoogleSignInClient
     @Inject
     lateinit var glide: RequestManager
-    private var binding: FragmentProfileBinding? = null
+//    private var binding: FragmentProfileBinding? = null
     lateinit var mMainActivity: MainActivity
 
     private val mProfileViewModel : ProfileViewModel by viewModels()
@@ -44,20 +46,35 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mMainActivity = activity as MainActivity
-        setHasOptionsMenu(true)
     }
 
+//    override fun onCreateView(
+//        inflater: LayoutInflater, container: ViewGroup?,
+//        savedInstanceState: Bundle?,
+//    ): View {
+//        // Inflate the layout for this fragment
+//        binding = FragmentProfileBinding.inflate(layoutInflater, container, false)
+//
+//        return binding!!.root
+//    }
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        // Inflate the layout for this fragment
-        binding = FragmentProfileBinding.inflate(layoutInflater, container, false)
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View?
+    {
+        setHasOptionsMenu(true)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
+    {
+        super.onViewCreated(view, savedInstanceState)
         setEvent()
         setInit()
         setObserveData()
-//        initRecyclers(true)
-        return binding!!.root
+        initRecyclers(true)
     }
 
 
@@ -94,7 +111,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     override fun profileClick(postOwner: String) {
         if (viewModel.isOwnAccountId(postOwner)) // user  clicked on own profile
         {
-            binding!!.userLayout.showSnackbarGravity(
+            profileBinding.userLayout.showSnackbarGravity(
                 message = getString(R.string.you_are_currently_on_your_profile)
             )
         }
@@ -160,7 +177,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
                     }
                     is SearchFollowStatus.Success ->
                     {
-                        binding!!.txtCounterFollowers.text = status.result.size.toString()
+                        profileBinding.txtCounterFollowers.text = status.result.size.toString()
                     }
                 }
             }
@@ -179,7 +196,8 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
                     }
                     is SearchFollowStatus.Success ->
                     {
-                        binding!!.txtCounterFollowing.text = status.result.size.toString()
+                        Log.d("Following", status.result.toString())
+                        profileBinding.txtCounterFollowing.text = status.result.size.toString()
                     }
                 }
             }
@@ -191,7 +209,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         lifecycleScope.launchWhenStarted {
             mProfileViewModel.uploadedPosts.collectLatest {
                 if (it is GetStatus.Success) {
-                    binding!!.txtCounterPosts.text = it.data.size.toString()
+                    profileBinding.txtCounterPosts.text = it.data.size.toString()
                 }
             }
         }
@@ -201,7 +219,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
          */
         lifecycleScope.launchWhenStarted {
             mProfileViewModel.category.collectLatest { selected ->
-                binding!!.tabsPostType.getTabAt(
+                profileBinding.tabsPostType.getTabAt(
                     categories.filterValues {
                         it == selected
                     }.keys.elementAt(0)
@@ -220,7 +238,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         {
             mProfileViewModel.refreshUser()
         }
-        mProfileViewModel.initUser(GlobalValue.USER_DETAIL!!)
+        mProfileViewModel.initUser(ModelMapping.mapToUserModel(GlobalValue.USER!!))
         // setting main view
         mMainActivity.bd.toolbar.title = "thông tin cá nhân"
         mMainActivity.bd.appBarLayout.isVisible = true
@@ -238,20 +256,20 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     }
 
     private fun initDataUser() {
-        binding!!.tvFullName.text = GlobalValue.USER!!.userDetail.userName
+        profileBinding.tvFullName.text = GlobalValue.USER!!.userDetail.userName
         if(GlobalValue.USER!!.userDetail.description.trim().isNotEmpty())
-            binding!!.tvDesc.text = GlobalValue.USER!!.userDetail.description
+            profileBinding.tvDesc.text = GlobalValue.USER!!.userDetail.description
         glide
             .load(GlobalValue.USER!!.userDetail.avatarUrl)
             .fitCenter()
             .centerCrop()
-            .into(binding!!.imgAvatar)
+            .into(profileBinding.imgAvatar)
 
     }
 
     private fun setEvent() {
-        binding!!.linLayFollowers.setOnClickListener { openFollowers() }
-        binding!!.linLayFollowing.setOnClickListener { openFollowing() }
+        profileBinding.linLayFollowers.setOnClickListener { openFollowers() }
+        profileBinding.linLayFollowing.setOnClickListener { openFollowing() }
     }
 
     private fun openFollowing() {

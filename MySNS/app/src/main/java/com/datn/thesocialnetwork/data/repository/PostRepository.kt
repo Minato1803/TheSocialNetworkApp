@@ -9,6 +9,7 @@ import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.core.util.FirebaseNode
 import com.datn.thesocialnetwork.core.util.GlobalValue
+import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.firebase.FirebaseListener
 import com.datn.thesocialnetwork.data.repository.model.PostsImage
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
@@ -59,7 +60,8 @@ class PostRepository @Inject constructor(
     ): Flow<FirebaseStatus> = channelFlow {
 
         send(FirebaseStatus.Loading)
-
+        Log.d("listUriNeedUpload", "${listUri.size}")
+        val postImagesSize = listUri.size
         if (GlobalValue.USER != null) {
             val urlList: ArrayList<String> = ArrayList()
             for (uri in listUri) {
@@ -73,8 +75,8 @@ class PostRepository @Inject constructor(
                         uploadPostRef.downloadUrl
                             .addOnCompleteListener {
                                 urlList.add(it.result.toString())
-                                Log.d("TAG", "size: ${urlList.size} ${listUri.size}")
-                                if (urlList.size == listUri.size) {
+                                Log.d("TAG", "size: ${urlList.size} ${postImagesSize}")
+                                if (urlList.size == postImagesSize) {
                                     Log.d("TAG", "start upload to RTD")
                                     val postId = getDatabasePost().push().key
                                         ?: "${GlobalValue.USER!!.uidUser}_${currentTime}"
@@ -127,17 +129,14 @@ class PostRepository @Inject constructor(
                                             }
                                             //save image post
                                             var countSuccesss = 0
-                                            urlList.forEach {
+                                            urlList.forEach { image ->
                                                 val imagePostsRef = getDatabasePost().child(postId)
                                                     .child(FirebaseNode.postImageUrl)
                                                 val imageKey = imagePostsRef.push().key
-
-
-                                                val postImage = hashMapOf(
-                                                    FirebaseNode.imagePost to it
-                                                )
+                                                val imageItem = PostsImage(image)
+                                                Log.d("UpImageDB", "$imageKey $imageItem")
                                                 if (imageKey != null) {
-                                                    imagePostsRef.setValue(postImage)
+                                                    imagePostsRef.child(imageKey).setValue(imageItem.toHashMap)
                                                         .addOnFailureListener {
                                                             launch {
                                                                 send(FirebaseStatus.Failed(Message(R.string.image_post_was_not_uploaded)))
@@ -298,336 +297,317 @@ class PostRepository @Inject constructor(
 //        awaitClose()
 //    }
 //
-//    /**Load all posts from followers*/
-//    @ExperimentalCoroutinesApi
-//    fun getPostsFromFollowers(userId: String) = channelFlow<GetStatus<List<PostWithId>>> {
-//
-//        send(GetStatus.Loading)
-//
-//        /**
-//         * first people that user follows has to be loaded
-//         */
-//        followRespository.getListFollowing(userId).addListenerForSingleValueEvent(
-//            object : ValueEventListener
-//            {
-//                override fun onDataChange(dataSnapshot: DataSnapshot)
-//                {
-//                    val followers = dataSnapshot.getValue(FirebaseNode.followedType)
-//
-//                    if (followers != null)
-//                    {
-//                        val followingUsers = followers.map {
-//                            it.value.desId
-//                        }
-//
-//
-//                        var counter = 0
-//                        val allPosts = mutableListOf<PostWithId>()
-//
-//                        fun checkIfAllQueriesWereMade()
-//                        {
-//                            synchronized(counter)
-//                            {
-//                                counter++
-//
-//                                if (counter == followingUsers.size)
-//                                {
-//                                    launch {
-//                                        allPosts.sortByDescending { it.second.updatedTime }
-//                                        send(GetStatus.Success(allPosts))
-//                                        close()
-//                                    }
-//                                }
-//                            }
-//                        }
-//
-//                        /**
-//                         * For every user that is observed
-//                         * posts are loaded
-//                         */
-//                        followingUsers.forEach { userId ->
-//
-//                            getUserPost(userId).addListenerForSingleValueEvent(
-//                                object : ValueEventListener
-//                                {
-//                                    override fun onDataChange(snapshot: DataSnapshot)
-//                                    {
-//
-//                                        val posts = snapshot.getValue(FirebaseNode.postsType)
-//                                        posts?.forEach { post ->
-//                                            val images = snapshot.getValue(FirebaseNode.imageType)
-//                                            images?.forEach { image ->
-//                                                image.value.id = image.key
-//                                            }
-//                                            val postItem = PostWithId(post.key, post.value, images?.toList())
-//                                            Log.d("postItem", "$postItem")
-//                                            allPosts.add(postItem)
-//                                        }
-//
-//                                        checkIfAllQueriesWereMade()
-//                                    }
-//
-//                                    override fun onCancelled(error: DatabaseError)
-//                                    {
-//                                        checkIfAllQueriesWereMade()
-//                                    }
-//                                }
-//                            )
-//
-//                        }
-//                        // endregion
-//
-//                    }
-//                    else // user doesn't follow anyone
-//                    {
-//                        launch {
-//                            send(GetStatus.Success(listOf()))
-//                            close()
-//                        }
-//                    }
-//                }
-//
-//                override fun onCancelled(databaseError: DatabaseError)
-//                {
-//                    launch {
-//                        send(GetStatus.Failed(Message(R.string.followers_not_loaded)))
-//                        close()
-//                    }
-//                }
-//            }
-//        )
-//        awaitClose()
-//    }
-//
+    /**Load all posts from followers*/
+    @ExperimentalCoroutinesApi
+    fun getPostsFromFollowers(userId: String) = channelFlow<GetStatus<List<PostWithId>>> {
+
+        send(GetStatus.Loading)
+
+        /**
+         * first people that user follows has to be loaded
+         */
+        followRespository.getListFollowing(userId).addListenerForSingleValueEvent(
+            object : ValueEventListener
+            {
+                override fun onDataChange(dataSnapshot: DataSnapshot)
+                {
+                    val followers = dataSnapshot.getValue(FirebaseNode.followedType)
+
+                    if (followers != null)
+                    {
+                        val followingUsers = followers.map {
+                            it.value.desId
+                        }
+
+
+                        var counter = 0
+                        val allPosts = mutableListOf<PostWithId>()
+
+                        fun checkIfAllQueriesWereMade()
+                        {
+                            synchronized(counter)
+                            {
+                                counter++
+
+                                if (counter == followingUsers.size)
+                                {
+                                    launch {
+                                        allPosts.sortByDescending { it.second.updatedTime }
+                                        send(GetStatus.Success(allPosts))
+                                        close()
+                                    }
+                                }
+                            }
+                        }
+
+                        /**
+                         * For every user that is observed
+                         * posts are loaded
+                         */
+                        followingUsers.forEach { userId ->
+
+                            getUserPost(userId).addListenerForSingleValueEvent(
+                                object : ValueEventListener
+                                {
+                                    override fun onDataChange(snapshot: DataSnapshot)
+                                    {
+
+                                        val posts = snapshot.getValue(FirebaseNode.postsType)
+                                        Log.d("postsSnapshot", "$posts")
+                                        posts?.forEach { post ->
+                                            Log.d("TAG","${post.key} ${post.value}")
+                                            val images = post.value.image
+                                            images?.forEach { image ->
+                                                image.value.id = image.key
+                                            }
+                                            val postItem = PostWithId(post.key, post.value, images?.toList())
+                                            Log.d("postItemFollower", "$postItem")
+                                            allPosts.add(postItem)
+                                        }
+
+                                        checkIfAllQueriesWereMade()
+                                    }
+
+                                    override fun onCancelled(error: DatabaseError)
+                                    {
+                                        checkIfAllQueriesWereMade()
+                                    }
+                                }
+                            )
+
+                        }
+                        // endregion
+
+                    }
+                    else // user doesn't follow anyone
+                    {
+                        launch {
+                            send(GetStatus.Success(listOf()))
+                            close()
+                        }
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError)
+                {
+                    launch {
+                        send(GetStatus.Failed(Message(R.string.followers_not_loaded)))
+                        close()
+                    }
+                }
+            }
+        )
+        awaitClose()
+    }
+
     @ExperimentalCoroutinesApi
     fun getUserPostsFlow(userId: String): Flow<GetStatus<List<PostWithId>>> = channelFlow {
-//
-//        send(GetStatus.Loading)
-//
-//        getUserPost(userId).addListenerForSingleValueEvent(
-//            object : ValueEventListener
-//            {
-//                override fun onDataChange(snapshot: DataSnapshot)
-//                {
-//                    val posts = snapshot.getValue(FirebaseNode.postsType)
-//
-//                    if (posts != null)
-//                    {
-//                        val listPost = mutableListOf<PostWithId>()
-//                        posts.forEach{
-//
-//                            val images = snapshot.getValue(FirebaseNode.imageType)
-//                            if (images != null) {
-//                                val postItem = PostWithId(it.key, it.value, images.toList())
-//                                Log.d("postItem", "${postItem.toString()}")
-//                                listPost.add(postItem)
-//                            }
-//                        }
-//                        launch {
-//                            send(GetStatus.Success(listPost))
-//                            close()
-//                        }
-//                    }
-//                    else
-//                    {
-//
-//                        launch {
-//                            send(GetStatus.Success(listOf<PostWithId>()))
-//                            close()
-//                        }
-//                    }
-//                }
-//
-//                override fun onCancelled(error: DatabaseError)
-//                {
-//                    // cancel
-//                }
-//            }
-//        )
-//
-//        awaitClose()
-    }
-//
-//    @ExperimentalCoroutinesApi
-//    fun getMentionedPosts(username: String): Flow<GetStatus<List<PostWithId>>> = channelFlow {
-//        send(GetStatus.Loading)
-//
-//        getDatabaseMentions().child(username).addListenerForSingleValueEvent(
-//            object : ValueEventListener
-//            {
-//                override fun onDataChange(snapshot: DataSnapshot)
-//                {
-//
-//                    val mentionIds: List<String> = snapshot.children.mapNotNull {
-//                        it.key
-//                    }
-//                    if (mentionIds.isEmpty())
-//                    {
-//                        launch {
-//                            send(GetStatus.Success(listOf<PostWithId>()))
-//                            close()
-//                        }
-//
-//                    }
-//                    val postToDisplay = mentionIds.size
-//                    var postQueried = 0
-//                    val posts: MutableList<PostWithId> = mutableListOf()
-//
-//
-//                    fun sendDataAndCheckClose()
-//                    {
-//                        postQueried++
-//
-//                        launch {
-//                            if (postQueried == postToDisplay)
-//                            {
-//                                send(GetStatus.Success(posts))
-//                                close()
-//                            }
-//                        }
-//                    }
-//
-//                    mentionIds.forEach { id ->
-//
-//                        getPostById(id).addListenerForSingleValueEvent(
-//                            object : ValueEventListener
-//                            {
-//                                override fun onDataChange(snapshot: DataSnapshot)
-//                                {
-//                                    val post = snapshot.getValue(PostsModel::class.java)
-//                                    if (post != null)
-//                                    {
-//                                        val postItem = PostWithId(id,post,post.image?.toList())
-//                                        Log.d("postItem", "$id $post ${post.image?.toList()}")
-//                                        posts.add(postItem)
-//                                    }
-//                                    else
-//                                    {
-//                                        //wrong
-//                                    }
-//                                    sendDataAndCheckClose()
-//                                }
-//
-//                                override fun onCancelled(error: DatabaseError)
-//                                {
-//                                    sendDataAndCheckClose()
-//                                }
-//                            }
-//                        )
-//                    }
-//
-//                }
-//
-//                override fun onCancelled(error: DatabaseError)
-//                {
-//                    close()
-//                }
-//            }
-//        )
-//
-//        awaitClose()
-//    }
-//
-//    @ExperimentalCoroutinesApi
-//    fun getLikedPostByUserId(userId: String): Flow<GetStatus<List<PostWithId>>> = channelFlow {
-//        send(GetStatus.Loading)
-//
-//        getDatabasePostLike().orderByChild(userId).equalTo(true).addListenerForSingleValueEvent(
-//
-//            object : ValueEventListener
-//            {
-//                override fun onDataChange(snapshot: DataSnapshot)
-//                {
-//
-//                    val likedIds: List<String> = snapshot.children.mapNotNull {
-//                        it.key
-//                    }
-//
-//                    if (likedIds.isEmpty())
-//                    {
-//                        launch {
-//                            send(GetStatus.Success(listOf<PostWithId>()))
-//                            close()
-//                        }
-//
-//                    }
-//
-//                    val postToDisplay = likedIds.size
-//                    var postQueried = 0
-//                    val posts: MutableList<PostWithId> = mutableListOf()
-//                    fun sendDataAndCheckClose()
-//                    {
-//                        postQueried++
-//
-//                        launch {
-//                            if (postQueried == postToDisplay)
-//                            {
-//                                send(GetStatus.Success(posts))
-//                                close()
-//                            }
-//                        }
-//                    }
-//                    likedIds.forEach { id ->
-//
-//                        getPostById(id).addListenerForSingleValueEvent(
-//                            object : ValueEventListener
-//                            {
-//                                override fun onDataChange(snapshot: DataSnapshot)
-//                                {
-//                                    val post = snapshot.getValue(PostsModel::class.java)
-//                                    if (post != null)
-//                                    {
-//                                        val postItem = PostWithId(id,post,post.image?.toList())
-//                                        Log.d("postItem", "$id $post ${post.image?.toList()}")
-//                                        posts.add(postItem)
-//                                    }
-//                                    else
-//                                    {
-//                                        //wrong
-//                                    }
-//                                    sendDataAndCheckClose()
-//                                }
-//
-//                                override fun onCancelled(error: DatabaseError)
-//                                {
-//                                    sendDataAndCheckClose()
-//                                }
-//                            }
-//                        )
-//                    }
-//                }
-//
-//                override fun onCancelled(error: DatabaseError)
-//                {
-//                    close()
-//                }
-//            }
-//        )
-//
-//        awaitClose()
-//    }
+        Log.d("TAG","start get own post")
+        send(GetStatus.Loading)
 
-//    fun getImageListById(PostId: String){
-//        getDatabasePost().child(PostId).child(FirebaseNode.postImageUrl).addListenerForSingleValueEvent(
-//            object : ValueEventListener
-//            {
-//                override fun onDataChange(snapshot: DataSnapshot)
-//                {
-//                    val images = snapshot.getValue(FirebaseNode.imageType)
-//                    if (images != null)
-//                    {
-//                        images.forEach {
-//                            it.value.id = it.key
-//                        }
-//                        imageList = images.values.toList() as MutableList<PostsImage>
-//                        return imageList
-//                    }
-//                }
-//
-//                override fun onCancelled(error: DatabaseError)
-//                {
-//                    //cancel
-//                }
-//            }
-//    }
+        getUserPost(userId).addListenerForSingleValueEvent(
+            object : ValueEventListener
+            {
+                override fun onDataChange(snapshot: DataSnapshot)
+                {
+                    val posts = snapshot.getValue(FirebaseNode.postsType)
+
+                    if (posts != null)
+                    {
+                        val listPost = mutableListOf<PostWithId>()
+                        posts.forEach{ post ->
+                            val images = post.value.image
+                            images?.forEach { image ->
+                                image.value.id = image.key
+                            }
+                            if (images != null) {
+                                val postItem = PostWithId(post.key, post.value, images.toList())
+                                Log.d("postItemOwn", "${postItem.toString()}")
+                                listPost.add(postItem)
+                            }
+                        }
+                        launch {
+                            send(GetStatus.Success(listPost))
+                            close()
+                        }
+                    }
+                    else
+                    {
+
+                        launch {
+                            send(GetStatus.Success(listOf<PostWithId>()))
+                            close()
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError)
+                {
+                    // cancel
+                }
+            }
+        )
+
+        awaitClose()
+    }
+
+    @ExperimentalCoroutinesApi
+    fun getMentionedPosts(username: String): Flow<GetStatus<List<PostWithId>>> = channelFlow {
+        send(GetStatus.Loading)
+
+        getDatabaseMentions().child(username).addListenerForSingleValueEvent(
+            object : ValueEventListener
+            {
+                override fun onDataChange(snapshot: DataSnapshot)
+                {
+
+                    val mentionIds: List<String> = snapshot.children.mapNotNull {
+                        it.key
+                    }
+                    if (mentionIds.isEmpty())
+                    {
+                        launch {
+                            send(GetStatus.Success(listOf<PostWithId>()))
+                            close()
+                        }
+
+                    }
+                    val postToDisplay = mentionIds.size
+                    var postQueried = 0
+                    val posts: MutableList<PostWithId> = mutableListOf()
+
+
+                    fun sendDataAndCheckClose()
+                    {
+                        postQueried++
+
+                        launch {
+                            if (postQueried == postToDisplay)
+                            {
+                                send(GetStatus.Success(posts))
+                                close()
+                            }
+                        }
+                    }
+
+                    mentionIds.forEach { id ->
+
+                        getPostById(id).addListenerForSingleValueEvent(
+                            object : ValueEventListener
+                            {
+                                override fun onDataChange(snapshot: DataSnapshot)
+                                {
+                                    val post = snapshot.getValue(PostsModel::class.java)
+                                    if (post != null)
+                                    {
+                                        val postItem = PostWithId(id,post,post.image?.toList())
+                                        Log.d("postItemMentions", "$id $post ${post.image?.toList()}")
+                                        posts.add(postItem)
+                                    }
+                                    else
+                                    {
+                                        //wrong
+                                    }
+                                    sendDataAndCheckClose()
+                                }
+
+                                override fun onCancelled(error: DatabaseError)
+                                {
+                                    sendDataAndCheckClose()
+                                }
+                            }
+                        )
+                    }
+
+                }
+
+                override fun onCancelled(error: DatabaseError)
+                {
+                    close()
+                }
+            }
+        )
+
+        awaitClose()
+    }
+
+    @ExperimentalCoroutinesApi
+    fun getLikedPostByUserId(userId: String): Flow<GetStatus<List<PostWithId>>> = channelFlow {
+        send(GetStatus.Loading)
+
+        getDatabasePostLike().orderByChild(userId).equalTo(true).addListenerForSingleValueEvent(
+
+            object : ValueEventListener
+            {
+                override fun onDataChange(snapshot: DataSnapshot)
+                {
+
+                    val likedIds: List<String> = snapshot.children.mapNotNull {
+                        it.key
+                    }
+
+                    if (likedIds.isEmpty())
+                    {
+                        launch {
+                            send(GetStatus.Success(listOf<PostWithId>()))
+                            close()
+                        }
+
+                    }
+
+                    val postToDisplay = likedIds.size
+                    var postQueried = 0
+                    val posts: MutableList<PostWithId> = mutableListOf()
+                    fun sendDataAndCheckClose()
+                    {
+                        postQueried++
+
+                        launch {
+                            if (postQueried == postToDisplay)
+                            {
+                                send(GetStatus.Success(posts))
+                                close()
+                            }
+                        }
+                    }
+                    likedIds.forEach { id ->
+
+                        getPostById(id).addListenerForSingleValueEvent(
+                            object : ValueEventListener
+                            {
+                                override fun onDataChange(snapshot: DataSnapshot)
+                                {
+                                    val post = snapshot.getValue(PostsModel::class.java)
+                                    if (post != null)
+                                    {
+                                        val postItem = PostWithId(id,post,post.image?.toList())
+                                        Log.d("postItemLiked", "$id $post ${post.image?.toList()}")
+                                        posts.add(postItem)
+                                    }
+                                    else
+                                    {
+                                        //wrong
+                                    }
+                                    sendDataAndCheckClose()
+                                }
+
+                                override fun onCancelled(error: DatabaseError)
+                                {
+                                    sendDataAndCheckClose()
+                                }
+                            }
+                        )
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError)
+                {
+                    close()
+                }
+            }
+        )
+
+        awaitClose()
+    }
+
 }

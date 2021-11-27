@@ -57,8 +57,8 @@ abstract class AbstractDialog (@LayoutRes layout: Int
     @Inject
     lateinit var imageLoader: ImageLoader
     private lateinit var materialAlertDialogBuilder: MaterialAlertDialogBuilder
-    val  ProfileBinding by viewBinding(FragmentProfileBinding::bind)
-    val  UserBinding by viewBinding(FragmentUserBinding::bind)
+    val  profileBinding by viewBinding(FragmentProfileBinding::bind)
+    val  userBinding by viewBinding(FragmentUserBinding::bind)
     val viewModel: ProfileViewModel by viewModels()
 
     private var alertDialog: AlertDialog? = null
@@ -146,10 +146,12 @@ abstract class AbstractDialog (@LayoutRes layout: Int
         isProfileFragment: Boolean
     ) {
 
-//        if(isProfileFragment) {
-//
-//            ProfileBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
-//        }
+        if(isProfileFragment) {
+
+            profileBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
+        } else {
+            userBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
+        }
 
         uploadAdapter.postClickListener = this
         mentionedAdapter.postClickListener = this
@@ -194,17 +196,17 @@ abstract class AbstractDialog (@LayoutRes layout: Int
         }
         if(isProfileFragment) {
 
-            ProfileBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
-            ProfileBinding.vpRecyclers.adapter = adapter
+            profileBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
+            profileBinding.vpRecyclers.adapter = adapter
 
-            TabLayoutMediator(ProfileBinding.tabsPostType, ProfileBinding.vpRecyclers) { tab, pos ->
+            TabLayoutMediator(profileBinding.tabsPostType, profileBinding.vpRecyclers) { tab, pos ->
                 tab.text = getString(names[pos])
             }.attach()
         } else {
-            UserBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
-            UserBinding.vpRecyclers.adapter = adapter
+            userBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
+            userBinding.vpRecyclers.adapter = adapter
 
-            TabLayoutMediator(UserBinding.tabsPostType, UserBinding.vpRecyclers) { tab, pos ->
+            TabLayoutMediator(userBinding.tabsPostType, userBinding.vpRecyclers) { tab, pos ->
                 tab.text = getString(names[pos])
             }.attach()
         }

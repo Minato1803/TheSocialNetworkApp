@@ -44,8 +44,6 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     lateinit var mGoogleSignInClient: GoogleSignInClient
     @Inject
     lateinit var glide: RequestManager
-    private var _bd: FragmentUserBinding? = null
-    lateinit var binding: FragmentUserBinding
     lateinit var mMainActivity: MainActivity
     private val mProfileViewModel : ProfileViewModel by viewModels()
     private var userModel : UserModel? = null
@@ -59,8 +57,6 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _bd = FragmentUserBinding.bind(view)
-        binding = _bd!!
         setEvent()
         setInit()
         setObserveData()
@@ -75,21 +71,18 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
                 {
                     ProfileViewModel.IsUserFollowed.UNKNOWN ->
                     {
-                        /**
-                         * Displayed text: [R.string.follow]
-                         */
-                        binding.btnFollow.text = getString(R.string.follow)
-                        binding.btnFollow.isEnabled = false
+                        userBinding.btnFollow.text = getString(R.string.follow)
+                        userBinding.btnFollow.isEnabled = false
                     }
                     ProfileViewModel.IsUserFollowed.YES ->
                     {
-                        binding.btnFollow.text = getString(R.string.unfollow)
-                        binding.btnFollow.isEnabled = true
+                        userBinding.btnFollow.text = getString(R.string.unfollow)
+                        userBinding.btnFollow.isEnabled = true
                     }
                     ProfileViewModel.IsUserFollowed.NO ->
                     {
-                        binding.btnFollow.text = getString(R.string.follow)
-                        binding.btnFollow.isEnabled = true
+                        userBinding.btnFollow.text = getString(R.string.follow)
+                        userBinding.btnFollow.isEnabled = true
                     }
                 }.exhaustive
             }
@@ -100,7 +93,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
          */
         lifecycleScope.launchWhenStarted {
             mProfileViewModel.canDoFollowUnfollowOperation.collectLatest { canBeClicked ->
-                binding.btnFollow.isEnabled = canBeClicked
+                userBinding.btnFollow.isEnabled = canBeClicked
             }
         }
 
@@ -115,7 +108,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
                     }
                     is SearchFollowStatus.Success ->
                     {
-                        binding.txtCounterFollowers.text = status.result.size.toString()
+                        userBinding.txtCounterFollowers.text = status.result.size.toString()
                     }
                 }
             }
@@ -134,7 +127,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
                     }
                     is SearchFollowStatus.Success ->
                     {
-                        binding.txtCounterFollowing.text = status.result.size.toString()
+                        userBinding.txtCounterFollowing.text = status.result.size.toString()
                     }
                 }
             }
@@ -164,14 +157,14 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             viewModel.initUser(userModel!!)
         }
         userModel?.let { userModel ->
-            binding.tvFullName.text = userModel.userName
+            userBinding.tvFullName.text = userModel.userName
             if (userModel.description.trim().isNotEmpty())
-                binding.tvDesc.text = userModel.description
+                userBinding.tvDesc.text = userModel.description
             glide
                 .load(userModel.avatarUrl)
                 .fitCenter()
                 .centerCrop()
-                .into(binding.imgAvatar)
+                .into(userBinding.imgAvatar)
         }
     }
 
@@ -184,17 +177,17 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
         mMainActivity.bd.toolbar.setNavigationOnClickListener {
             mMainActivity.onBackPressed()
         }
-        binding.btnFollow.setOnClickListener {
+        userBinding.btnFollow.setOnClickListener {
             mProfileViewModel.followUnfollow()
             setObserveData()
         }
-        binding.btnMessage.setOnClickListener {
+        userBinding.btnMessage.setOnClickListener {
             val messageFragment = MessageFragment.newInstance(userModel!!)
             navigateFragment(messageFragment, "messageFragment")
         }
         //ToDo: open dialog list
-        binding.linLayFollowers.setOnClickListener { openFollowers() }
-        binding.linLayFollowing.setOnClickListener { openFollowing() }
+        userBinding.linLayFollowers.setOnClickListener { openFollowers() }
+        userBinding.linLayFollowing.setOnClickListener { openFollowing() }
     }
 
     private fun openFollowing() {

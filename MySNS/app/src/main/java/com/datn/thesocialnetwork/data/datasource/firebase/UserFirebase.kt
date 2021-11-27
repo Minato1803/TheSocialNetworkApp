@@ -29,6 +29,9 @@ class UserFirebase @Inject constructor(
 
     fun getAuth() = mAuth
     private fun getStorage() = mStorage.reference
+    init {
+        getDatabase().keepSynced(true)
+    }
 
 //    init
 //    {
@@ -39,7 +42,7 @@ class UserFirebase @Inject constructor(
 //        }
 //    }
 
-    suspend fun insertUser(userRes: UserResponse): DataSnapshot {
+    suspend fun insertUser(userRes: UserResponse): DataSnapshot{
         Log.d("insert", userRes.userDetail.email)
         getDatabase()
             .child(userRes.uidUser)
@@ -49,6 +52,7 @@ class UserFirebase @Inject constructor(
 
     suspend fun getUserById(uidUser: String): DataSnapshot =
         getDatabase().child(uidUser).get().await()
+
 
     suspend fun updateUser(uidUser: String, userDetail: UserDetail): DataSnapshot {
         val node = getDatabase()

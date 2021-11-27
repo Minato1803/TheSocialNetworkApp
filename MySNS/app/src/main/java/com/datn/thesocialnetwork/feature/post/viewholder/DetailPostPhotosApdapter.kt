@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.data.repository.model.PostsImage
 import com.datn.thesocialnetwork.databinding.ItemFeedPhotoBinding
@@ -13,8 +14,6 @@ class DetailPostPhotosApdapter(
     private val listImage: List<Pair<String, PostsImage>>?
 ): RecyclerView.Adapter<DetailPostPhotosApdapter.ViewHolder>() {
 
-    @Inject
-    lateinit var glide: RequestManager
     lateinit var binding: ItemFeedPhotoBinding
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -31,8 +30,10 @@ class DetailPostPhotosApdapter(
     }
 
     override fun onBindViewHolder(holder: DetailPostPhotosApdapter.ViewHolder, position: Int) {
-        glide
+        Glide.with(binding.root.context)
             .load(listImage?.get(position)?.second?.imageUrl)
+            .centerCrop()
+            .fitCenter()
             .into(holder.image)
     }
 
