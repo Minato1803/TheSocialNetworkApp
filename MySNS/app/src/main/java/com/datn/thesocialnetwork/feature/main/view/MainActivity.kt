@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         actionBarDrawerToggle.syncState()
     }
 
-    private fun clickNavigateSubScreen(menuItem: MenuItem): Boolean {
+    fun clickNavigateSubScreen(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.navHome -> {
                 setCurrentFragment(fragHome)

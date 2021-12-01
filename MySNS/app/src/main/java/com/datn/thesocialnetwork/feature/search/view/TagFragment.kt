@@ -1,4 +1,4 @@
-package com.datn.thesocialnetwork.feature
+package com.datn.thesocialnetwork.feature.search.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +8,6 @@ import android.view.ViewGroup
 import com.datn.thesocialnetwork.R
 
 
-class EditPostFragment : Fragment() {
+class TagFragment : Fragment() {
 
 }

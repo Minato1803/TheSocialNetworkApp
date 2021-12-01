@@ -1,5 +1,9 @@
 package com.datn.thesocialnetwork.core.util
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
+import com.datn.thesocialnetwork.core.util.SystemUtils.showMessage
 import com.datn.thesocialnetwork.databinding.StateRecyclerBinding
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -83,4 +88,34 @@ object ViewUtils {
 
     fun <T : ViewBinding> Fragment.viewBinding(viewBindingFactory: (View) -> T) =
         FragmentViewBindingDelegate(this, viewBindingFactory)
+
+    fun Context.tryOpenUrl(
+        url: String,
+        errorCallback: () -> Unit = {
+            showMessage(this,getString(R.string.could_not_open_browser))
+        }
+    )
+    {
+        var webPage = Uri.parse(url)
+
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+        {
+            webPage = Uri.parse("https://$url")
+        }
+
+        val browserIntent =
+            Intent(
+                Intent.ACTION_VIEW,
+                webPage
+            )
+
+        try
+        {
+            startActivity(browserIntent)
+        }
+        catch (ex: ActivityNotFoundException)
+        {
+            errorCallback()
+        }
+    }
 }

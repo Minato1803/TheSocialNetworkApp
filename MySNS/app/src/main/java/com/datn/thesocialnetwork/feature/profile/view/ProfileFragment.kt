@@ -7,6 +7,7 @@ import android.view.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
@@ -16,10 +17,16 @@ import com.datn.thesocialnetwork.core.api.status.SearchFollowStatus
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils
+import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
+import com.datn.thesocialnetwork.core.util.ViewUtils.tryOpenUrl
 import com.datn.thesocialnetwork.data.repository.model.UserModel
-import com.datn.thesocialnetwork.databinding.FragmentProfileBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
+import com.datn.thesocialnetwork.feature.post.detailpost.view.DetailPostFragment
+import com.datn.thesocialnetwork.feature.post.comment.view.CommentFragment
+import com.datn.thesocialnetwork.feature.post.editpost.view.EditPostFragment
+import com.datn.thesocialnetwork.feature.post.editpost.viewmodel.EditPostViewModel
+import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment
 import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -35,41 +42,30 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
 
     @Inject
     lateinit var mGoogleSignInClient: GoogleSignInClient
+
     @Inject
     lateinit var glide: RequestManager
-//    private var binding: FragmentProfileBinding? = null
     lateinit var mMainActivity: MainActivity
 
-    private val mProfileViewModel : ProfileViewModel by viewModels()
-    lateinit var actionBarDrawerToggle : ActionBarDrawerToggle
+    private val mProfileViewModel: ProfileViewModel by viewModels()
+    private val editPostViewModel: EditPostViewModel by activityViewModels()
+    lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mMainActivity = activity as MainActivity
     }
 
-//    override fun onCreateView(
-//        inflater: LayoutInflater, container: ViewGroup?,
-//        savedInstanceState: Bundle?,
-//    ): View {
-//        // Inflate the layout for this fragment
-//        binding = FragmentProfileBinding.inflate(layoutInflater, container, false)
-//
-//        return binding!!.root
-//    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View?
-    {
+        savedInstanceState: Bundle?,
+    ): View? {
         setHasOptionsMenu(true)
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setEvent()
         setInit()
@@ -83,10 +79,8 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId)
-        {
-            R.id.miSignOut ->
-            {
+        return when (item.itemId) {
+            R.id.miSignOut -> {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(resources.getString(R.string.str_sign_out))
                     .setMessage(resources.getString(R.string.log_out_confirmation))
@@ -99,8 +93,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
                     .show()
                 true
             }
-            R.id.miEdit ->
-            {
+            R.id.miEdit -> {
                 navigateFragment(EditProfileFragment.newInstance(), "editProfileFragment")
                 true
             }
@@ -114,44 +107,80 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
             profileBinding.userLayout.showSnackbarGravity(
                 message = getString(R.string.you_are_currently_on_your_profile)
             )
-        }
-        else
-        {
+        } else {
             val userFragment = UserFragment.newInstance(UserModel(uidUser = postOwner), true)
             navigateFragment(userFragment, "userFragment")
         }
     }
 
     override fun likeClick(postId: String, status: Boolean) {
-        //TODO("Not yet implemented")
+        viewModel.setLikeStatus(postId, status)
     }
 
     override fun commentClick(postId: String) {
         //Todo: navigate to comment
+        val commentFragment = CommentFragment.newInstance(postId)
+        navigateFragment(commentFragment, "commentFragment")
     }
 
     override fun shareClick(postId: String) {
-        //TODO("Not yet implemented")
+        //todo: share
     }
 
     override fun likeCounterClick(postId: String) {
-        //TODO("Not yet implemented")
+        openDialogWithListOfUsers(
+            statusFlow = viewModel.getUsersThatLikePost(postId),
+            title = R.string.users_that_like_post,
+            emptyText = R.string.empty_users_liking_post,
+            errorText = R.string.something_went_wrong_loading_users_that_liked_post
+        )
+    }
+
+    override fun imageClick(postWithId: PostWithId) {
+        val detailPostFragment = DetailPostFragment.newInstance(postWithId.first)
+        navigateFragment(detailPostFragment, "detailPostFragment")
     }
 
     override fun tagClick(tag: String) {
-        //TODO("Not yet implemented")
+        //todo:  tag frag
     }
 
     override fun linkClick(link: String) {
-        //TODO("Not yet implemented")
+        requireContext().tryOpenUrl(link) {
+            SystemUtils.showMessage(requireContext(), getString(R.string.could_not_open_browser))
+        }
     }
 
     override fun mentionClick(mention: String) {
-        //TODO("Not yet implemented")
+        if (viewModel.isOwnAccountUsername(mention)) // user clicked on own profile
+        {
+            profileBinding.userLayout.showSnackbarGravity(
+                message = getString(R.string.you_are_currently_on_your_profile)
+            )
+        } else {
+            // check if mention is not the same as current user
+            if (viewModel.selectedUser.value?.userName!!.lowercase() != mention.normalize()) {
+                val userFragment =
+                    UserFragment.newInstance(UserModel(userName = mention), isLoadFromDb = true)
+                navigateFragment(userFragment, "userFragment")
+            } else {
+                userBinding.userLayout.showSnackbarGravity(
+                    message = getString(R.string.currently_on_this_profile)
+                )
+            }
+        }
     }
 
     override fun menuReportClick(postId: String) {
         //TODO("Not yet implemented")
+    }
+
+    override fun menuEditClick(post: PostWithId) {
+        //todo: editpost
+        Log.d("editPost", "${post.toString()}")
+        editPostViewModel.postWithId.postValue(post)
+        val editPostFragment = EditPostFragment.newInstance()
+        navigateFragment(editPostFragment, "editPostFragment")
     }
 
     private fun setObserveData() {
@@ -161,48 +190,39 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
          */
         lifecycleScope.launchWhenStarted {
             mProfileViewModel.selectedUser.collectLatest {
-                if (it != null)
-                {}
+                if (it != null) {
+                }
             }
         }
-
         lifecycleScope.launchWhenStarted {
             mProfileViewModel.userFollowersFlow.collectLatest { status ->
 
-                when (status)
-                {
-                    SearchFollowStatus.Loading, SearchFollowStatus.Sleep ->
-                    {
+                when (status) {
+                    SearchFollowStatus.Loading, SearchFollowStatus.Sleep -> {
                         //loading
                     }
-                    is SearchFollowStatus.Success ->
-                    {
+                    is SearchFollowStatus.Success -> {
                         profileBinding.txtCounterFollowers.text = status.result.size.toString()
                     }
                 }
             }
         }
-
         /**
          * Collect selected user following users
          */
         lifecycleScope.launchWhenStarted {
             mProfileViewModel.userFollowingFlow.collectLatest { status ->
-                when (status)
-                {
-                    SearchFollowStatus.Loading, SearchFollowStatus.Sleep ->
-                    {
+                when (status) {
+                    SearchFollowStatus.Loading, SearchFollowStatus.Sleep -> {
                         //loading
                     }
-                    is SearchFollowStatus.Success ->
-                    {
+                    is SearchFollowStatus.Success -> {
                         Log.d("Following", status.result.toString())
                         profileBinding.txtCounterFollowing.text = status.result.size.toString()
                     }
                 }
             }
         }
-
         /**
          * Collect number of posts
          */
@@ -213,7 +233,6 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
                 }
             }
         }
-
         /**
          * Collect selected category
          */
@@ -230,12 +249,9 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     }
 
     private fun setInit() {
-        if (!mProfileViewModel.isInitialized.value)
-        {
+        if (!mProfileViewModel.isInitialized.value) {
             mProfileViewModel.initWithLoggedUser()
-        }
-        else
-        {
+        } else {
             mProfileViewModel.refreshUser()
         }
         mProfileViewModel.initUser(ModelMapping.mapToUserModel(GlobalValue.USER!!))
@@ -257,7 +273,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
 
     private fun initDataUser() {
         profileBinding.tvFullName.text = GlobalValue.USER!!.userDetail.userName
-        if(GlobalValue.USER!!.userDetail.description.trim().isNotEmpty())
+        if (GlobalValue.USER!!.userDetail.description.trim().isNotEmpty())
             profileBinding.tvDesc.text = GlobalValue.USER!!.userDetail.description
         glide
             .load(GlobalValue.USER!!.userDetail.avatarUrl)

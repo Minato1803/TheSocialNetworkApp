@@ -17,6 +17,7 @@ import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.listener.PostClickListener
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
+import com.datn.thesocialnetwork.core.util.ViewUtils.tryOpenUrl
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelPost
 import com.datn.thesocialnetwork.feature.profile.adapter.UserAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,7 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
-
+@ExperimentalCoroutinesApi
 abstract class AbstractFragmentPost(
     @LayoutRes layout: Int
 ) : Fragment(layout), PostClickListener
@@ -35,7 +36,6 @@ abstract class AbstractFragmentPost(
     @Inject
     lateinit var userAdapter: UserAdapter
 
-    @ExperimentalCoroutinesApi
     protected abstract val viewModel: ViewModelPost
 
     protected abstract val binding: ViewBinding
@@ -62,35 +62,35 @@ abstract class AbstractFragmentPost(
 
     override fun likeClick(postId: String, status: Boolean)
     {
-//        viewModel.setLikeStatus(postId, status)
+        viewModel.setLikeStatus(postId, status)
     }
 
     override fun shareClick(postId: String)
     {
-//        startActivity(getShareIntent(Constants.getShareLinkToPost(postId)))
+        //todo: share
     }
 
     private var searchUsersJob: Job? = null
 
     private var alertDialog: AlertDialog? = null
 
-    @ExperimentalCoroutinesApi
+
     override fun likeCounterClick(postId: String)
     {
-//        openDialogWithListOfUsers(
-//            statusFlow = viewModel.getUsersThatLikePost(postId),
-//            title = R.string.users_that_like_post,
-//            emptyText = R.string.empty_users_liking_post,
-//            errorText = R.string.something_went_wrong_loading_users_that_liked_post
-//        )
+        openDialogWithListOfUsers(
+            statusFlow = viewModel.getUsersThatLikePost(postId),
+            title = R.string.users_that_like_post,
+            emptyText = R.string.empty_users_liking_post,
+            errorText = R.string.something_went_wrong_loading_users_that_liked_post
+        )
     }
 
 
     override fun linkClick(link: String)
     {
-//        requireContext().tryOpenUrl(link) {
-//            showSnackbar(R.string.could_not_open_browser)
-//        }
+        requireContext().tryOpenUrl(link) {
+            showSnackbar(R.string.could_not_open_browser)
+        }
     }
 
     override fun menuReportClick(postId: String)

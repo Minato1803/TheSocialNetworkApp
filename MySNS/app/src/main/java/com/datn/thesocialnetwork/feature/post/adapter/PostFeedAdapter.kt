@@ -27,8 +27,6 @@ class PostFeedAdapter @Inject constructor(): RecyclerView.Adapter<PostFeedAdapte
             notifyDataSetChanged()
         }
 
-//    private val inflater =
-//        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     lateinit var binding: ItemPostFeedBinding
     var multiple = false
     val multipleArray = arrayListOf<Uri>()

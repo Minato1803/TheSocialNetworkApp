@@ -1,6 +1,8 @@
 package com.datn.thesocialnetwork.core.util
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -17,6 +19,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ShareCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
@@ -217,5 +220,12 @@ object SystemUtils {
         }
 
         return sb.toString()
+    }
+
+    fun Activity.getShareIntent(text: String): Intent
+    {
+        return ShareCompat.IntentBuilder.from(this)
+            .setText(text)
+            .setType("text/plain").intent
     }
 }

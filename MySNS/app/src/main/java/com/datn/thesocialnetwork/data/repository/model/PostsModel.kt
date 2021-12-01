@@ -1,6 +1,8 @@
 package com.datn.thesocialnetwork.data.repository.model
 
+import android.os.Parcelable
 import com.datn.thesocialnetwork.core.util.FirebaseNode
+import kotlinx.android.parcel.Parcelize
 
 data class PostsModel(
     var commentCount: Int = 0,

@@ -29,4 +29,7 @@
     <color name="blackTransparent">#30000000</color>
     <color name="hyperlink_color">#3C9DB7</color>
     <color name="mention_color">#C79A00</color>
+    <color name="bar_background">#B3FFFFFF</color>
+    <color name="red_border_line">#C40233</color>
+    <color name="btn_off">#1565C0</color>
 </resources>

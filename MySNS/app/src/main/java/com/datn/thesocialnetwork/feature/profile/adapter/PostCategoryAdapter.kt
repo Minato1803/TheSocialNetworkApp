@@ -24,7 +24,7 @@ class PostCategoryAdapter (
     override fun getItemCount(): Int = stateRecyclerData.size
 
 }
-
+@ExperimentalCoroutinesApi
 data class StateRecyclerData constructor(
     val postsToDisplay: Flow<GetStatus<List<PostWithId>>>,
     val postAdapter: PostAdapter,

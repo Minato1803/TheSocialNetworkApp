@@ -31,8 +31,8 @@ class PostAdapter @Inject constructor(
     )
     {
         userRepository.removeUserListener(userListenerId)
-//        postRepository.removeLikeListener(likeListenerId)
-//        postRepository.removeCommentCounterListener(commentListenerId)
+        postRepository.removeLikeListener(likeListenerId)
+        postRepository.removeCommentCounterListener(commentListenerId)
     }
 
     private val holders: MutableList<() -> Unit> = mutableListOf()
@@ -49,8 +49,8 @@ class PostAdapter @Inject constructor(
         imageLoader = imageLoader,
         postClickListener = postClickListener,
         userFlow = userRepository::getUser,
-//        likeFlow = postRepository::getPostLikes,
-//        commentCounterFlow = postRepository::getCommentsCounter,
+        likeFlow = postRepository::getPostLikes,
+        commentCounterFlow = postRepository::getCommentsCounter,
         loggedUserId = repository.loggedUser.value?.uid
     )
 

@@ -3,10 +3,8 @@ package com.datn.thesocialnetwork.core.util
 import androidx.fragment.app.Fragment
 import com.datn.thesocialnetwork.data.repository.model.*
 import com.datn.thesocialnetwork.data.repository.model.chat_room.Room
-import com.datn.thesocialnetwork.data.repository.model.chat_room.RoomMember
-import com.datn.thesocialnetwork.data.repository.model.post.status.CommentStatus
+import com.datn.thesocialnetwork.data.repository.model.post.status.CommentModel
 import com.google.firebase.database.GenericTypeIndicator
-import org.w3c.dom.Comment
 
 object Const {
 
@@ -27,7 +25,7 @@ object Const {
     const val REGEX_SPECIAL_CHAR = "[!@#\$%&*()_+=|<>?{}\\\\[\\\\]~-]"
 
     const val DATE_FORMAT = "dd-MM-yyyy"
-    const val DATE_TIME_FORMAT_MESSAGE = "HH:mm dd MMM yy"
+    const val DATE_TIME_FORMAT_MESSAGE = "HH:mm dd/MM/yyyy"
 
     const val RECOMMENDED_COLUMNS = 2
 
@@ -116,8 +114,14 @@ object FirebaseNode {
     const val commentContent = "content"
     const val commentTime = "time"
     const val commentOwner = "ownerId"
-    val commentType = object : GenericTypeIndicator<HashMap<String, CommentStatus>>()
+    val commentType = object : GenericTypeIndicator<HashMap<String, CommentModel>>()
     {}
+    // Reports
+    const val reportPost = "Reports"
+    const val reportPostId = "postId"
+    const val reporter = "reporter"
+    const val reportMessage = "message"
+    const val reportTime = "CreatedTime"
 
 }
 

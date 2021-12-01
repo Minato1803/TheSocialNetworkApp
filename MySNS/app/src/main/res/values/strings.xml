@@ -123,9 +123,9 @@
     <string name="try_again">Thử lại</string>
     <string name="post_image">image_post</string>
     <string name="like">like</string>
-    <string name="comment">comment</string>
+    <string name="comment">Nhập bình luận ở đây…</string>
     <string name="share">share</string>
-    <string name="storage">storageg</string>
+    <string name="storage">storage</string>
     <string name="ex_like_count">100 lượt thích</string>
     <string name="ex_upload_date">1 giây trước</string>
     <string name="ex_comment_count">Xem thêm 100 bình luận</string>
@@ -135,7 +135,6 @@
     <string name="edit_post">Chỉnh sửa bài viết</string>
     <string name="show_description">Hiện mô tả</string>
     <string name="collapse_description">Ẩn mô tả</string>
-    <string name="comments_format">Xem thêm %s bình luận</string>
     <string name="str_something_went_wrong">Có lỗi xảy ra</string>
     <string name="followers_not_loaded">Có lỗi xảy ra\nKhông tải được dữ liệu người theo dõi</string>
     <string name="mentions">Được gắn thẻ</string>
@@ -147,4 +146,18 @@
     <string name="no_likes_profile">Bạn chưa thích bài viết nào</string>
     <string name="no_liked_user">Người này chưa thích bài viết nào</string>
     <string name="you_are_currently_on_your_profile">Bạn đang ở trang cá nhân của bạn</string>
+    <string name="comments">%s  bình luận</string>
+    <string name="liked_counter">Số lượt thích</string>
+    <string name="currently_on_this_profile">Đang xem trang cá nhân hiện tại</string>
+    <string name="users_that_like_post">Những người đã thích</string>
+    <string name="empty_users_liking_post">Chưa có ai thích bài viết này</string>
+    <string name="something_went_wrong_loading_users_that_liked_post">Có lỗi xảy ra!</string>
+    <string name="could_not_open_browser">Không thể mở trình duyệt!</string>
+    <string name="post_edited">Đã chỉnh sửa</string>
+    <string name="post_not_edited">Chỉnh sửa lỗi!</string>
+    <string name="str_comment">Bình luận</string>
+    <string name="not_any_comments_yet">Chưa có bình luận nào</string>
+    <string name="write_first_comment">Hãy là người bình luận đầu tiên.</string>
+    <string name="comment_cannot_be_empty">Bình luận không được để trống</string>
+    <string name="comment_posted">Đã đăng bình luận</string>
 </resources>

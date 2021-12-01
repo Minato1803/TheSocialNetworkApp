@@ -31,6 +31,7 @@
         app:layout_constraintStart_toEndOf="@+id/imgAvatar"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="KhaiND9"
+        android:textColor="@color/colorFF954CFB"
         />
 
     <TextView
@@ -47,6 +48,7 @@
         app:layout_constraintTop_toTopOf="@id/gl"
         android:layout_marginEnd="@dimen/_8dp"
         tools:text="new message"
+        android:textColor="@color/black"
         />
 
     <TextView

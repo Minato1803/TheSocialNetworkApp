@@ -97,35 +97,46 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:layout_marginTop="@dimen/_8dp"
+            android:padding="@dimen/_8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/item_feed_photos"
             >
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/linLay_like_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:orientation="horizontal"
+                android:layout_alignParentStart="true"
+                >
 
-            <ImageView
-                android:id="@+id/item_feed_heart"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="15dp"
-                android:contentDescription="@string/like"
-                android:src="@drawable/ic_heart"/>
 
-            <ImageView
-                android:id="@+id/item_feed_comment"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="15dp"
-                android:layout_toEndOf="@id/item_feed_heart"
-                android:contentDescription="@string/comment"
-                android:src="@drawable/ic_bubble" />
+                <ImageView
+                    android:id="@+id/imgLikedCounter"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="@dimen/_8dp"
+                    android:contentDescription="@string/liked_counter"
+                    app:srcCompat="@drawable/ic_baseline_favorite_24"
+                    />
 
-            <ImageView
-                android:id="@+id/item_feed_dm"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_toEndOf="@id/item_feed_comment"
-                android:contentDescription="@string/share"
-                android:src="@drawable/ic_share" />
+
+                <TextView
+                    android:id="@+id/txtLikesCounter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4dp"
+                    android:layout_marginEnd="@dimen/_8dp"
+                    android:text="@string/str_loading_dot"
+                    android:textSize="@dimen/_16sp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    tools:text="1 847"
+                    />
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
                 android:id="@+id/item_feed_photo_indicator"
@@ -140,92 +151,75 @@
                 app:dotsWidthFactor="1"
                 app:selectedDotColor="#0095FF" />
 
-            <ImageView
-                android:id="@+id/item_feed_storage"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignParentEnd="true"
-                android:contentDescription="@string/storage"
-                android:src="@drawable/ic_bookmark" />
-
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/item_feed_like_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="@dimen/_8dp"
-            android:text="@string/ex_like_count"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/linLayCounter"/>
-
-        <TextView
-            android:id="@+id/item_feed_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:paddingHorizontal="10dp"
-            android:textColor="@color/black"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/item_feed_like_count"/>
-
-        <TextView
-            android:id="@+id/item_feed_comment_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginBottom="5dp"
-            android:text="@string/ex_comment_count"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/item_feed_content"/>
-
-        <LinearLayout
-            android:id="@+id/item_feed_first_comment_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/item_feed_comment_count">
-
             <TextView
-                android:id="@+id/item_feed_first_comment_username"
+                android:id="@+id/txtComments"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:text="@string/username"
-                android:textColor="@color/black"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/_2dp"
+                android:background="?selectableItemBackground"
+                android:padding="@dimen/_4dp"
+                android:text="@string/comments"
+                android:layout_centerVertical="true"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="100 bình luận"
+                android:textSize="@dimen/_16sp"
+                android:layout_alignParentEnd="true"
+                />
+        </RelativeLayout>
 
-            <TextView
-                android:id="@+id/item_feed_first_comment_content"
+        <View
+            android:id="@+id/divider"
+            style="@style/Divider"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="@dimen/_2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/linLayCounter"
+            />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_4dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            >
+
+            <Button
+                android:id="@+id/btnLike"
+                style="@style/IconButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="comment"
-                android:textColor="@color/black" />
+                app:icon="@drawable/ic_heart"
+                app:iconGravity="textStart"
+                />
 
-            <ImageView
-                android:id="@+id/item_feed_first_comment_heart"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_heart" />
+            <Button
+                android:id="@+id/btnComment"
+                style="@style/IconButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:icon="@drawable/ic_bubble"
+                app:iconGravity="textStart"
+                />
 
-        </LinearLayout>
+            <Button
+                android:id="@+id/btnShare"
+                style="@style/IconButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:icon="@drawable/ic_share"
+                app:iconGravity="textStart"
+                />
 
-        <TextView
-            android:id="@+id/item_feed_upload_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:text="@string/ex_upload_date"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/item_feed_first_comment_layout"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

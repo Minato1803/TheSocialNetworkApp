@@ -1,5 +1,7 @@
 package com.datn.thesocialnetwork.core.listener
 
+import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
+
 interface PostClickListener {
 
     fun profileClick(postOwner: String)
@@ -12,7 +14,7 @@ interface PostClickListener {
 
     fun likeCounterClick(postId: String)
 
-//    fun imageClick(postWithId: PostWithId)
+    fun imageClick(postWithId: PostWithId)
 
     fun tagClick(tag: String)
 
@@ -22,5 +24,5 @@ interface PostClickListener {
 
     fun menuReportClick(postId: String)
 
-//    fun menuEditClick(post: PostWithId)
+    fun menuEditClick(post: PostWithId)
 }

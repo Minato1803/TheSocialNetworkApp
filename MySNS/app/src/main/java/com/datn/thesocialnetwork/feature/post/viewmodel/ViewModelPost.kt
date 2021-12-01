@@ -12,10 +12,7 @@ abstract class ViewModelPost(
 {
     fun isOwnAccountId(userId: String): Boolean = repository.isOwnAccountId(userId)
     fun isOwnAccountUsername(username: String): Boolean = repository.isOwnAccountName(username)
-//    fun setLikeStatus(postId: String, status: Boolean) = postRepository.likeDislikePost(postId, status)
-//    fun reportPost(postId: String, reportMessage: String) =
-//        postRepository.reportPost(postId, reportMessage)
-//
-//    @ExperimentalCoroutinesApi
-//    fun getUsersThatLikePost(postId: String) = postRepository.getUsersThatLikePost(postId)
+    fun setLikeStatus(postId: String, status: Boolean) = postRepository.likeDislikePost(postId, status)
+    fun reportPost(postId: String, reportMessage: String) = postRepository.reportPost(postId, reportMessage)
+    fun getUsersThatLikePost(postId: String) = postRepository.getUsersWhoLikePost(postId)
 }

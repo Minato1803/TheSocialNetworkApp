@@ -20,6 +20,7 @@ import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.LikeStatus
 import com.datn.thesocialnetwork.databinding.PostItemBinding
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -66,37 +67,37 @@ class PostViewHolder private constructor(
     {
         with(binding)
         {
-//            butLike.setOnClickListener {
-//                postClickListener.likeClick(post.first, !isPostLiked)
-//            }
-//
-//            butShare.setOnClickListener {
-//                postClickListener.shareClick(post.first)
-//            }
-//
-//            butComment.setOnClickListener {
-//                postClickListener.commentClick(post.first)
-//            }
-//
-//            txtComments.setOnClickListener {
-//                postClickListener.commentClick(post.first)
-//            }
-//
-//            linLayLikeCounter.setOnClickListener {
-//                postClickListener.likeCounterClick(post.first)
-//            }
-//
-//            imgAvatar.setOnClickListener {
-//                postClickListener.profileClick(post.second.owner)
-//            }
-//
-//            txtOwner.setOnClickListener {
-//                postClickListener.profileClick(post.second.owner)
-//            }
-//
-//            imgPost.setOnClickListener {
-//                postClickListener.imageClick(post)
-//            }
+            btnLike.setOnClickListener {
+                postClickListener.likeClick(post.first, !isPostLiked)
+            }
+
+            btnShare.setOnClickListener {
+                postClickListener.shareClick(post.first)
+            }
+
+            btnComment.setOnClickListener {
+                postClickListener.commentClick(post.first)
+            }
+
+            txtComments.setOnClickListener {
+                postClickListener.commentClick(post.first)
+            }
+
+            linLayLikeCounter.setOnClickListener {
+                postClickListener.likeCounterClick(post.first)
+            }
+
+            imgAvatar.setOnClickListener {
+                postClickListener.profileClick(post.second.ownerId)
+            }
+
+            txtOwner.setOnClickListener {
+                postClickListener.profileClick(post.second.ownerId)
+            }
+
+            itemFeedPhotos.setOnClickListener {
+                postClickListener.imageClick(post)
+            }
 
             txtDesc.setOnHashtagClickListener { _, text -> postClickListener.tagClick(text.toString()) }
             txtDesc.setOnHyperlinkClickListener { _, text -> postClickListener.linkClick(text.toString()) }
@@ -135,13 +136,12 @@ class PostViewHolder private constructor(
             {
                 with(binding)
                 {
-                    (itemFeedHeart).apply {
-                        setImageDrawable(
-                            ContextCompat.getDrawable(
-                                context,
-                                R.drawable.ic_baseline_favorite_24
-                            )
+                    (btnLike as MaterialButton).apply {
+                        icon = ContextCompat.getDrawable(
+                            context,
+                            R.drawable.ic_baseline_favorite_24
                         )
+                        setIconTintResource(R.color.red_border_line)
                     }
                 }
             }
@@ -149,13 +149,12 @@ class PostViewHolder private constructor(
             {
                 with(binding)
                 {
-                    (itemFeedHeart).apply {
-                        setImageDrawable(
-                            ContextCompat.getDrawable(
-                                context,
-                                R.drawable.ic_heart
-                            )
+                    (btnLike as MaterialButton).apply {
+                        icon = ContextCompat.getDrawable(
+                            context,
+                            R.drawable.ic_heart
                         )
+                        setIconTintResource(R.color.colorFF954CFB)
                     }
                 }
             }
@@ -192,8 +191,8 @@ class PostViewHolder private constructor(
         imageLoader: ImageLoader,
         postClickListener: PostClickListener,
         userFlow: (Int, String) -> Flow<GetStatus<UserModel>>,
-//        likeFlow: (Int, String) -> Flow<GetStatus<LikeStatus>>,
-//        commentCounterFlow: (Int, String) -> Flow<GetStatus<Long>>,
+        likeFlow: (Int, String) -> Flow<GetStatus<LikeStatus>>,
+        commentCounterFlow: (Int, String) -> Flow<GetStatus<Long>>,
         loggedUserId: String?
     )
     {
@@ -212,25 +211,24 @@ class PostViewHolder private constructor(
             }
         }
 
-//        likeJob = scope.launch {
-//            likeListenerId = FirebaseRepository.likeListenerId
-//            likeFlow(likeListenerId, post.first).collectLatest {
-//                setLikeStatus(it)
-//            }
-//        }
-//
-//        commentCounterJob = scope.launch {
-//            commentCounterListenerId = FirebaseRepository.commentCounterListenerId
-//            commentCounterFlow(commentCounterListenerId, post.first).collectLatest {
-//                setCommentStatus(it)
-//            }
-//        }
+        likeJob = scope.launch {
+            likeListenerId = FirebaseRepository.likeListenerId
+            likeFlow(likeListenerId, post.first).collectLatest {
+                setLikeStatus(it)
+            }
+        }
+
+        commentCounterJob = scope.launch {
+            commentCounterListenerId = FirebaseRepository.commentCounterListenerId
+            commentCounterFlow(commentCounterListenerId, post.first).collectLatest {
+                setCommentStatus(it)
+            }
+        }
 
         with(binding)
         {
             //load list image
             /** bind photo to view pager*/
-
             itemFeedPhotos.adapter = DetailPostPhotosApdapter(post.third)
             itemFeedPhotoIndicator.setViewPager2(itemFeedPhotos)
             if (post.third?.size  == 1) {
@@ -283,7 +281,7 @@ class PostViewHolder private constructor(
                 }
                 R.id.mi_edit ->
                 {
-//                    postClickListener.menuEditClick(post)
+                    postClickListener.menuEditClick(post)
                     true
                 }
                 else -> false
@@ -303,12 +301,12 @@ class PostViewHolder private constructor(
             }
             GetStatus.Loading ->
             {
-                binding.itemFeedLikeCount.text = binding.root.context.getString(R.string.str_loading_dot)
+                binding.txtLikesCounter.text = binding.root.context.getString(R.string.str_loading_dot)
             }
             is GetStatus.Success ->
             {
                 isPostLiked = status.data.isPostLikeByLoggedUser
-                binding.itemFeedLikeCount.text = status.data.likeCounter.toString()
+                binding.txtLikesCounter.text = status.data.likeCounter.toString()
             }
         }
     }
@@ -328,8 +326,8 @@ class PostViewHolder private constructor(
             }
             is GetStatus.Success ->
             {
-                binding.itemFeedCommentCount.text = binding.root.context.getString(
-                    R.string.comments_format,
+                binding.txtComments.text = binding.root.context.getString(
+                    R.string.comments,
                     commentStatus.data.formatWithSpaces()
                 )
             }

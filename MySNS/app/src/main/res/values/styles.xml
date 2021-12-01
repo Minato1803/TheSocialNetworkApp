@@ -141,4 +141,15 @@
     </style>
 
     <color name="hashtag_color">#C40233</color>
+
+    <style name="DividerBase">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">#FFC107</item>
+    </style>
+    <style name="Divider" parent="DividerBase">
+        <item name="android:background">#003C8F</item>
+    </style>
 </resources>

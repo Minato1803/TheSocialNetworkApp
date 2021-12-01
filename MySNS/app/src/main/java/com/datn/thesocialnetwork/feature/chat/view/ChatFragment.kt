@@ -1,6 +1,7 @@
 package com.datn.thesocialnetwork.feature.chat.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
@@ -10,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.util.SystemUtils
+import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentChatBinding
 import com.datn.thesocialnetwork.feature.chat.adapter.ConversationAdapter
@@ -66,7 +68,6 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         setInit()
         setObserveData()
         setEvent()
-        SystemUtils.hideKeyboard(requireContext())
         return binding.root
     }
 
@@ -76,6 +77,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     private fun setInit() {
         extractData()
+        setActionBarTitle("Tin nhắn")
         mMainActivity.bd.appBarLayout.isVisible = true
         mMainActivity.bd.bottomAppBar.isVisible = true
         mMainActivity.bd.fabAdd.isVisible = true
@@ -101,7 +103,6 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     private fun setObserveData() {
         lifecycleScope.launchWhenStarted {
             viewModel.conversation.collectLatest {
-
                 when (it)
                 {
                     GetStatus.Sleep ->
@@ -124,7 +125,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
                         binding.linLayEmptyState.isVisible = it.data.isEmpty()
                         binding.rvConversations.isVisible = it.data.isNotEmpty()
                         binding.linLayErrorState.isVisible = false
-
+                        Log.d("AllListChat", "${it.data.toString()}")
                         conversationAdapter.submitList(it.data)
                     }
                     is GetStatus.Failed ->

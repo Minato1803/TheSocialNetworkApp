@@ -234,7 +234,6 @@ class MessageFragment : Fragment(R.layout.fragment_message) {
         }
 
         mMainActivity.bd.toolbar.setNavigationOnClickListener {
-            SystemUtils.hideKeyboard(requireContext())
             mMainActivity.onBackPressed()
         }
     }

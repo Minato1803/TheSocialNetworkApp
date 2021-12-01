@@ -22,6 +22,7 @@ import com.datn.thesocialnetwork.feature.register.view.RegisterFragment
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -86,6 +87,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    @ExperimentalCoroutinesApi
     private fun sendToMainActivity() {
         startActivity(Intent(context, MainActivity::class.java))
     }
