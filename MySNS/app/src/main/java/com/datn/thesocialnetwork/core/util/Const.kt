@@ -28,6 +28,7 @@ object Const {
     const val DATE_TIME_FORMAT_MESSAGE = "HH:mm dd/MM/yyyy"
 
     const val RECOMMENDED_COLUMNS = 2
+    const val RECOMMENDED_POSTS_SIZE = 30
 
     const val parentStorageFolder = "MySNS"
 
@@ -58,31 +59,30 @@ object FirebaseNode {
     //follow
     const val sourceId = "sourceId"
     const val desId = "desId"
-    val followedType = object : GenericTypeIndicator<HashMap<String, FollowerModel>?>()
-    {}
+    val followedType = object : GenericTypeIndicator<HashMap<String, FollowerModel>?>() {}
 
     //message
     const val messageContent = "textContent"
     const val messageImgUrl = "imageUrl"
     const val messageTime = "time"
     const val messageSender = "sender"
-    val messageType = object : GenericTypeIndicator<HashMap<String, ChatMessage>>()
-    {}
+    val messageType = object : GenericTypeIndicator<HashMap<String, ChatMessage>>() {}
 
     // chat
     const val messageName = "Messages"
     const val messageUser1 = "u1"
     const val messageUser2 = "u2"
     const val messageAllField = "msg"
-    val conversationsType = object : GenericTypeIndicator<HashMap<String, Conversation>>()
-    {}
+    const val messageCreatedTime = "createdTime"
+    val conversationsType = object : GenericTypeIndicator<HashMap<String, Conversation>>() {}
+
     // room chat
     const val rooms = "Rooms"
     const val roomId = "roomId"
     const val createdTime = "createdTime"
     const val name = "name"
-    val roomType = object : GenericTypeIndicator<HashMap<String, Room>>()
-    {}
+    val roomType = object : GenericTypeIndicator<HashMap<String, Room>>() {}
+
     // posts
     const val postsName = "Posts"
     const val postImageUrl = "image"
@@ -93,29 +93,29 @@ object FirebaseNode {
     const val reactCount = "reactCount"
     const val commentCount = "commentCount"
     const val shareCount = "shareCount"
-    val postsType = object : GenericTypeIndicator<HashMap<String, PostsModel>>()
-    {}
+    val postsType = object : GenericTypeIndicator<HashMap<String, PostsModel>>() {}
+
     // image posts
     const val imagePost = "imageUrl"
     const val imageCreated = "imageCreated"
-    val imageType = object : GenericTypeIndicator<HashMap<String, PostsImage>>()
-    {}
+    val imageType = object : GenericTypeIndicator<HashMap<String, PostsImage>>() {}
+
     //hashtag and mentions
     const val hashTag = "Hashtags"
-    val hashtagsType = object : GenericTypeIndicator<HashMap<String, HashMap<String, Boolean>>>()
-    {}
+    val hashtagsType = object : GenericTypeIndicator<HashMap<String, HashMap<String, Boolean>>>() {}
     const val mentions = "Mentions"
+
     // likes
     const val postLikes = "PostLikes"
-    val postsLikes = object : GenericTypeIndicator<HashMap<String, Boolean>>()
-    {}
+    val postsLikes = object : GenericTypeIndicator<HashMap<String, Boolean>>() {}
+
     // comments
     const val comments = "Comments"
     const val commentContent = "content"
     const val commentTime = "time"
     const val commentOwner = "ownerId"
-    val commentType = object : GenericTypeIndicator<HashMap<String, CommentModel>>()
-    {}
+    val commentType = object : GenericTypeIndicator<HashMap<String, CommentModel>>() {}
+
     // Reports
     const val reportPost = "Reports"
     const val reportPostId = "postId"

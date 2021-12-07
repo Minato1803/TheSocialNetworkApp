@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -55,7 +56,7 @@ class MessageFragment : Fragment(R.layout.fragment_message) {
     private var _bd: FragmentMessageBinding? = null
     lateinit var binding: FragmentMessageBinding
     lateinit var mMainActivity: MainActivity
-    private val viewModel: MessagesViewModel by activityViewModels()
+    private val viewModel: MessagesViewModel by viewModels()
 
     private var userModel: UserModel? = null
 
@@ -160,7 +161,8 @@ class MessageFragment : Fragment(R.layout.fragment_message) {
     }
 
     private fun deleteMessageClick(chatMessage: ChatMessage) {
-        //Todo: not implement yet
+        viewModel.deleteMessage(chatMessage)
+        setObserveData()
     }
 
 

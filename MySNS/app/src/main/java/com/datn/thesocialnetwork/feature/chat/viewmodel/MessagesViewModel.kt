@@ -11,6 +11,7 @@ import com.datn.thesocialnetwork.data.repository.FirebaseRepository
 import com.datn.thesocialnetwork.data.repository.UserRepository
 import com.datn.thesocialnetwork.data.repository.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +24,7 @@ import javax.inject.Inject
 class MessagesViewModel @Inject constructor(
     private val repository: ChatRespository,
     private val userRepository: UserRepository,
-    private val firebaseRepository: FirebaseRepository
+    private val firebaseRepository: FirebaseRepository,
 ) : ViewModel() {
     val messageText: MutableLiveData<String> = MutableLiveData()
 
@@ -42,47 +43,39 @@ class MessagesViewModel @Inject constructor(
 
 
     @ExperimentalCoroutinesApi
-    fun initViewModel(user: UserModel)
-    {
+    fun initViewModel(user: UserModel) {
         this.selectedUser = user
         this.loggedUserId = firebaseRepository.requireUser.uid
 
         viewModelScope.launch {
             repository.getMessages(user.uidUser).collectLatest { getStatus ->
-                _allMassages.value = when (getStatus)
-                {
-                    GetStatus.Sleep ->
-                    {
+                _allMassages.value = when (getStatus) {
+                    GetStatus.Sleep -> {
                         GetStatus.Sleep
                     }
-                    GetStatus.Loading ->
-                    {
+                    GetStatus.Loading -> {
                         GetStatus.Loading
                     }
-                    is GetStatus.Success ->
-                    {
-                        val m: List<MessageModel> = getStatus.data.mapNeighbours { previous, current, next ->
+                    is GetStatus.Success -> {
+                        val m: List<MessageModel> =
+                            getStatus.data.mapNeighbours { previous, current, next ->
 
-                            val type = getTypeFromSenders(
-                                previous?.sender,
-                                current.sender,
-                                next?.sender
-                            )
+                                val type = getTypeFromSenders(
+                                    previous?.sender,
+                                    current.sender,
+                                    next?.sender
+                                )
 
-                            if (current.sender == loggedUserId)
-                            {
-                                MessageModel.OwnMessage(current, type)
+                                if (current.sender == loggedUserId) {
+                                    MessageModel.OwnMessage(current, type)
+                                } else {
+                                    MessageModel.OtherMessage(current, type, selectedUser)
+                                }
                             }
-                            else
-                            {
-                                MessageModel.OtherMessage(current, type, selectedUser)
-                            }
-                        }
 
                         GetStatus.Success(m)
                     }
-                    is GetStatus.Failed ->
-                    {
+                    is GetStatus.Failed -> {
                         getStatus
                     }
                 }
@@ -92,16 +85,15 @@ class MessagesViewModel @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    fun sendMessage()
-    {
+    fun sendMessage() {
         messageText.value?.let {
-            if (it.isNotBlank())
-            {
+            if (it.isNotBlank()) {
                 val msg = ChatMessage(
                     textContent = it,
                     time = System.currentTimeMillis(),
                     imageUrl = null,
-                    sender = firebaseRepository.requireUser.uid
+                    sender = firebaseRepository.requireUser.uid,
+                    isRead = false
                 )
 
                 viewModelScope.launch {
@@ -110,6 +102,13 @@ class MessagesViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    fun deleteMessage(message: ChatMessage) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteMessage(selectedUser.uidUser, message)
         }
     }
 }

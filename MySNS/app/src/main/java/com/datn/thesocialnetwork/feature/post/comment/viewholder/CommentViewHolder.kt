@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
 import coil.request.ImageRequest
 import com.datn.thesocialnetwork.core.util.FirebaseNode
+import com.datn.thesocialnetwork.core.util.TimeUtils.getDateTimeFormatFromMillis
+import com.datn.thesocialnetwork.core.util.TimeUtils.showTimeDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.repository.FirebaseRepository
 import com.datn.thesocialnetwork.data.repository.UserRepository
@@ -43,6 +45,7 @@ class CommentViewHolder private constructor(
         with(binding)
         {
             txtBody.text = comment.second.content
+            txtTime.text = showTimeDetail(comment.second.time)
         }
     }
 

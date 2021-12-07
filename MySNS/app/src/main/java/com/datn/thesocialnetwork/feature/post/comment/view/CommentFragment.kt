@@ -9,7 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.DataStatus
 import com.datn.thesocialnetwork.core.api.status.FirebaseStatus
-import com.datn.thesocialnetwork.core.util.SystemUtils.hideKeyboard
+import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.databinding.FragmentCommentBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
@@ -70,6 +70,7 @@ class CommentFragment : Fragment(R.layout.fragment_comment) {
 
     private fun setInit() {
         extractData()
+        setActionBarTitle("Bình luận")
         mMainActivity.bd.toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_arrow_back_24)
         mMainActivity.bd.bottomAppBar.visibility = View.GONE
         mMainActivity.bd.fabAdd.visibility = View.GONE
@@ -87,7 +88,7 @@ class CommentFragment : Fragment(R.layout.fragment_comment) {
                         }
                         is DataStatus.Success -> {
                             adapter.submitList(it.data.toList().sortedBy { comment ->
-                                comment.second.createdTime
+                                comment.second.time
                             })
                             binding.progressBarComments.isVisible = false
 

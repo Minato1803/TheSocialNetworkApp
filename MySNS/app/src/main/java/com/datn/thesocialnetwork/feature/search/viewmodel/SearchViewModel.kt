@@ -3,8 +3,10 @@ package com.datn.thesocialnetwork.feature.search.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.datn.thesocialnetwork.core.api.status.DataStatus
 import com.datn.thesocialnetwork.core.api.status.SearchStatus
 import com.datn.thesocialnetwork.data.repository.SearchRespository
+import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.feature.search.view.SearchFragment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,6 +41,8 @@ class SearchViewModel @Inject constructor(
         private set
 
     private var currentSearchResult: Flow<SearchStatus>? = null
+
+    val recommendedPosts: Flow<DataStatus<PostsModel>> = respository.findRecommendedPosts()
 
     fun search(query: String): Flow<SearchStatus>
     {

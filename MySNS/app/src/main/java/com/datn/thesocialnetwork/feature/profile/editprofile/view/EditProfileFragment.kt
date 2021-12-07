@@ -124,14 +124,17 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
 
     private fun setDataOutput() {
         mEditProfileHelper.setAvatarOutput(user.userDetail.avatarUrl)
-        bd.tvBirthday.text = user.userDetail.birthday
         bd.tvGender.text = user.userDetail.gender
-
         bd.edtFirstName.setText(user.userDetail.firstName)
         bd.edtLastName.setText(user.userDetail.lastName)
         bd.edtEditUsername.setText(user.userDetail.userName)
         bd.edtDescription.setText(user.userDetail.description)
         bd.edtEmail.setText(user.userDetail.email)
+        if(user.userDetail.birthday.isNullOrEmpty()) {
+            bd.tvBirthday.text = "Thêm ngày sinh của bạn"
+        } else {
+            bd.tvBirthday.text = user.userDetail.birthday
+        }
     }
 
     private fun setObserveData() {
@@ -154,6 +157,8 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
                 response.data?.let { userDetail ->
                     GlobalValue.USER?.userDetail = userDetail
                     SystemUtils.showMessage(context, getString(R.string.str_message_update_success))
+                    val profileFragment = ProfileFragment()
+                    navigateFragment(profileFragment, "profileFragment")
                 }
             }
         }
@@ -199,4 +204,12 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
                 }
             })
     }
+
+    private fun navigateFragment(fragment: Fragment, tag: String) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(id, fragment, tag)
+            .addToBackStack(null)
+            .commit()
+    }
+
 }

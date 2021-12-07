@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.data.repository.model.post.StateData
@@ -17,8 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 
 @ExperimentalCoroutinesApi
-class StateRecycler : Fragment(R.layout.state_recycler)
-{
+class StateRecycler : Fragment(R.layout.state_recycler) {
     private lateinit var viewModel: ViewModelStateRcv
 
     private var postAdapter: PostAdapter? = null
@@ -30,44 +30,32 @@ class StateRecycler : Fragment(R.layout.state_recycler)
     fun initView(
         viewModel: ViewModelStateRcv,
         postAdapter: PostAdapter,
-        stateData: StateData
-    )
-    {
+        stateData: StateData,
+    ) {
         this.viewModel = viewModel
         this.postAdapter = postAdapter
         this.stateData = stateData
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _bd = StateRecyclerBinding.bind(view)
         binding = _bd!!
 
-        /**
-         * when post adapter is not equal to null
-         * it means that fragment fields are initialized
-         */
-        if (postAdapter != null)
-        {
+        if (postAdapter != null) {
             binding.setupView(stateData, viewModel.tryAgain)
             setupRecycler()
         }
     }
 
-    /**
-     * When View is destroyed adapter should cancel scope in every ViewHolder
-     */
-    override fun onDestroyView()
-    {
+    override fun onDestroyView() {
         super.onDestroyView()
         postAdapter?.cancelScopes()
     }
 
-    private fun setupRecycler()
-    {
+    private fun setupRecycler() {
         postAdapter?.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
-
+        binding.rvPosts.layoutManager = LinearLayoutManager(binding.root.context)
         binding.rvPosts.adapter = postAdapter
 
         lifecycleScope.launchWhenStarted {

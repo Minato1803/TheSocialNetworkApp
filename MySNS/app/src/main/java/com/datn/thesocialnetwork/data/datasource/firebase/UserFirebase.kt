@@ -64,6 +64,7 @@ class UserFirebase @Inject constructor(
         node.child(FirebaseNode.birthday).setValue(userDetail.birthday)
         node.child(FirebaseNode.gender).setValue(userDetail.gender)
         node.child(FirebaseNode.description).setValue(userDetail.description)
+        node.child(FirebaseNode.onlineStatus).setValue(userDetail.onlineStatus)
         return getUserById(uidUser)
     }
 

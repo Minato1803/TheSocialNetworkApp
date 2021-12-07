@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootSwipe"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/userLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
+                android:orientation="vertical">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/userRoot"
@@ -41,14 +38,14 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:srcCompat="@tools:sample/avatars" />
+
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_constraintBottom_toBottomOf="@id/imgAvatar"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/imgAvatar"
-                        app:layout_constraintTop_toTopOf="@id/imgAvatar"
-                        >
+                        app:layout_constraintTop_toTopOf="@id/imgAvatar">
 
                         <androidx.appcompat.widget.LinearLayoutCompat
                             android:id="@+id/linLayPosts"
@@ -61,17 +58,15 @@
                             app:layout_constraintEnd_toStartOf="@+id/linLayFollowers"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            >
+                            app:layout_constraintTop_toTopOf="parent">
 
                             <TextView
                                 android:id="@+id/txtCounterPosts"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                                android:textColor="@color/white"
                                 android:text="@string/temp_count"
-                                />
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                                android:textColor="@color/white" />
 
                             <TextView
                                 android:id="@+id/txtPosts"
@@ -80,8 +75,7 @@
                                 android:text="@string/posts"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                                 android:textColor="@color/white"
-                                android:textSize="13sp"
-                                />
+                                android:textSize="13sp" />
 
                         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -97,8 +91,7 @@
                             app:layout_constraintEnd_toStartOf="@+id/linLayFollowing"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toEndOf="@+id/linLayPosts"
-                            app:layout_constraintTop_toTopOf="parent"
-                            >
+                            app:layout_constraintTop_toTopOf="parent">
 
                             <TextView
                                 android:id="@+id/txtCounterFollowers"
@@ -106,8 +99,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/temp_count"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                                android:textColor="@color/white"
-                                />
+                                android:textColor="@color/white" />
 
                             <TextView
                                 android:id="@+id/txtFollowers"
@@ -116,8 +108,7 @@
                                 android:text="@string/followers"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                                 android:textColor="@color/white"
-                                android:textSize="13sp"
-                                />
+                                android:textSize="13sp" />
 
                         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -133,8 +124,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toEndOf="@+id/linLayFollowers"
-                            app:layout_constraintTop_toTopOf="parent"
-                            >
+                            app:layout_constraintTop_toTopOf="parent">
 
                             <TextView
                                 android:id="@+id/txtCounterFollowing"
@@ -142,8 +132,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/temp_count"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                                android:textColor="@color/white"
-                                />
+                                android:textColor="@color/white" />
 
                             <TextView
                                 android:id="@+id/txtFollowing"
@@ -152,26 +141,25 @@
                                 android:text="@string/following"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                                 android:textColor="@color/white"
-                                android:textSize="13sp"
-                                />
+                                android:textSize="13sp" />
 
                         </androidx.appcompat.widget.LinearLayoutCompat>
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
+
                     <TextView
                         android:id="@+id/tvFullName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_2dp"
                         android:layout_marginStart="@dimen/_16dp"
+                        android:layout_marginTop="@dimen/_2dp"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                         android:textColor="@color/white"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/imgAvatar"
-                        tools:text="KhaiND9"
-                        />
+                        tools:text="KhaiND9" />
 
                     <TextView
                         android:id="@+id/tvDesc"
@@ -191,14 +179,12 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1px"
-                    android:background="@color/color1E88E5"
-                    />
+                    android:background="@color/color1E88E5" />
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabsPostType"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    />
+                    android:layout_height="wrap_content" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -207,18 +193,16 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/vpRecyclers"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
+                android:layout_height="match_parent" />
 
         </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

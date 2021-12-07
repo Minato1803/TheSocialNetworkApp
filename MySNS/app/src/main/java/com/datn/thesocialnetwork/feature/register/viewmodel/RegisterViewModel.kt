@@ -24,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalTime
 import javax.inject.Inject
 
 
@@ -80,7 +81,8 @@ class RegisterViewModel @Inject constructor(
                             password = password,
                             userName = userName,
                             firstName = firstName,
-                            lastName = lastName
+                            lastName = lastName,
+                            onlineStatus = 0
                         )
                     signUp(userResponse, accFirebase, liveDataInsertUser)
                 } catch (ex: ApiException) {
@@ -101,5 +103,9 @@ class RegisterViewModel @Inject constructor(
             accFirebase.delete().await()
             liveData.postValue(Response.Error())
         }
+    }
+
+    fun setRememberUserId(userId: String?) {
+        mUserRepository.setRememberUserId(userId)
     }
 }

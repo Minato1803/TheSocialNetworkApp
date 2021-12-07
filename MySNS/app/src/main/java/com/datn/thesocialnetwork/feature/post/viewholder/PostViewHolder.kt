@@ -14,6 +14,7 @@ import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.listener.PostClickListener
 import com.datn.thesocialnetwork.core.util.SystemUtils.formatWithSpaces
 import com.datn.thesocialnetwork.core.util.TimeUtils.getDateTimeFormat
+import com.datn.thesocialnetwork.core.util.TimeUtils.showTimeDetail
 import com.datn.thesocialnetwork.data.repository.FirebaseRepository
 import com.datn.thesocialnetwork.data.repository.model.PostsImage
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
@@ -98,6 +99,9 @@ class PostViewHolder private constructor(
             itemFeedPhotos.setOnClickListener {
                 postClickListener.imageClick(post)
             }
+            txtTime.setOnClickListener {
+                postClickListener.imageClick(post)
+            }
 
             txtDesc.setOnHashtagClickListener { _, text -> postClickListener.tagClick(text.toString()) }
             txtDesc.setOnHyperlinkClickListener { _, text -> postClickListener.linkClick(text.toString()) }
@@ -105,11 +109,6 @@ class PostViewHolder private constructor(
         }
     }
 
-    /**
-     * when [PostViewHolder] is created
-     * [baseDescLengthLines] will keep the max lines
-     * of description TextView
-     */
     private lateinit var imageLoader: ImageLoader
 
     private var baseDescLengthLines = -1
@@ -237,8 +236,8 @@ class PostViewHolder private constructor(
                 itemFeedPhotoIndicator.visibility = View.VISIBLE
             }
                 txtDesc.text = post.second.content
-
-            txtTime.text = post.second.updatedTime.getDateTimeFormat()
+            val timeDetail = showTimeDetail(post.second.updatedTime)
+            txtTime.text = timeDetail
         }
 
         setOnClickListeners(post, postClickListener)

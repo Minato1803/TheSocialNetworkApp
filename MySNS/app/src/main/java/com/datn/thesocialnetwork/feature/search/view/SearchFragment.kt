@@ -13,9 +13,11 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.datn.thesocialnetwork.R
+import com.datn.thesocialnetwork.core.api.status.DataStatus
 import com.datn.thesocialnetwork.core.api.status.SearchStatus
 import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.core.util.SystemUtils.hideKeyboard
@@ -25,10 +27,13 @@ import com.datn.thesocialnetwork.data.repository.model.TagModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentSearchBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
+import com.datn.thesocialnetwork.feature.post.detailpost.view.DetailPostFragment
+import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import com.datn.thesocialnetwork.feature.profile.view.UserFragment
 import com.datn.thesocialnetwork.feature.search.viewmodel.SearchModelAdapter
 import com.datn.thesocialnetwork.feature.search.viewmodel.SearchViewModel
+import com.datn.thesocialnetwork.feature.search.viewmodel.SimplePostAdapter
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,12 +49,12 @@ class SearchFragment : Fragment() {
 
     private var binding: FragmentSearchBinding? = null
     lateinit var mMainActivity: MainActivity
-    private val mSearchViewModel : SearchViewModel by viewModels()
+    private val mSearchViewModel: SearchViewModel by viewModels()
 
     private lateinit var menuItemSearch: MenuItem
     private lateinit var menuItemSearchType: MenuItem
     private lateinit var searchView: SearchView
-    lateinit var actionBarDrawerToggle : ActionBarDrawerToggle
+    lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     private var areRecommendedPostsLoading = false
     private lateinit var recommendedLayoutManager: GridLayoutManager
@@ -57,6 +62,9 @@ class SearchFragment : Fragment() {
 
     @Inject
     lateinit var searchModelAdapter: SearchModelAdapter
+
+    @Inject
+    lateinit var simplePostAdapter: SimplePostAdapter
     private var searchJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +88,6 @@ class SearchFragment : Fragment() {
 
         setEvent()
         setInit()
-        setObserveData()
         return binding!!.root
     }
 
@@ -93,7 +100,7 @@ class SearchFragment : Fragment() {
         menuItemSearchType = menu.findItem(R.id.itemSearchType)
         searchView = menuItemSearch.actionView as SearchView
 
-        setupCollecting()
+        setObserveData()
 
         mSearchViewModel.currentQuery?.let {
             menuItemSearch.expandActionView()
@@ -103,16 +110,13 @@ class SearchFragment : Fragment() {
         }
 
         searchView.setOnQueryTextListener(
-            object : SearchView.OnQueryTextListener
-            {
-                override fun onQueryTextSubmit(textInput: String?): Boolean
-                {
+            object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(textInput: String?): Boolean {
                     hideKeyboard(requireContext())
                     return true
                 }
 
-                override fun onQueryTextChange(query: String): Boolean
-                {
+                override fun onQueryTextChange(query: String): Boolean {
                     search(query)
                     return true
                 }
@@ -120,30 +124,52 @@ class SearchFragment : Fragment() {
         )
 
         menuItemSearch.setOnActionExpandListener(
-            object : MenuItem.OnActionExpandListener
-            {
-                override fun onMenuItemActionExpand(p0: MenuItem?): Boolean
-                {
+            object : MenuItem.OnActionExpandListener {
+                override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
                     return true
                 }
 
-                override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean
-                {
+                override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
                     return true
                 }
             }
         )
     }
 
-    private fun setupCollecting() {
-        /**
-         * Collect recommended posts
-         */
+    private fun setObserveData() {
+        lifecycleScope.launchWhenStarted {
+            mSearchViewModel.recommendedPosts.collectLatest { dataStatus ->
 
-
-        /**
-         * Collect search type
-         */
+                when (dataStatus) {
+                    is DataStatus.Failed -> {
+                        binding!!.progressBarPosts.isVisible = false
+                        areRecommendedPostsLoading = false
+                    }
+                    DataStatus.Loading -> {
+                        binding!!.progressBarPosts.isVisible = true
+                        areRecommendedPostsLoading = true
+                    }
+                    is DataStatus.Success -> {
+                        val data = dataStatus.data.toList().sortedByDescending {
+                            it.second.createdTime
+                        }
+                        val listPost = mutableListOf<PostWithId>()
+                        data.forEach { post ->
+                            val images = post.second.image
+                            images?.forEach { image ->
+                                image.value.id = image.key
+                            }
+                            val postItem = PostWithId(post.first, post.second, images?.toList())
+                            Log.d("postItemFollower", "$postItem")
+                            listPost.add(postItem)
+                        }
+                        simplePostAdapter.submitList(listPost)
+                        binding!!.progressBarPosts.isVisible = false
+                        areRecommendedPostsLoading = false
+                    }
+                }
+            }
+        }
         lifecycleScope.launchWhenStarted {
             mSearchViewModel.currentSearchType.collectLatest {
                 setSearchIcon(it)
@@ -152,19 +178,21 @@ class SearchFragment : Fragment() {
         }
     }
 
-    @ExperimentalCoroutinesApi
     private fun search(query: String) {
         //TODO: post logic
-        if (isFragmentAlive)
-        {
-            if (query.isEmpty())
-            {
+        if (isFragmentAlive) {
+            if (query.isEmpty()) {
                 //todo: post rcv
                 displayEmptyResult(false)
+                if (binding!!.rvSearch.adapter != simplePostAdapter) {
+                    binding!!.rvSearch.adapter = simplePostAdapter
+                    binding!!.rvSearch.layoutManager = recommendedLayoutManager
 
-            }
-            else
-            {
+                    // show loading if posts loading
+                    binding!!.progressBarPosts.isVisible = areRecommendedPostsLoading
+                }
+
+            } else {
                 binding!!.rvSearch.adapter = searchModelAdapter
                 binding!!.rvSearch.layoutManager = searchLayoutManager
                 binding!!.progressBarPosts.isVisible = false
@@ -172,21 +200,17 @@ class SearchFragment : Fragment() {
                 searchJob?.cancel()
                 searchJob = lifecycleScope.launch {
                     mSearchViewModel.search(query).collectLatest {
-                        when (it)
-                        {
-                            is SearchStatus.Interrupted ->
-                            {
+                        when (it) {
+                            is SearchStatus.Interrupted -> {
                                 binding!!.progressBarSearch.isVisible = false
                                 displayEmptyResult(false)
                             }
-                            SearchStatus.Loading ->
-                            {
+                            SearchStatus.Loading -> {
                                 binding!!.progressBarSearch.isVisible = true
                                 displayEmptyResult(false)
                             }
-                            is SearchStatus.Success ->
-                            {
-                                Log.d("TAG","success ${it.result}")
+                            is SearchStatus.Success -> {
+                                Log.d("TAG", "success ${it.result}")
                                 binding!!.progressBarSearch.isVisible = false
                                 searchModelAdapter.submitList(it.result)
                                 displayEmptyResult(it.result.isEmpty())
@@ -199,10 +223,8 @@ class SearchFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId)
-        {
-            R.id.itemSearchType ->
-            {
+        return when (item.itemId) {
+            R.id.itemSearchType -> {
                 mSearchViewModel.selectNextSearchType()
                 true
             }
@@ -211,13 +233,17 @@ class SearchFragment : Fragment() {
     }
 
     private fun setEvent() {
-        setupAdapters()
-        setupRecycler()
+        binding!!.host.setOnRefreshListener {
+            setupAdapters()
+            setupRecycler()
+            binding!!.host.isRefreshing = false
+        }
     }
 
     private fun setInit() {
         setMainView()
-
+        setupAdapters()
+        setupRecycler()
     }
 
     private fun setMainView() {
@@ -234,68 +260,62 @@ class SearchFragment : Fragment() {
         actionBarDrawerToggle.syncState()
     }
 
-    private fun setObserveData() {
-
-    }
-
-    private fun displayEmptyResult(show: Boolean)
-    {
+    private fun displayEmptyResult(show: Boolean) {
         binding!!.txtEmptyResult.isVisible = show
         binding!!.imgEmptyResult.isVisible = show
     }
 
-    private fun setupAdapters()
-    {
+    private fun setupAdapters() {
         searchModelAdapter.apply {
             userListener = ::selectUser
             tagListener = ::selectTag
         }
 
 //        TODO: postAdapter
+        simplePostAdapter.apply {
+            postListener = {
+                val detailPostFragment = DetailPostFragment.newInstance(it.first)
+                navigateFragment(detailPostFragment, "detailPostFragment")
+            }
+        }
     }
 
-    private fun selectUser(user: UserModel)
-    {
-        if (Firebase.auth.currentUser?.uid == user.uidUser)
-        {
+    private fun selectUser(user: UserModel) {
+        if (Firebase.auth.currentUser?.uid == user.uidUser) {
             val profileFragment = ProfileFragment()
             navigateFragment(profileFragment, "profileFragment")
-        }
-        else
-        {
+        } else {
             //todo: send data user
             val userFragment = UserFragment.newInstance(user, false)
             navigateFragment(userFragment, "userFragment")
         }
     }
 
-    private fun selectTag(tag: TagModel)
-    {
+    private fun selectTag(tag: TagModel) {
         //TODO: navigate tag
+        val tagFragment = TagFragment.newInstance(tag)
+        navigateFragment(tagFragment, "tagFragment")
     }
 
 
-    private fun setupRecycler()
-    {
+    private fun setupRecycler() {
         binding?.let {
             with(it.rvSearch)
             {
                 layoutManager = recommendedLayoutManager
-//                TODO: adapter = postAdapter
+                adapter = simplePostAdapter
             }
         }
     }
 
-    private fun setSearchIcon(searchType: SearchType)
-    {
-        val d = ContextCompat.getDrawable(requireContext(), searchType.icon)
-        if (d != null)
-        {
+    private fun setSearchIcon(searchType: SearchType) {
+        val icon = ContextCompat.getDrawable(requireContext(), searchType.icon)
+        if (icon != null) {
             DrawableCompat.setTint(
-                d,
+                icon,
                 ContextCompat.getColor(requireContext(), R.color.white)
             )
-            menuItemSearchType.icon = d
+            menuItemSearchType.icon = icon
         }
 
         menuItemSearchType.title = getString(searchType.title)
@@ -310,11 +330,9 @@ class SearchFragment : Fragment() {
             .commit()
     }
 
-    override fun onStop()
-    {
+    override fun onStop() {
         super.onStop()
-        if (searchView.query.isEmpty())
-        {
+        if (searchView.query.isEmpty()) {
             mSearchViewModel.clearQuery()
         }
     }
@@ -323,8 +341,7 @@ class SearchFragment : Fragment() {
         @DrawableRes val icon: Int,
         @StringRes val title: Int,
         @StringRes val actionBarTitle: Int,
-    )
-    {
+    ) {
         USER(
             R.drawable.ic_person_24,
             R.string.user,

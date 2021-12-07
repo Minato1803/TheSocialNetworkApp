@@ -1,9 +1,12 @@
 package com.datn.thesocialnetwork.data.repository
 
 import com.datn.thesocialnetwork.R
+import com.datn.thesocialnetwork.core.api.Event
 import com.datn.thesocialnetwork.core.api.Message
+import com.datn.thesocialnetwork.core.api.status.EventMessageStatus
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.util.FirebaseNode
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.data.datasource.firebase.FirebaseListener
@@ -12,6 +15,8 @@ import com.datn.thesocialnetwork.data.datasource.local.sharedprefs.LoginSharedPr
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.model.UserModel
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -24,7 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
-
+@ExperimentalCoroutinesApi
 class UserRepository @Inject constructor(
     private val mUserFirebase: UserFirebase,
     private val mLoginSharedPrefs: LoginSharedPrefs,
@@ -34,39 +39,34 @@ class UserRepository @Inject constructor(
     fun getUserFirebaseAuth() = mUserFirebase.getAuth()
     private val userListeners: HashMap<Int, FirebaseListener<GetStatus<UserModel>>> = hashMapOf()
 
-    fun removeUserListener(ownerHash: Int)
-    {
+    fun removeUserListener(ownerHash: Int) {
         userListeners[ownerHash]?.removeListener()
         userListeners.remove(ownerHash)
     }
 
-    @ExperimentalCoroutinesApi
+
     fun getUser(
         ownerHash: Int,
         userId: String,
-    ): Flow<GetStatus<UserModel>>
-    {
+    ): Flow<GetStatus<UserModel>> {
         return channelFlow {
 
             send(GetStatus.Loading)
 
             val dr = mFirebaseDb.getReference(FirebaseNode.user).child(userId)
 
-            val l = object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
+            val l = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot.getValue(UserDetail::class.java)?.let { user ->
                         launch {
-                            val userResponse = UserResponse(userId,user)
+                            val userResponse = UserResponse(userId, user)
                             val v = GetStatus.Success(ModelMapping.mapToUserModel(userResponse))
                             send(v)
                         }
                     }
                 }
 
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     launch {
                         val v = GetStatus.Failed(Message(R.string.something_went_wrong))
                         send(v)
@@ -81,6 +81,75 @@ class UserRepository @Inject constructor(
             awaitClose()
         }
     }
+
+    fun changePasswd(curr: String, new: String, conf: String): Flow<EventMessageStatus> =
+        channelFlow {
+            send(EventMessageStatus.Loading)
+
+            if (new != conf) {
+                send(EventMessageStatus.Failed(Event(Message(R.string.passwords_are_not_the_same))))
+                close()
+            } else if (new.length < 6) {
+                send(
+                    EventMessageStatus.Failed(
+                        Event(Message(R.string.invalid_password_len))
+                    )
+                )
+                close()
+            } else {
+                val currentUser = getCurrentUserFirebase()
+                if (currentUser != null) {
+                    val credential = EmailAuthProvider.getCredential(
+                        GlobalValue.USER!!.userDetail.email,
+                        curr
+                    )
+
+                    currentUser.reauthenticate(credential)
+                        .addOnCompleteListener { reAuth ->
+
+                            if (reAuth.isSuccessful) {
+                                val u = FirebaseAuth.getInstance().currentUser
+                                u!!.updatePassword(new)
+                                    .addOnCompleteListener { updateEmail ->
+                                        if (updateEmail.isSuccessful) {
+                                            launch {
+                                                send(EventMessageStatus.Success(Event(Message(R.string.change_passwd_success))))
+                                                close()
+                                            }
+                                        } else {
+                                            launch {
+                                                send(
+                                                    EventMessageStatus.Failed(
+                                                        Event(
+                                                            Message(
+                                                                R.string.change_passwd_failed,
+                                                                listOf(
+                                                                    updateEmail.exception?.localizedMessage
+                                                                        ?: updateEmail.exception
+                                                                        ?: ""
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                                close()
+                                            }
+                                        }
+                                    }
+                            } else {
+
+                                launch {
+                                    send(EventMessageStatus.Failed(Event(Message(R.string.passwd_is_wrong))))
+                                    close()
+                                }
+                            }
+                        }
+                } else {
+                    close()
+                }
+            }
+            awaitClose()
+        }
 
     suspend fun insertUser(userRes: UserResponse): DataSnapshot {
         val userNode = mUserFirebase.insertUser(userRes)
@@ -102,18 +171,17 @@ class UserRepository @Inject constructor(
 
     fun getUserByID(uidUser: String) =
         mFirebaseDb.getReference(FirebaseNode.user)
-            .orderByChild(FirebaseNode.uidUser)
-            .equalTo(uidUser)
 
     fun getUserByName(username: String) =
         mFirebaseDb.getReference(FirebaseNode.user)
             .orderByChild(FirebaseNode.userName)
-            .equalTo(username.normalize())
+            .equalTo(username)
+
 
     fun getCurrentUserFirebase() = mUserFirebase.getAuth().currentUser
 
     fun setRememberUserId(userId: String?) {
-        mLoginSharedPrefs.savePhoneNumber(userId)
+        mLoginSharedPrefs.saveIdLogin(userId)
     }
 
     fun getUserIdLogin() = mLoginSharedPrefs.getUserId()

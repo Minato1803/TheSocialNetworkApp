@@ -15,19 +15,17 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 data class StateData(
     @StringRes val emptyStateText: Int,
     @DrawableRes val emptyStateIcon: Int,
-    @DimenRes val bottomRecyclerPadding: Int = R.dimen._86dp
+    @DimenRes val bottomRecyclerPadding: Int = R.dimen._86dp,
 )
 
-enum class RecyclerState
-{
+enum class RecyclerState {
     LOADING,
     EMPTY,
     ERROR,
     SUCCESS
 }
 
-private fun StateRecyclerBinding.setVisibility(state: RecyclerState)
-{
+private fun StateRecyclerBinding.setVisibility(state: RecyclerState) {
     proBarLoadingPosts.isVisible = state == RecyclerState.LOADING
     linLayEmptyState.isVisible = state == RecyclerState.EMPTY
     linLayErrorState.isVisible = state == RecyclerState.ERROR
@@ -37,29 +35,21 @@ private fun StateRecyclerBinding.setVisibility(state: RecyclerState)
 @ExperimentalCoroutinesApi
 fun StateRecyclerBinding.setState(
     status: GetStatus<List<PostWithId>>,
-    postAdapter: PostAdapter?
-)
-{
-    when (status)
-    {
+    postAdapter: PostAdapter?,
+) {
+    when (status) {
         GetStatus.Sleep -> Unit
-        GetStatus.Loading ->
-        {
+        GetStatus.Loading -> {
             setVisibility(RecyclerState.LOADING)
         }
-        is GetStatus.Failed ->
-        {
+        is GetStatus.Failed -> {
             setVisibility(RecyclerState.ERROR)
             txtErrorState.text = status.message.getFormattedMessage(root.context)
         }
-        is GetStatus.Success ->
-        {
-            if (status.data.isEmpty())
-            {
+        is GetStatus.Success -> {
+            if (status.data.isEmpty()) {
                 setVisibility(RecyclerState.EMPTY)
-            }
-            else
-            {
+            } else {
                 setVisibility(RecyclerState.SUCCESS)
             }
             postAdapter?.submitList(status.data.sortedByDescending { post ->
@@ -71,12 +61,8 @@ fun StateRecyclerBinding.setState(
 
 fun StateRecyclerBinding.setupView(
     stateData: StateData,
-    tryAgain: (() -> Unit)? = null
-)
-{
-    /**
-     * Set button TryAgain visibility based on function in VM
-     */
+    tryAgain: (() -> Unit)? = null,
+) {
     butTryAgain.isVisible = tryAgain != null
 
     butTryAgain.setOnClickListener {

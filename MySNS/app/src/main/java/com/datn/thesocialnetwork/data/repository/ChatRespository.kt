@@ -1,5 +1,6 @@
 package com.datn.thesocialnetwork.data.repository
 
+import android.util.Log
 import com.datn.thesocialnetwork.core.api.Message
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.util.FirebaseNode
@@ -27,7 +28,8 @@ class ChatRespository @Inject constructor(
     private val mFirebaseDb: FirebaseDatabase,
 ) {
     fun getDatabaseChat() = mFirebaseDb.getReference(FirebaseNode.chat)
-    fun getDatabaseUser(uidUser: String) = mFirebaseDb.getReference(FirebaseNode.user).child(uidUser)
+    fun getDatabaseUser(uidUser: String) =
+        mFirebaseDb.getReference(FirebaseNode.user).child(uidUser)
 
     private fun getKeyFromTwoUsers(id1: String, id2: String): String =
         if (id1 > id2) id1 + id2 else id2 + id1
@@ -47,19 +49,14 @@ class ChatRespository @Inject constructor(
             .child(FirebaseNode.messageAllField)
 
         ref.addValueEventListener(
-            object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     val messages = snapshot.getValue(FirebaseNode.messageType)
-                    if (messages == null)
-                    {
+                    if (messages == null) {
                         launch {
                             send(GetStatus.Success<List<ChatMessage>>(data = listOf()))
                         }
-                    }
-                    else
-                    {
+                    } else {
                         launch {
                             // adding id to every message
                             messages.forEach {
@@ -74,8 +71,7 @@ class ChatRespository @Inject constructor(
                     }
                 }
 
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     launch {
                         send(GetStatus.Failed(message = Message(R.string.something_went_wrong)))
                     }
@@ -84,6 +80,7 @@ class ChatRespository @Inject constructor(
         )
         awaitClose()
     }
+
     @ExperimentalCoroutinesApi
     fun sendMessage(userId: String, message: ChatMessage) = channelFlow<FirebaseStatus> {
 
@@ -94,20 +91,16 @@ class ChatRespository @Inject constructor(
         val ref = getDatabaseChat().child(key)
 
         ref.addListenerForSingleValueEvent(
-            object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
-                    if (snapshot.value == null)
-                    {
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.value == null) {
                         /**
                          * The first message is sent between two users
                          */
 
                         val mKey = ref.push().key
 
-                        if (mKey != null)
-                        {
+                        if (mKey != null) {
                             val conversation: HashMap<String, Any?> = hashMapOf(
                                 FirebaseNode.messageUser1 to getFirstKeyFromTwoUsers(
                                     GlobalValue.USER!!.uidUser,
@@ -134,26 +127,21 @@ class ChatRespository @Inject constructor(
                                         close()
                                     }
                                 }
-                        }
-                        else
-                        {
+                        } else {
                             // error
                             launch {
                                 send(FirebaseStatus.Failed(Message(R.string.message_not_sent)))
                                 close()
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         /**
                          * Users already have some messages
                          */
                         val msgRef = ref.child(FirebaseNode.messageAllField)
                         val mKey = msgRef.push().key
 
-                        if (mKey != null)
-                        {
+                        if (mKey != null) {
                             msgRef.child(mKey).setValue(message.toHashMap)
                                 .addOnFailureListener {
                                     launch {
@@ -167,9 +155,7 @@ class ChatRespository @Inject constructor(
                                         close()
                                     }
                                 }
-                        }
-                        else
-                        {
+                        } else {
                             // error
                             launch {
                                 send(FirebaseStatus.Failed(Message(R.string.message_not_sent)))
@@ -179,8 +165,7 @@ class ChatRespository @Inject constructor(
                     }
                 }
 
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     launch {
                         send(FirebaseStatus.Failed(Message(R.string.message_not_sent)))
                         close()
@@ -191,11 +176,30 @@ class ChatRespository @Inject constructor(
 
         awaitClose()
     }
+
+    fun deleteMessage(userId: String, message: ChatMessage) {
+        val key = getKeyFromTwoUsers(GlobalValue.USER!!.uidUser, userId)
+        val ref = getDatabaseChat().child(key)
+        ref.addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.value != null) {
+                        val msgRef = ref.child(FirebaseNode.messageAllField)
+                            .child(message.id)
+                            .setValue(null)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("failed", "failed delete")
+                }
+            })
+    }
+
     /** message pattern */
     private val userListeners: HashMap<Int, FirebaseListener<GetStatus<UserResponse>>> = hashMapOf()
 
-    fun removeUserListener(ownerHash: Int)
-    {
+    fun removeUserListener(ownerHash: Int) {
         userListeners[ownerHash]?.removeListener()
         userListeners.remove(ownerHash)
     }
@@ -204,29 +208,25 @@ class ChatRespository @Inject constructor(
     fun getUser(
         ownerHash: Int,
         userId: String,
-    ): Flow<GetStatus<UserModel>>
-    {
+    ): Flow<GetStatus<UserModel>> {
         return channelFlow {
 
             send(GetStatus.Loading)
 
             val dr = getDatabaseUser(userId)
 
-            val l = object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
+            val l = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot.getValue(UserDetail::class.java)?.let { user ->
                         launch {
-                            val userResponse = UserResponse(userId,user)
+                            val userResponse = UserResponse(userId, user)
                             val v = GetStatus.Success(ModelMapping.mapToUserModel(userResponse))
                             send(v)
                         }
                     }
                 }
 
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     launch {
                         val v = GetStatus.Failed(Message(R.string.something_went_wrong))
                         send(v)
@@ -250,13 +250,11 @@ class ChatRespository @Inject constructor(
         var calls = 0
         val conversations = mutableListOf<ConversationItem>()
 
-        fun checkAndSend()
-        {
+        fun checkAndSend() {
             synchronized(calls)
             {
                 calls++
-                if (calls == 2)
-                {
+                if (calls == 2) {
                     launch {
                         send(GetStatus.Success(conversations))
                         close()
@@ -265,10 +263,8 @@ class ChatRespository @Inject constructor(
             }
         }
 
-        val vel1 = object : ValueEventListener
-        {
-            override fun onDataChange(snapshot: DataSnapshot)
-            {
+        val vel1 = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 val r = snapshot.getValue(conversationsType)
 
                 r?.forEach { entry ->
@@ -281,7 +277,8 @@ class ChatRespository @Inject constructor(
                         conversations.add(
                             ConversationItem(
                                 lastMessage = lastMsg,
-                                userId = entry.value.u2
+                                userId = entry.value.u2,
+                                isRead = it.isRead
                             )
                         )
                     }
@@ -290,17 +287,14 @@ class ChatRespository @Inject constructor(
                 checkAndSend()
             }
 
-            override fun onCancelled(error: DatabaseError)
-            {
+            override fun onCancelled(error: DatabaseError) {
                 checkAndSend()
             }
 
         }
 
-        val vel2 = object : ValueEventListener
-        {
-            override fun onDataChange(snapshot: DataSnapshot)
-            {
+        val vel2 = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 val r = snapshot.getValue(conversationsType)
 
                 r?.forEach { entry ->
@@ -313,7 +307,8 @@ class ChatRespository @Inject constructor(
                         conversations.add(
                             ConversationItem(
                                 lastMessage = lastMsg,
-                                userId = entry.value.u1
+                                userId = entry.value.u1,
+                                isRead = it.isRead
                             )
                         )
                     }
@@ -322,8 +317,7 @@ class ChatRespository @Inject constructor(
                 checkAndSend()
             }
 
-            override fun onCancelled(error: DatabaseError)
-            {
+            override fun onCancelled(error: DatabaseError) {
                 checkAndSend()
             }
 

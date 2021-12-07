@@ -1,39 +1,49 @@
 package com.datn.thesocialnetwork.feature.post.detailpost.view
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import coil.ImageLoader
+import coil.request.ImageRequest
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils.formatWithSpaces
+import com.datn.thesocialnetwork.core.util.TimeUtils.getDateTimeFormatFromMillis
+import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
+import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.core.util.ViewUtils.viewBinding
+import com.datn.thesocialnetwork.data.repository.model.PostsImage
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
+import com.datn.thesocialnetwork.data.repository.model.TagModel
+import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentDetailPostBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
+import com.datn.thesocialnetwork.feature.post.comment.view.CommentFragment
 import com.datn.thesocialnetwork.feature.post.detailpost.viewmodel.DetailPostViewModel
-import com.datn.thesocialnetwork.feature.post.view.AbstractFragmentPost
-import com.google.android.material.button.MaterialButton
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.post_item.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
-import javax.inject.Inject
-import android.graphics.Color
-import androidx.appcompat.widget.PopupMenu
-import androidx.fragment.app.Fragment
-import com.datn.thesocialnetwork.data.repository.model.PostsImage
-import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.feature.post.editpost.view.EditPostFragment
 import com.datn.thesocialnetwork.feature.post.editpost.viewmodel.EditPostViewModel
+import com.datn.thesocialnetwork.feature.post.view.AbstractFragmentPost
 import com.datn.thesocialnetwork.feature.post.viewholder.DetailPostPhotosApdapter
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
 import com.datn.thesocialnetwork.feature.profile.view.UserFragment
+import com.datn.thesocialnetwork.feature.search.view.TagFragment
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
+import javax.inject.Inject
 
 @AndroidEntryPoint
 @ExperimentalCoroutinesApi
@@ -56,9 +66,9 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
     @Inject
     lateinit var imageLoader: ImageLoader
 
-    override val viewModel: DetailPostViewModel by viewModels()
+    override val viewModel: DetailPostViewModel by activityViewModels()
     override val binding by viewBinding(FragmentDetailPostBinding::bind)
-    private val editPostViewModel: EditPostViewModel by viewModels()
+    private val editPostViewModel: EditPostViewModel by activityViewModels()
     lateinit var mMainActivity: MainActivity
 
     private var postModel: PostsModel? = null
@@ -68,19 +78,53 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mMainActivity = activity as MainActivity
+        setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setEvent()
-        setInit()
+        extractData()
         setObserveData()
+        setInit()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_detail, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.ac_edit -> {
+
+                (viewModel.post.value as? GetStatus.Success<PostWithId>)?.let { status ->
+                    if(GlobalValue.USER!!.uidUser == status.data.second.ownerId) {
+                        editPostViewModel.postWithId.postValue(status.data)
+                        val editPostFragment = EditPostFragment()
+                        navigateFragment(editPostFragment, "editPostFragment")
+                    } else {
+                       binding.root.showSnackbarGravity(
+                           message = getString(R.string.not_owner_post),
+                           length = Snackbar.LENGTH_SHORT,
+                           buttonText = getString(R.string.ok)
+                        )
+                    }
+
+                }
+                true
+            }
+            R.id.ac_report -> {
+                //Todo: show dialog report
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun setInit() {
-        extractData()
+        setActionBarTitle("Chi tiết bài viết")
         mMainActivity.bd.bottomAppBar.visibility = View.GONE
         mMainActivity.bd.fabAdd.visibility = View.GONE
+        mMainActivity.bd.toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_arrow_back_24)
     }
 
     private fun extractData() {
@@ -88,8 +132,49 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
         viewModel.initPost(postId)
     }
 
-    private fun setEvent() {
-        TODO("Not yet implemented")
+    private fun setEvent(post: PostWithId) {
+        with(binding)
+        {
+            btnCmt.setOnClickListener {
+                commentClick(post.first)
+            }
+
+            txtCmt.setOnClickListener {
+                commentClick(post.first)
+            }
+
+            btnLike.setOnClickListener {
+                viewModel.setLikeStatus(post.first, !isPostLiked)
+            }
+
+            txtOwner.setOnClickListener {
+                profileClick(post.second.ownerId)
+            }
+
+            imgAvatar.setOnClickListener {
+                profileClick(post.second.ownerId)
+            }
+
+            btnShow.setOnClickListener {
+                viewModel.changeCollapse()
+            }
+
+            txtDesc.setOnHashtagClickListener { _, text -> tagClick(text.toString()) }
+            txtDesc.setOnHyperlinkClickListener { _, text -> linkClick(text.toString()) }
+            txtDesc.setOnMentionClickListener { _, text -> mentionClick(text.toString()) }
+
+            btnShare.setOnClickListener {
+                shareClick(post.first)
+            }
+
+            linlayLikeCounter.setOnClickListener {
+                likeCounterClick(post.first)
+            }
+        }
+
+        mMainActivity.bd.toolbar.setNavigationOnClickListener {
+            mMainActivity.onBackPressed()
+        }
     }
 
     private fun setObserveData() {
@@ -120,10 +205,11 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
                         Log.d("failed", "loading user data")
                     }
                     GetStatus.Loading -> {
-                        binding.txtUsername.text = getString(R.string.str_loading_dot)
+                        mMainActivity.bd.toolbar.title = ""
                     }
                     is GetStatus.Success -> {
-                        binding.txtUsername.text = it.data.userName
+                        mMainActivity.bd.toolbar.title = it.data.userName
+                        intInfoUser(it.data)
                     }
                 }
             }
@@ -174,6 +260,20 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
         }
     }
 
+    private fun intInfoUser(data: UserModel) {
+        with(binding) {
+            txtOwner.text = data.userName
+            val request = ImageRequest.Builder(binding.root.context)
+                .data(data.avatarUrl)
+                .target { drawable ->
+                    imgAvatar.setImageDrawable(drawable)
+                }
+                .build()
+
+            imageLoader.enqueue(request)
+        }
+    }
+
     override fun profileClick(postOwner: String) {
         if (viewModel.isOwnAccountId(postOwner)) // user clicked on own profile
         {
@@ -188,6 +288,8 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
 
     override fun commentClick(postId: String) {
         //Todo: Comment fragment
+        val commentFragment = CommentFragment.newInstance(postId)
+        navigateFragment(commentFragment, "commentFragment")
     }
 
     override fun imageClick(postWithId: PostWithId) {
@@ -195,7 +297,9 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
     }
 
     override fun tagClick(tag: String) {
-        //todo: Tag fragment
+        val tags = TagModel(tag, -1)
+        val tagFragment = TagFragment.newInstance(tags)
+        navigateFragment(tagFragment, "tagFragment")
     }
 
     override fun mentionClick(mention: String) {
@@ -203,9 +307,7 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
         {
             val profileFragment = ProfileFragment()
             navigateFragment(profileFragment, "profileFragment")
-        }
-        else
-        {
+        } else {
             val userFragment =
                 UserFragment.newInstance(UserModel(userName = mention), isLoadFromDb = true)
             navigateFragment(userFragment, "userFragment")
@@ -222,10 +324,10 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
     private fun setInfoViewsVisibility(isVisible: Boolean) {
         with(binding)
         {
-            txtDesc.isVisible = isVisible
-            imgLikedCounter.isVisible = isVisible
-            txtLikesCounter.isVisible = isVisible
-            txtComments.isVisible = isVisible
+            infoPost.isVisible = isVisible
+            imgLikeCount.isVisible = isVisible
+            txtLikeCounter.isVisible = isVisible
+            txtCmt.isVisible = isVisible
 
             /**
              * btn show
@@ -244,86 +346,15 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
             else
                 Color.TRANSPARENT
 
-            binding.topBar.setBackgroundColor(bc)
             binding.bottomBar.setBackgroundColor(bc)
         }
     }
 
     private fun setupView(post: PostWithId) {
-        setClickListeners(post)
+        setEvent(post)
         loadImage(post.third)
         binding.txtDesc.text = post.second.content
-    }
-
-    private fun setClickListeners(post: PostWithId) {
-        with(binding)
-        {
-            btnComment.setOnClickListener {
-                commentClick(post.first)
-            }
-
-            txtComments.setOnClickListener {
-                commentClick(post.first)
-            }
-
-            btnBack.setOnClickListener {
-                mMainActivity.onBackPressed()
-            }
-
-            btnLike.setOnClickListener {
-                viewModel.setLikeStatus(post.first, !isPostLiked)
-            }
-
-            txtUsername.setOnClickListener {
-                profileClick(post.second.ownerId)
-            }
-
-            btnShow.setOnClickListener {
-                viewModel.changeCollapse()
-            }
-
-            txtDesc.setOnHashtagClickListener { _, text -> tagClick(text.toString()) }
-            txtDesc.setOnHyperlinkClickListener { _, text -> linkClick(text.toString()) }
-            txtDesc.setOnMentionClickListener { _, text -> mentionClick(text.toString()) }
-
-            btnOptions.setOnClickListener { view ->
-                (viewModel.post.value as? GetStatus.Success<PostWithId>)?.let { status ->
-                    showPopupMenu(view, status.data.second)
-                }
-            }
-
-            btnShare.setOnClickListener {
-                shareClick(post.first)
-            }
-
-            linlayLikeCounter.setOnClickListener {
-                likeCounterClick(post.first)
-            }
-        }
-    }
-
-    private fun showPopupMenu(view: View, post: PostsModel) {
-        val popupMenu = PopupMenu(view.context, view)
-        popupMenu.inflate(R.menu.menu_post_dropdown_collapse)
-
-        popupMenu.menu.findItem(R.id.mi_collapse).isVisible = false
-        popupMenu.menu.findItem(R.id.mi_edit).isVisible = post.ownerId == viewModel.requireUser.uid
-
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-
-            return@setOnMenuItemClickListener when (menuItem.itemId) {
-                R.id.mi_report -> {
-                    //Todo: show dialog report
-                    true
-                }
-                R.id.mi_edit -> {
-                    //Todo: navigate edit post
-                    true
-                }
-                else -> false
-            }
-        }
-        popupMenu.show()
+        binding.txtTime.text = post.second.createdTime.getDateTimeFormatFromMillis()
     }
 
     private fun loadImage(listImage: List<Pair<String, PostsImage>>?) {
@@ -343,4 +374,10 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
             .commit()
     }
 
+    override fun onResume() {
+        super.onResume()
+        extractData()
+        setInit()
+        setObserveData()
+    }
 }

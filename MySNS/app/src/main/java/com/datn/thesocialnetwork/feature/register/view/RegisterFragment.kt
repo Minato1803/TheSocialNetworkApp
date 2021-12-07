@@ -88,6 +88,7 @@ class RegisterFragment : Fragment() {
                 response.data?.let {
                     GlobalValue.USER = it
                     GlobalValue.USER_DETAIL = ModelMapping.mapToUserModel(GlobalValue.USER!!)
+                    mRegisterViewModel.setRememberUserId(it.uidUser)
                     Log.d("TAG",it.uidUser + " " + it.userDetail.email)
                     sendToProfile()
                 }
@@ -182,7 +183,7 @@ class RegisterFragment : Fragment() {
     private fun sendToProfile() {
 
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(id, EditProfileFragment.newInstance(), "tag")
+            .replace(id, EditProfileFragment.newInstance(), "editFragment")
             .commit()
     }
 }

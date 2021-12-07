@@ -12,7 +12,7 @@ class LoginSharedPrefs @Inject constructor(
 
     fun getUserId() = mPrefsLogin.getString(KEY.USER_ID, "") ?: ""
 
-    fun savePhoneNumber(userId: String?) {
+    fun saveIdLogin(userId: String?) {
         editor.putString(KEY.USER_ID, userId)
         editor.apply()
     }

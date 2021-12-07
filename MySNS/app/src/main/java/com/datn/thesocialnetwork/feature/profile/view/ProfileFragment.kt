@@ -1,6 +1,7 @@
 package com.datn.thesocialnetwork.feature.profile.view
 
 import android.content.Intent
+import android.graphics.ColorSpace
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -20,15 +21,18 @@ import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.core.util.ViewUtils.tryOpenUrl
+import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
+import com.datn.thesocialnetwork.data.repository.model.TagModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
-import com.datn.thesocialnetwork.feature.post.detailpost.view.DetailPostFragment
 import com.datn.thesocialnetwork.feature.post.comment.view.CommentFragment
+import com.datn.thesocialnetwork.feature.post.detailpost.view.DetailPostFragment
 import com.datn.thesocialnetwork.feature.post.editpost.view.EditPostFragment
 import com.datn.thesocialnetwork.feature.post.editpost.viewmodel.EditPostViewModel
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment
 import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
+import com.datn.thesocialnetwork.feature.search.view.TagFragment
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,7 +51,6 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     lateinit var glide: RequestManager
     lateinit var mMainActivity: MainActivity
 
-    private val mProfileViewModel: ProfileViewModel by viewModels()
     private val editPostViewModel: EditPostViewModel by activityViewModels()
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
@@ -62,15 +65,20 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         savedInstanceState: Bundle?,
     ): View? {
         setHasOptionsMenu(true)
+        Log.d("userDetail","${GlobalValue.USER_DETAIL.toString()}")
+        viewModel.initWithLoggedUser()
+        viewModel.loadDataInitUser(GlobalValue.USER_DETAIL!!)
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("profile frag","created profile frag")
         setEvent()
         setInit()
         setObserveData()
         initRecyclers(true)
+        profileBinding.rootSwipe.isRefreshing = false
     }
 
 
@@ -87,6 +95,8 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
                     .setNeutralButton(resources.getString(R.string.cancel)) { _, _ ->
                     }
                     .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                        val userDetail = ModelMapping.createUserDetail(GlobalValue.USER!!.userDetail, onlineStatus = System.currentTimeMillis())
+                        viewModel.updateOnlineStatus(GlobalValue.USER!!.uidUser, userDetail)
                         SystemUtils.signOut(mGoogleSignInClient, requireContext())
                         sendToMainActivity()
                     }
@@ -143,6 +153,9 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
 
     override fun tagClick(tag: String) {
         //todo:  tag frag
+        val tags = TagModel(tag,-1)
+        val tagFragment = TagFragment.newInstance(tags)
+        navigateFragment(tagFragment, "tagFragment")
     }
 
     override fun linkClick(link: String) {
@@ -184,22 +197,21 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     }
 
     private fun setObserveData() {
-        mProfileViewModel.updateFollowList()
+        viewModel.updateFollowList()
         /**
          * Collect user data
          */
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.selectedUser.collectLatest {
+            viewModel.selectedUser.collectLatest {
                 if (it != null) {
                 }
             }
         }
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.userFollowersFlow.collectLatest { status ->
+            viewModel.userFollowersFlow.collectLatest { status ->
 
                 when (status) {
                     SearchFollowStatus.Loading, SearchFollowStatus.Sleep -> {
-                        //loading
                     }
                     is SearchFollowStatus.Success -> {
                         profileBinding.txtCounterFollowers.text = status.result.size.toString()
@@ -211,10 +223,9 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
          * Collect selected user following users
          */
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.userFollowingFlow.collectLatest { status ->
+            viewModel.userFollowingFlow.collectLatest { status ->
                 when (status) {
                     SearchFollowStatus.Loading, SearchFollowStatus.Sleep -> {
-                        //loading
                     }
                     is SearchFollowStatus.Success -> {
                         Log.d("Following", status.result.toString())
@@ -227,7 +238,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
          * Collect number of posts
          */
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.uploadedPosts.collectLatest {
+            viewModel.uploadedPosts.collectLatest {
                 if (it is GetStatus.Success) {
                     profileBinding.txtCounterPosts.text = it.data.size.toString()
                 }
@@ -237,7 +248,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
          * Collect selected category
          */
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.category.collectLatest { selected ->
+            viewModel.category.collectLatest { selected ->
                 profileBinding.tabsPostType.getTabAt(
                     categories.filterValues {
                         it == selected
@@ -246,15 +257,13 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
 
             }
         }
+
     }
 
     private fun setInit() {
-        if (!mProfileViewModel.isInitialized.value) {
-            mProfileViewModel.initWithLoggedUser()
-        } else {
-            mProfileViewModel.refreshUser()
-        }
-        mProfileViewModel.initUser(ModelMapping.mapToUserModel(GlobalValue.USER!!))
+
+        //init data
+        initDataUser()
         // setting main view
         mMainActivity.bd.toolbar.title = "thông tin cá nhân"
         mMainActivity.bd.appBarLayout.isVisible = true
@@ -267,8 +276,6 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
             R.string.open, R.string.close)
         actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         actionBarDrawerToggle.syncState()
-        //init data
-        initDataUser()
     }
 
     private fun initDataUser() {
@@ -280,17 +287,23 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
             .fitCenter()
             .centerCrop()
             .into(profileBinding.imgAvatar)
-
     }
 
     private fun setEvent() {
         profileBinding.linLayFollowers.setOnClickListener { openFollowers() }
         profileBinding.linLayFollowing.setOnClickListener { openFollowing() }
+        profileBinding.rootSwipe.setOnRefreshListener {
+            setInit()
+            viewModel.loadDataInitUser(GlobalValue.USER_DETAIL!!)
+            setObserveData()
+            initRecyclers(true)
+            profileBinding.rootSwipe.isRefreshing = false
+        }
     }
 
     private fun openFollowing() {
         openDialogWithListOfUsers(
-            statusFlow = mProfileViewModel.getFollowing(),
+            statusFlow = viewModel.getFollowing(),
             title = R.string.following,
             emptyText = R.string.user_have_no_following,
             errorText = R.string.something_went_wrong
@@ -299,7 +312,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
 
     private fun openFollowers() {
         openDialogWithListOfUsers(
-            statusFlow = mProfileViewModel.getFollowers(),
+            statusFlow = viewModel.getFollowers(),
             title = R.string.followers,
             emptyText = R.string.user_have_no_followers,
             errorText = R.string.something_went_wrong
@@ -308,7 +321,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
 
     fun navigateFragment(fragment: Fragment, tag: String) {
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(id, fragment, "tag")
+            .replace(id, fragment, tag)
             .addToBackStack(null)
             .commit()
     }
@@ -323,4 +336,14 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         2 to ProfileViewModel.DisplayPostCategory.LIKED
     )
 
+
+
+//    override fun onResume() {
+//        super.onResume()
+//        Log.d("TAG", "reload profile")
+//        setInit()
+//        viewModel.loadDataInitUser(GlobalValue.USER_DETAIL!!)
+//        setObserveData()
+//        initRecyclers(true)
+//    }
 }

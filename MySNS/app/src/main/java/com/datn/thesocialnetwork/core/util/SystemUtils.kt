@@ -116,7 +116,7 @@ object SystemUtils {
     fun vectorToBitmap(
         context: Context,
         @DrawableRes id: Int,
-        @ColorInt color: Int
+        @ColorInt color: Int,
     ): BitmapDescriptor {
         val vectorDrawable = ResourcesCompat.getDrawable(context.resources, id, null)
         if (vectorDrawable == null) {
@@ -210,20 +210,17 @@ object SystemUtils {
     val String.isOnlyEmoji
         get() = replace(onlyEmojiRegex, "") == ""
 
-    fun Long.formatWithSpaces(): String
-    {
+    fun Long.formatWithSpaces(): String {
         val sb = StringBuilder().append(this)
 
-        for (i in sb.length - 3 downTo 1 step 3)
-        {
+        for (i in sb.length - 3 downTo 1 step 3) {
             sb.insert(i, ' ')
         }
 
         return sb.toString()
     }
 
-    fun Activity.getShareIntent(text: String): Intent
-    {
+    fun Activity.getShareIntent(text: String): Intent {
         return ShareCompat.IntentBuilder.from(this)
             .setText(text)
             .setType("text/plain").intent

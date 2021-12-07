@@ -6,18 +6,21 @@ data class Conversation(
     val msg: HashMap<String, ChatMessage>? = null,
     val u1: String = "",
     val u2: String = "",
+    val createdTime: Long = 0,
 )
 
 data class ConversationItem(
     val userId: String,
-    val lastMessage: ChatMessage
+    val lastMessage: ChatMessage,
+    val isRead: Boolean
 ) // last message
 
 data class ChatMessage(
     val textContent: String? = null,
     val time: Long = 0L,
     val imageUrl: String? = null,
-    val sender: String = ""
+    val sender: String = "",
+    val isRead: Boolean = false,
 )
 {
     var id: String = ""

@@ -1,6 +1,7 @@
 package com.datn.thesocialnetwork.feature.home.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.core.util.ViewUtils.viewBinding
+import com.datn.thesocialnetwork.data.repository.model.TagModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.data.repository.model.post.StateData
 import com.datn.thesocialnetwork.databinding.FragmentHomeBinding
@@ -22,6 +24,7 @@ import com.datn.thesocialnetwork.feature.post.view.AbstractFragmentRcv
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelStateRcv
 import com.datn.thesocialnetwork.feature.profile.view.UserFragment
+import com.datn.thesocialnetwork.feature.search.view.TagFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -75,7 +78,9 @@ class HomeFragment() : AbstractFragmentRcv(
     }
 
     override fun tagClick(tag: String) {
-        //todo: tag fragment
+        val tags = TagModel(tag,-1)
+        val tagFragment = TagFragment.newInstance(tags)
+        navigateFragment(tagFragment, "tagFragment")
     }
 
     override fun mentionClick(mention: String) {
@@ -104,6 +109,15 @@ class HomeFragment() : AbstractFragmentRcv(
         // Inflate the layout for this fragment
         super.onViewCreated(view, savedInstanceState)
         setInit()
+        setEvent()
+    }
+
+    private fun setEvent() {
+        binding.rootSwipe.setOnRefreshListener {
+            viewModel.loadPosts()
+            initView()
+            binding.rootSwipe.isRefreshing = false
+        }
     }
 
     private fun setInit() {
@@ -116,6 +130,13 @@ class HomeFragment() : AbstractFragmentRcv(
             R.string.open, R.string.close)
         actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         actionBarDrawerToggle.syncState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("TAG", "reload home")
+        viewModel.loadPosts()
+        initView()
     }
 
     fun navigateFragment(fragment: Fragment, tag: String) {

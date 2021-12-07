@@ -13,6 +13,7 @@ object ModelMapping {
         userName: String,
         firstName: String,
         lastName: String,
+        onlineStatus: Long,
     ): UserResponse =
         UserResponse(
             uidUser = uidUser,
@@ -21,14 +22,14 @@ object ModelMapping {
                 password = password,
                 userName = userName,
                 firstName = firstName,
-                lastName = lastName
+                lastName = lastName,
+                onlineStatus = onlineStatus
             )
         )
 
     fun mapToUserModel(userResponse: UserResponse): UserModel =
         UserModel(
             uidUser = userResponse.uidUser,
-            uidGoogle = userResponse.userDetail.uidGoogle,
             userName = userResponse.userDetail.userName,
             firstName = userResponse.userDetail.firstName,
             lastName = userResponse.userDetail.lastName,
@@ -40,4 +41,19 @@ object ModelMapping {
             avatarUrl = userResponse.userDetail.avatarUrl,
             onlineStatus = userResponse.userDetail.onlineStatus
         )
+
+    fun createUserDetail(userDetail: UserDetail, onlineStatus: Long) : UserDetail {
+        return UserDetail(
+            userName = userDetail.userName,
+            firstName = userDetail.firstName,
+            lastName = userDetail.lastName,
+            birthday = userDetail.birthday,
+            description = userDetail.description,
+            gender = userDetail.gender,
+            email = userDetail.email,
+            password = userDetail.password,
+            avatarUrl = userDetail.avatarUrl,
+            onlineStatus = onlineStatus,
+        )
+    }
 }

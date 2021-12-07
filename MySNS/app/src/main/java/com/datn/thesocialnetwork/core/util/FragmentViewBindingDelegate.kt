@@ -11,26 +11,20 @@ import kotlin.reflect.KProperty
 
 class FragmentViewBindingDelegate<T : ViewBinding>(
     val fragment: Fragment,
-    val viewBindingFactory: (View) -> T
-) : ReadOnlyProperty<Fragment, T>
-{
+    val viewBindingFactory: (View) -> T,
+) : ReadOnlyProperty<Fragment, T> {
     private var binding: T? = null
 
-    init
-    {
+    init {
         fragment.lifecycle.addObserver(
-            object : DefaultLifecycleObserver
-            {
-                override fun onCreate(owner: LifecycleOwner)
-                {
+            object : DefaultLifecycleObserver {
+                override fun onCreate(owner: LifecycleOwner) {
                     fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
                         viewLifecycleOwner.lifecycle.addObserver(
-                            object : DefaultLifecycleObserver
-                            {
+                            object : DefaultLifecycleObserver {
                                 override fun onDestroy(
-                                    owner: LifecycleOwner
-                                )
-                                {
+                                    owner: LifecycleOwner,
+                                ) {
                                     binding = null
                                 }
                             })
@@ -39,17 +33,14 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
             })
     }
 
-    override fun getValue(thisRef: Fragment, property: KProperty<*>): T
-    {
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         val binding = binding
-        if (binding != null)
-        {
+        if (binding != null) {
             return binding
         }
 
         val lifecycle = fragment.viewLifecycleOwner.lifecycle
-        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED))
-        {
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED)) {
             throw IllegalStateException("Should not attempt to get bindings when Fragment views are destroyed.")
         }
 

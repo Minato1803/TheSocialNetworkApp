@@ -10,8 +10,6 @@ data class UserResponse (
 ) : Serializable
 
 data class UserDetail(
-    @SerializedName("uidUser") var uidUser: String = "",
-    @SerializedName("uidPhone") var uidGoogle: String = "",
     @SerializedName("userName") var userName: String = "",
     @SerializedName("firstName") var firstName: String = "",
     @SerializedName("lastName") var lastName: String = "",
@@ -21,7 +19,7 @@ data class UserDetail(
     @SerializedName("email") var email: String = "",
     @SerializedName("password") var password: String = "",
     @SerializedName("avatarUrl") var avatarUrl: String = Const.avatarDefaultUrl,
-    @SerializedName("onlineStatus") var onlineStatus: Int = 0,
+    @SerializedName("onlineStatus") var onlineStatus: Long = 0,
 ) : Serializable
 
 enum class Gender(val nameType: String) {

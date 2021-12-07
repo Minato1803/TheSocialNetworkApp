@@ -3,7 +3,6 @@ package com.datn.thesocialnetwork.feature.profile.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.annotation.StringRes
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.datn.thesocialnetwork.R
@@ -13,6 +12,7 @@ import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.api.status.SearchFollowStatus
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.ModelMapping
+import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.FirebaseRepository
@@ -23,17 +23,15 @@ import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelPost
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 @HiltViewModel
 @ExperimentalCoroutinesApi
 class ProfileViewModel @Inject constructor(
@@ -41,13 +39,12 @@ class ProfileViewModel @Inject constructor(
     private val followRespository: FollowRespository,
     private val firebaseRespository: FirebaseRepository,
     private val userRespository: UserRepository,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
 ) : ViewModelPost(firebaseRespository, postRepository) {
 
     val livePost = MutableLiveData<PostsModel>()
-    val getFollowingLiveData = MutableLiveData<Response<List<String>>>()
+    val liveUserModel = MutableLiveData<UserModel>()
     val getFollowerLiveData = MutableLiveData<Response<List<String>>>()
-    val followLiveData = MutableLiveData<Response<String>>()
     val unfollowLiveData = MutableLiveData<Response<String>>()
 
     private val _userNotFound = MutableStateFlow(false)
@@ -69,12 +66,9 @@ class ProfileViewModel @Inject constructor(
         _loggedUserFollowing,
     ) { selected, following ->
 
-        _isSelectedUserFollowedByLoggedUserVal = if (selected == null)
-        {
+        _isSelectedUserFollowedByLoggedUserVal = if (selected == null) {
             IsUserFollowed.UNKNOWN
-        }
-        else
-        {
+        } else {
             if (following.contains(selected.uidUser))
                 IsUserFollowed.YES
             else
@@ -112,38 +106,40 @@ class ProfileViewModel @Inject constructor(
     val likedPosts = _likedPosts.asStateFlow()
 
     @ExperimentalCoroutinesApi
-    fun initUser(user: UserModel)
-    {
+    fun initUser(user: UserModel) {
         _isInitialized.value = true
         _selectedUser.value = user
         Log.d("selectedUser", "${user.uidUser} ${user.userName}")
+        loadDataInitUser(user)
+    }
 
-        viewModelScope.launch {
+    fun loadDataInitUser(user: UserModel) {
+        viewModelScope.launch(Dispatchers.IO) {
             followRespository.getUserFollowersFlow(user.uidUser).collectLatest {
                 _userFollowersFlow.value = it
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             followRespository.getUserFollowingFlow(user.uidUser).collectLatest {
                 _userFollowingFlow.value = it
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             Log.d("TAG", "get own post")
             postRepository.getUserPostsFlow(user.uidUser).collectLatest {
                 _uploadedPosts.value = it
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             postRepository.getMentionedPosts(user.userName.lowercase()).collectLatest {
                 _mentionPosts.value = it
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             postRepository.getLikedPostByUserId(user.uidUser).collectLatest {
                 _likedPosts.value = it
             }
@@ -154,41 +150,29 @@ class ProfileViewModel @Inject constructor(
     fun initWithLoggedUser() = initWithUserId(firebaseRespository.requireUser.uid)
 
     @ExperimentalCoroutinesApi
-    fun initWithUserId(userId: String)
-    {
+    fun initWithUserId(userId: String) {
         _isInitialized.value = true
-
-        userRespository.getUserByID(userId)
+        Log.d("TAG",
+            "start get user from db")
+        userRespository.getUserByID(userId).child(userId)
             .addListenerForSingleValueEvent(
-                object : ValueEventListener
-                {
-                    override fun onDataChange(snapshot: DataSnapshot)
-                    {
-                        val users = snapshot.children.toList()
-                        if (users.size == 1)
-                        {
-                            val u = users[0].getValue(UserDetail::class.java)
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val users = snapshot.getValue(UserDetail::class.java)
+                        Log.d("getUserValue", "${users.toString()}")
+                        if (users != null) {
+                            val userResponse = UserResponse(userId, users)
+                            Log.d("getUserFromDB",
+                                "${userResponse.uidUser} ${userResponse.userDetail}")
 
-                            if (u != null)
-                            {
-                                val userResponse = UserResponse(userId,u)
-                                Log.d("getUserFromDB", "${userResponse.uidUser} ${userResponse.userDetail}")
-                                initUser(ModelMapping.mapToUserModel(userResponse))
-                            }
-                            else
-                            {
-                                //failed
-                            }
-                        }
-                        else
-                        {
-                            //not found or found many
-                            _userNotFound.value = true
+                            initUser(ModelMapping.mapToUserModel(userResponse))
+                            liveUserModel.postValue(ModelMapping.mapToUserModel(userResponse))
+                        } else {
+                            //failed
                         }
                     }
 
-                    override fun onCancelled(error: DatabaseError)
-                    {
+                    override fun onCancelled(error: DatabaseError) {
                         //error
                     }
                 }
@@ -196,77 +180,56 @@ class ProfileViewModel @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    fun initWithUsername(username: String)
-    {
+    fun initWithUsername(username: String) {
         _isInitialized.value = true
 
         userRespository.getUserByName(username)
             .addListenerForSingleValueEvent(
-                object : ValueEventListener
-                {
-                    override fun onDataChange(snapshot: DataSnapshot)
-                    {
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
                         val users = snapshot.children.toList()
-                        if (users.size == 1)
-                        {
-                            val u = users[0].getValue(UserResponse::class.java)
-
-                            if (u != null)
-                            {
-                                initUser(ModelMapping.mapToUserModel(u))
-                            }
-                            else
-                            {
+                        Log.d("getUserValue", "${users.toString()}")
+                        if (users.size == 1) {
+                            val user = users[0].getValue(UserResponse::class.java)
+                            Log.d("getUserValue", "${user.toString()}")
+                            if (user != null) {
+                                initUser(ModelMapping.mapToUserModel(user))
+                                liveUserModel.postValue(ModelMapping.mapToUserModel(user))
+                            } else {
                                 //fail
                             }
-                        }
-                        else
-                        {
-                            //not foung or found many
+                        } else {
+                            //not found or found many
                             _userNotFound.value = true
                         }
                     }
 
-                    override fun onCancelled(error: DatabaseError)
-                    {
+                    override fun onCancelled(error: DatabaseError) {
                         //cancel
                     }
                 }
             )
     }
 
-    fun refreshUser()
-    {
+    fun refreshUser() {
+        Log.d("TAG", "refresh user ${_selectedUser.value?.uidUser.toString()}")
         _selectedUser.value?.uidUser?.let { id ->
-            userRespository.getUserByID(id)
+            userRespository.getUserByID(id).child(id)
                 .addListenerForSingleValueEvent(
-                    object : ValueEventListener
-                    {
-                        override fun onDataChange(snapshot: DataSnapshot)
-                        {
-                            val users = snapshot.children.toList()
-                            if (users.size == 1)
-                            {
-                                val u = users[0].getValue(UserDetail::class.java)
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val users = snapshot.getValue(UserDetail::class.java)
+                            Log.d("getUserValue", "${users.toString()}")
+                            if (users != null) {
+                                val userResponse = UserResponse(id, users)
+                                Log.d("getUserFromDB",
+                                    "${userResponse.uidUser} ${userResponse.userDetail}")
 
-                                if (u != null)
-                                {
-                                    val userResponse = UserResponse(id,u)
-                                    _selectedUser.value = ModelMapping.mapToUserModel(userResponse)
-                                }
-                                else
-                                {
-                                    //faild
-                                }
-                            }
-                            else
-                            {
-                                //not found
+                                _selectedUser.value = ModelMapping.mapToUserModel(userResponse)
                             }
                         }
 
-                        override fun onCancelled(error: DatabaseError)
-                        {
+                        override fun onCancelled(error: DatabaseError) {
                             //cancel
                         }
                     }
@@ -279,40 +242,30 @@ class ProfileViewModel @Inject constructor(
     }
 
 
-    fun getFollowers(): Flow<GetStatus<List<String>>>
-    {
+    fun getFollowers(): Flow<GetStatus<List<String>>> {
         val id = _selectedUser.value?.uidUser
-        return if (_isInitialized.value && id != null)
-        {
+        return if (_isInitialized.value && id != null) {
             followRespository.getFollowers(id)
-        }
-        else
-        {
+        } else {
             flow { }
         }
     }
 
-    fun getFollowing(): Flow<GetStatus<List<String>>>
-    {
+    fun getFollowing(): Flow<GetStatus<List<String>>> {
         val id = _selectedUser.value?.uidUser
-        return if (_isInitialized.value && id != null)
-        {
+        return if (_isInitialized.value && id != null) {
             followRespository.getFollowing(id)
-        }
-        else
-        {
+        } else {
             flow { }
         }
     }
 
     @ExperimentalCoroutinesApi
-    fun followUnfollow()
-    {
-        Log.d("TAG", "${_canDoFollowUnfollowOperation.value.toString()} ${_isSelectedUserFollowedByLoggedUserVal.toString()}" )
-        if (_canDoFollowUnfollowOperation.value)
-        {
-            when (_isSelectedUserFollowedByLoggedUserVal)
-            {
+    fun followUnfollow() {
+        Log.d("TAG",
+            "${_canDoFollowUnfollowOperation.value.toString()} ${_isSelectedUserFollowedByLoggedUserVal.toString()}")
+        if (_canDoFollowUnfollowOperation.value) {
+            when (_isSelectedUserFollowedByLoggedUserVal) {
                 IsUserFollowed.UNKNOWN -> follow()
                 IsUserFollowed.YES -> unfollow()
                 IsUserFollowed.NO -> follow()
@@ -321,15 +274,12 @@ class ProfileViewModel @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    private fun follow()
-    {
+    private fun follow() {
         val userToFollow = _selectedUser.value
-        Log.d("TAG","selectUser $userToFollow")
-        if (userToFollow != null)
-        {
+        Log.d("TAG", "selectUser $userToFollow")
+        if (userToFollow != null) {
             viewModelScope.launch {
-                if (_canDoFollowUnfollowOperation.value)
-                {
+                if (_canDoFollowUnfollowOperation.value) {
                     followRespository.follow(userToFollow.uidUser).collectLatest {
                         _canDoFollowUnfollowOperation.value = it != FollowStatus.LOADING
                     }
@@ -339,14 +289,11 @@ class ProfileViewModel @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    private fun unfollow()
-    {
+    private fun unfollow() {
         val userToUnfollow = _selectedUser.value
-        if (userToUnfollow != null)
-        {
+        if (userToUnfollow != null) {
             viewModelScope.launch {
-                if (_canDoFollowUnfollowOperation.value)
-                {
+                if (_canDoFollowUnfollowOperation.value) {
                     followRespository.unfollow(userToUnfollow.uidUser).collectLatest {
                         _canDoFollowUnfollowOperation.value = it != FollowStatus.LOADING
                     }
@@ -355,26 +302,30 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun removeListeners()
-    {
+    private fun removeListeners() {
         followRespository.removeFollowingListener()
         followRespository.removeFollowersListener()
     }
 
-    enum class IsUserFollowed
-    {
+    fun updateOnlineStatus(userId: String, userDetail: UserDetail) =
+        viewModelScope.launch(Dispatchers.Main) {
+            userRespository.updateUser(uidUser = userId, userDetail = userDetail)
+            Log.d("Tag","success update")
+        }
+
+    enum class IsUserFollowed {
         UNKNOWN,
         YES,
         NO
     }
 
     enum class DisplayPostCategory(
-        @StringRes val categoryName: Int
-    )
-    {
+        @StringRes val categoryName: Int,
+    ) {
         UPLOADED(R.string.posts),
         MENTIONS(R.string.mentions),
         LIKED(R.string.liked)
 
     }
 }
+

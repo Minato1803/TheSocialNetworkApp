@@ -13,21 +13,23 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 abstract class AbstractFragmentRcv(
     @LayoutRes layout: Int,
-    private val stateData: StateData
-) : AbstractFragmentPost(layout)
-{
+    private val stateData: StateData,
+) : AbstractFragmentPost(layout) {
 
     abstract override val viewModel: ViewModelStateRcv
 
     @Inject
     lateinit var postAdapter: PostAdapter
 
-    protected lateinit var stateRecycler: StateRecycler
+    lateinit var stateRecycler: StateRecycler
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initView()
 
+    }
+
+    fun initView() {
         postAdapter.postClickListener = this
         stateRecycler = StateRecycler()
         stateRecycler.initView(viewModel, postAdapter, stateData)
@@ -35,5 +37,4 @@ abstract class AbstractFragmentRcv(
         val transaction = childFragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentRecycler, stateRecycler).commit()
     }
-
 }

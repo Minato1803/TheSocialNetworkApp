@@ -116,9 +116,6 @@ abstract class AbstractFragmentPost(
 //            .show()
     }
 
-
-    // endregion
-
     override fun onDestroy()
     {
         super.onDestroy()

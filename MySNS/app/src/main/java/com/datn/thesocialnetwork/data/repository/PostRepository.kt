@@ -39,7 +39,7 @@ class PostRepository @Inject constructor(
 ) {
 
     private fun getStorage() = mStorage.reference
-    private fun getDatabasePost() = mFirebaseDb.getReference(FirebaseNode.post)
+    fun getDatabasePost() = mFirebaseDb.getReference(FirebaseNode.post)
     private fun getDatabaseHashTag() = mFirebaseDb.getReference(FirebaseNode.hashTag)
     private fun getDatabaseMentions() = mFirebaseDb.getReference(FirebaseNode.mentions)
     private fun getDatabasePostLike() = mFirebaseDb.getReference(FirebaseNode.postLikes)

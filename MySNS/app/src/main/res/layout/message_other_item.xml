@@ -12,8 +12,8 @@
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imgAvatar"
         style="@style/ShapeableImageViewAvatar"
-        android:layout_width="@dimen/_24dp"
-        android:layout_height="@dimen/_24dp"
+        android:layout_width="@dimen/_40dp"
+        android:layout_height="@dimen/_40dp"
         android:layout_marginStart="@dimen/_8dp"
         android:layout_marginBottom="@dimen/_2dp"
         android:contentDescription="@string/user_avatar"
@@ -42,6 +42,7 @@
         android:layout_marginTop="@dimen/_1dp"
         android:layout_marginBottom="@dimen/_1dp"
         app:cardBackgroundColor="@color/color666666"
+        app:cardCornerRadius="@dimen/_5dp"
         app:cardElevation="1dp"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"

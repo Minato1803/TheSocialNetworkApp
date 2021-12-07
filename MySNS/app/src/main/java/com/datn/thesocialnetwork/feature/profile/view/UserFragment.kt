@@ -1,8 +1,10 @@
 package com.datn.thesocialnetwork.feature.profile.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
@@ -12,14 +14,16 @@ import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.core.util.SystemUtils.showMessage
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.core.util.ViewUtils.tryOpenUrl
-import com.datn.thesocialnetwork.core.util.exhaustive
+import com.datn.thesocialnetwork.data.repository.model.TagModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
+import com.datn.thesocialnetwork.databinding.FragmentChatBinding
 import com.datn.thesocialnetwork.feature.chat.view.MessageFragment
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.post.detailpost.view.DetailPostFragment
 import com.datn.thesocialnetwork.feature.post.comment.view.CommentFragment
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
+import com.datn.thesocialnetwork.feature.search.view.TagFragment
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,15 +62,16 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mMainActivity = activity as MainActivity
+
         setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setEvent()
+        extractData()
         setInit()
+        setEvent()
         setObserveData()
-        initRecyclers(false)
     }
 
     private fun setObserveData() {
@@ -86,7 +91,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
                         userBinding.btnFollow.text = getString(R.string.follow)
                         userBinding.btnFollow.isEnabled = true
                     }
-                }.exhaustive
+                }
             }
         }
 
@@ -133,40 +138,49 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     }
 
     private fun setInit() {
-        extractData()
-        mMainActivity.bd.toolbar.title = userModel?.userName ?: ""
-        mMainActivity.bd.toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_arrow_back_24)
+        lifecycleScope.launchWhenStarted {
+            viewModel.selectedUser.collectLatest { userModel ->
+                if (userModel != null) {
+                    userBinding.tvFullName.text = userModel.userName
+                    if (userModel.description.trim().isNotEmpty())
+                        userBinding.tvDesc.text = userModel.description
+                    glide
+                        .load(userModel.avatarUrl)
+                        .fitCenter()
+                        .centerCrop()
+                        .into(userBinding.imgAvatar)
+                    mMainActivity.bd.toolbar.title = userModel.userName ?: ""
+                }
+            }
+        }
+        mMainActivity.bd.toolbar.navigationIcon =
+            resources.getDrawable(R.drawable.ic_arrow_back_24)
         mMainActivity.bd.bottomAppBar.visibility = View.GONE
         mMainActivity.bd.fabAdd.visibility = View.GONE
-        initDataUser()
+        initRecyclers(false)
     }
 
 
     private fun initDataUser() {
         //todo: notfound
+        Log.d("receiveUser", "${isLoadFromDb.toString()} ${userModel.toString()}")
         if (isLoadFromDb) {
-            if (userModel!!.userName.isNotEmpty())
+            if (!userModel!!.userName.isNullOrEmpty())
                 viewModel.initWithUsername(userModel!!.userName)
             else
                 viewModel.initWithUserId(userModel!!.uidUser)
         } else {
             viewModel.initUser(userModel!!)
         }
-        userModel?.let { userModel ->
-            userBinding.tvFullName.text = userModel.userName
-            if (userModel.description.trim().isNotEmpty())
-                userBinding.tvDesc.text = userModel.description
-            glide
-                .load(userModel.avatarUrl)
-                .fitCenter()
-                .centerCrop()
-                .into(userBinding.imgAvatar)
-        }
+        setObserveData()
     }
 
     private fun extractData() {
         userModel = arguments?.getParcelable(USER_DATA)
         isLoadFromDb = arguments?.getBoolean(IS_LOAD_FROM_DB) ?: false
+        Log.d("receiveUser", "${userModel.toString()} ${isLoadFromDb.toString()}")
+        viewModel.liveUserModel.postValue(userModel)
+        initDataUser()
     }
 
     private fun setEvent() {
@@ -221,7 +235,8 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             //current user != user clicked
             if (viewModel.selectedUser.value?.uidUser != postOwner) {
                 val userFragment =
-                    UserFragment.newInstance(UserModel(uidUser = postOwner), isLoadFromDb = true)
+                    UserFragment.newInstance(UserModel(uidUser = postOwner),
+                        isLoadFromDb = true)
                 navigateFragment(userFragment, "userFragment")
             } else {
                 userBinding.userLayout.showSnackbarGravity(
@@ -261,6 +276,9 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
 
     override fun tagClick(tag: String) {
         //todo: tag fragment
+        val tags = TagModel(tag, -1)
+        val tagFragment = TagFragment.newInstance(tags)
+        navigateFragment(tagFragment, "tagFragment")
     }
 
     override fun linkClick(link: String) {
@@ -275,7 +293,6 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             val profileFragment = ProfileFragment()
             navigateFragment(profileFragment, "profileFragment")
         } else {
-            // check if mention is not the same as current user
             if (viewModel.selectedUser.value?.userName!!.lowercase() != mention.normalize()) {
                 val userFragment =
                     UserFragment.newInstance(UserModel(userName = mention), isLoadFromDb = true)
@@ -293,7 +310,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     }
 
     override fun menuEditClick(post: PostWithId) {
-        //todo: edit post
+        //todo: not implement yet
     }
 
     private fun navigateFragment(fragment: Fragment, tag: String) {
@@ -301,5 +318,11 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             .replace(id, fragment, tag)
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        extractData()
+        setInit()
     }
 }

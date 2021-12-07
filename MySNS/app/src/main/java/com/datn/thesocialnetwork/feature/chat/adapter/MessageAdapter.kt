@@ -30,7 +30,7 @@ class MessageAdapter @Inject constructor(
         {
             is MessageModel.OwnMessage -> R.layout.message_own_item
             is MessageModel.OtherMessage -> R.layout.message_other_item
-            null -> throw UnsupportedOperationException("Unknown view")
+            else -> throw UnsupportedOperationException("Unknown view")
         }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int)

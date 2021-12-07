@@ -1,6 +1,7 @@
 package com.datn.thesocialnetwork.feature.main.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -13,6 +14,7 @@ import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils
+import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.databinding.ActivityMainBinding
 import com.datn.thesocialnetwork.feature.chat.view.ChatFragment
@@ -22,6 +24,7 @@ import com.datn.thesocialnetwork.feature.login.view.LoginFragment
 import com.datn.thesocialnetwork.feature.login.viewmodel.LoginViewModel
 import com.datn.thesocialnetwork.feature.post.view.CreatePostFragment
 import com.datn.thesocialnetwork.feature.profile.view.ProfileFragment
+import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -41,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var mGoogleSignInClient: GoogleSignInClient
     lateinit var bd: ActivityMainBinding
     private val mLoginViewModel: LoginViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
 
     private val fragHome = HomeFragment()
     private val fragSearch = SearchFragment()
@@ -74,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             clickNavigateSubScreen(menuItem)
         }
         actionBarDrawerToggle.setToolbarNavigationClickListener {
-            
+
         }
         bd.fabAdd.setOnClickListener {
             CreatePostFragment.newInstance().show(supportFragmentManager, "CreatePostDialogFragment")
@@ -89,8 +93,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeGetUser(data: UserResponse?) {
         if (data != null) {
+            Log.d("TAG", "get user login $data")
             GlobalValue.USER = data
             GlobalValue.USER_DETAIL = ModelMapping.mapToUserModel(GlobalValue.USER!!)
+            val userDetail = ModelMapping.createUserDetail(GlobalValue.USER!!.userDetail, 0)
+            profileViewModel.updateOnlineStatus(data.uidUser, userDetail)
+            GlobalValue.USER!!.userDetail.onlineStatus = 0
+            GlobalValue.USER_DETAIL!!.onlineStatus = 0
         } else {
             SystemUtils.signOut(mGoogleSignInClient, this)
         }
@@ -141,6 +150,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setCurrentFragment(frag: Fragment) {
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragContainer, frag)
             .commit()

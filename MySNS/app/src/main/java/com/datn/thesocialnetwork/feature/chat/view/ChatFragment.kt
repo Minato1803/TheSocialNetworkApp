@@ -6,6 +6,7 @@ import android.view.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.datn.thesocialnetwork.R
@@ -47,8 +48,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     private var bd: FragmentChatBinding? = null
     lateinit var binding: FragmentChatBinding
     lateinit var mMainActivity: MainActivity
-    private val viewModel: ChatViewModel by viewModels()
-
+    private val viewModel: ChatViewModel by activityViewModels()
     private var userModel : UserModel? = null
     lateinit var actionBarDrawerToggle : ActionBarDrawerToggle
 
@@ -143,7 +143,11 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     }
 
     private fun setEvent() {
-        //TODO("Not yet implemented")
+        binding.root.setOnRefreshListener {
+            viewModel.updateConversations()
+            setObserveData()
+            binding.root.isRefreshing = false
+        }
     }
 
     private fun navigateFragment(fragment: Fragment, tag: String) {

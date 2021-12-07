@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.util.Const
@@ -67,15 +68,23 @@ class EditProfileHelper(
     fun showDialogDatePicker() {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat(Const.DATE_FORMAT)
-        val datePickerDialog = DatePickerDialog(parent.requireContext(),
-            { _, year, monthOfYear, dayOfMonth ->
+        val datePickerDialog =
+            DatePickerDialog(
+                parent.requireContext(), { _, year, monthOfYear, dayOfMonth ->
                 calendar.set(year, monthOfYear, dayOfMonth)
                 parent.bd.tvBirthday.text = (dateFormat.format(calendar.time))
             },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH))
-        datePickerDialog.datePicker.maxDate = calendar.timeInMillis
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+        val minAldultAge = Calendar.getInstance()
+        val maxAge = Calendar.getInstance()
+        minAldultAge.add(Calendar.YEAR,-16)
+        maxAge.add(Calendar.YEAR,-150)
+        Log.d("date", "${dateFormat.format(calendar.time)} ${dateFormat.format(minAldultAge.time)}")
+        datePickerDialog.datePicker.maxDate = minAldultAge.timeInMillis
+        datePickerDialog.datePicker.minDate = maxAge.timeInMillis
         datePickerDialog.show()
     }
 

@@ -47,7 +47,7 @@ class FollowRespository @Inject constructor(
                         val followingUsers = followers.map {
                             it.value.desId
                         }
-                        Log.d("TAG", followingUsers[0].toString())
+                        Log.d("TAG", " following ${followingUsers.toString()}")
 
                         _loggedUserFollowing.value = followingUsers
                     }

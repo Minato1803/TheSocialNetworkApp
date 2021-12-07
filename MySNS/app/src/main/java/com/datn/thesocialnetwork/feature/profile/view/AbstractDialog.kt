@@ -11,8 +11,10 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -38,12 +40,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
+
 @ExperimentalCoroutinesApi
-abstract class AbstractDialog (@LayoutRes layout: Int
+abstract class AbstractDialog(
+    @LayoutRes layout: Int,
 ) : Fragment(layout), PostClickListener {
     @Inject
     lateinit var userAdapter: UserAdapter
-
 
     @Inject
     lateinit var uploadAdapter: PostAdapter
@@ -57,15 +60,14 @@ abstract class AbstractDialog (@LayoutRes layout: Int
     @Inject
     lateinit var imageLoader: ImageLoader
     private lateinit var materialAlertDialogBuilder: MaterialAlertDialogBuilder
-    val  profileBinding by viewBinding(FragmentProfileBinding::bind)
-    val  userBinding by viewBinding(FragmentUserBinding::bind)
+    val profileBinding by viewBinding(FragmentProfileBinding::bind)
+    val userBinding by viewBinding(FragmentUserBinding::bind)
     val viewModel: ProfileViewModel by viewModels()
 
     private var alertDialog: AlertDialog? = null
     private var searchUsersJob: Job? = null
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         materialAlertDialogBuilder = MaterialAlertDialogBuilder(requireContext())
 
@@ -80,15 +82,15 @@ abstract class AbstractDialog (@LayoutRes layout: Int
         statusFlow: Flow<GetStatus<List<String>>>,
         @StringRes title: Int,
         @StringRes emptyText: Int,
-        @StringRes errorText: Int
-    )
-    {
+        @StringRes errorText: Int,
+    ) {
         val d = LayoutInflater.from(requireContext())
             .inflate(R.layout.users_dialog, null, false)
 
         val rvUsers = d.findViewById<RecyclerView>(R.id.rvUsers)
         val proBarLoading = d.findViewById<ProgressBar>(R.id.proBarLoading)
         val txtInfo = d.findViewById<MaterialTextView>(R.id.txtInfo)
+        rvUsers.layoutManager = LinearLayoutManager(requireContext())
         rvUsers.adapter = userAdapter
 
         alertDialog = materialAlertDialogBuilder.setView(d)
@@ -103,35 +105,28 @@ abstract class AbstractDialog (@LayoutRes layout: Int
 
         searchUsersJob = lifecycleScope.launchWhenStarted {
             statusFlow.collectLatest {
-                when (it)
-                {
+                when (it) {
                     GetStatus.Sleep -> Unit
-                    GetStatus.Loading ->
-                    {
+                    GetStatus.Loading -> {
                         rvUsers.isVisible = false
                         proBarLoading.isVisible = true
                         txtInfo.isVisible = false
                     }
-                    is GetStatus.Success ->
-                    {
+                    is GetStatus.Success -> {
                         Log.d("listFollow", it.data.toString())
                         userAdapter.submitList(it.data)
                         proBarLoading.isVisible = false
 
-                        if (it.data.isNotEmpty())
-                        {
+                        if (it.data.isNotEmpty()) {
                             rvUsers.isVisible = true
                             txtInfo.isVisible = false
-                        }
-                        else
-                        {
+                        } else {
                             rvUsers.isVisible = false
                             txtInfo.isVisible = true
                             txtInfo.setText(emptyText)
                         }
                     }
-                    is GetStatus.Failed ->
-                    {
+                    is GetStatus.Failed -> {
                         rvUsers.isVisible = false
                         proBarLoading.isVisible = false
                         txtInfo.isVisible = true
@@ -143,11 +138,10 @@ abstract class AbstractDialog (@LayoutRes layout: Int
     }
 
     protected fun initRecyclers(
-        isProfileFragment: Boolean
+        isProfileFragment: Boolean,
     ) {
 
-        if(isProfileFragment) {
-
+        if (isProfileFragment) {
             profileBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
         } else {
             userBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
@@ -194,16 +188,13 @@ abstract class AbstractDialog (@LayoutRes layout: Int
         val names = ProfileViewModel.DisplayPostCategory.values().map {
             it.categoryName
         }
-        if(isProfileFragment) {
-
-            profileBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
+        if (isProfileFragment) {
             profileBinding.vpRecyclers.adapter = adapter
 
             TabLayoutMediator(profileBinding.tabsPostType, profileBinding.vpRecyclers) { tab, pos ->
                 tab.text = getString(names[pos])
             }.attach()
         } else {
-            userBinding.vpRecyclers.setPageTransformer(MarginPageTransformer(8.px))
             userBinding.vpRecyclers.adapter = adapter
 
             TabLayoutMediator(userBinding.tabsPostType, userBinding.vpRecyclers) { tab, pos ->
@@ -212,8 +203,7 @@ abstract class AbstractDialog (@LayoutRes layout: Int
         }
     }
 
-    override fun onDestroy()
-    {
+    override fun onDestroy() {
         super.onDestroy()
         userAdapter.cancelScopes()
     }
