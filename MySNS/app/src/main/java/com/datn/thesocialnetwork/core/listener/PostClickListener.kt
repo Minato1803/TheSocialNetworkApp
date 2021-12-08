@@ -10,7 +10,7 @@ interface PostClickListener {
 
     fun commentClick(postId: String)
 
-    fun shareClick(postId: String)
+    fun markClick(postId: String, status: Boolean)
 
     fun likeCounterClick(postId: String)
 

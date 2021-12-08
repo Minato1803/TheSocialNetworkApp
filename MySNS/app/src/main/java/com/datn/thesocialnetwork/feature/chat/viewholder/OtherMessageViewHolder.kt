@@ -11,13 +11,10 @@ import com.datn.thesocialnetwork.feature.chat.adapter.MessageClickListener
 import com.google.android.material.shape.CornerFamily
 
 class OtherMessageViewHolder private constructor(
-    private val binding: MessageOtherItemBinding
-) : MessageModelViewHolder<MessageOtherItemBinding>(binding)
-{
-    companion object
-    {
-        fun create(parent: ViewGroup): OtherMessageViewHolder
-        {
+    private val binding: MessageOtherItemBinding,
+) : MessageModelViewHolder<MessageOtherItemBinding>(binding) {
+    companion object {
+        fun create(parent: ViewGroup): OtherMessageViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val binding = MessageOtherItemBinding.inflate(layoutInflater, parent, false)
             return OtherMessageViewHolder(
@@ -32,9 +29,8 @@ class OtherMessageViewHolder private constructor(
     fun bind(
         message: MessageModel.OtherMessage,
         messageClickListener: MessageClickListener,
-        glide: RequestManager
-    )
-    {
+        glide: RequestManager,
+    ) {
         bindRoutine(message, messageClickListener)
 
         with(binding)
@@ -43,43 +39,31 @@ class OtherMessageViewHolder private constructor(
                 .load(message.user.avatarUrl)
                 .into(imgAvatar)
 
-            // region card styling
-
             val b = cardView.shapeAppearanceModel.toBuilder()
                 .setAllCorners(CornerFamily.ROUNDED, radius)
 
-            when (message.type)
-            {
-                MessageType.FIRST ->
-                {
+            when (message.type) {
+                MessageType.FIRST -> {
                     b.setTopLeftCornerSize(0f)
                     b.setBottomLeftCornerSize(0f)
                 }
-                MessageType.MIDDLE ->
-                {
+                MessageType.MIDDLE -> {
                     b.setTopLeftCornerSize(0f)
                     b.setBottomLeftCornerSize(0f)
                 }
-                MessageType.LAST ->
-                {
+                MessageType.LAST -> {
                     b.setBottomLeftCornerSize(0f)
                 }
-                MessageType.SINGLE ->
-                {
+                MessageType.SINGLE -> {
                     b.setBottomLeftCornerSize(0f)
                 }
             }
 
             cardView.shapeAppearanceModel = b.build()
 
-            // endregion
-
-            if (message.type == MessageType.FIRST || message.type == MessageType.SINGLE)
-            {
+            if (message.type == MessageType.FIRST || message.type == MessageType.SINGLE) {
                 imgAvatar.visibility = View.VISIBLE
-            }
-            else
-            {
+            } else {
                 imgAvatar.visibility = View.INVISIBLE
             }
         }

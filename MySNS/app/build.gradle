@@ -90,6 +90,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.1'
     implementation 'com.google.firebase:firebase-database-ktx:20.0.2'
     implementation 'com.google.firebase:firebase-storage-ktx:20.0.0'
+    implementation 'com.google.firebase:firebase-messaging:20.1.4'
 
     // Google authentication
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
@@ -103,6 +104,7 @@ dependencies {
 
     // Circle imageView
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.github.mohammadatif:CircularImageView:1.0.0'
 
     // Ted Permission
     implementation 'io.github.ParkSangGwon:tedpermission:2.3.0'

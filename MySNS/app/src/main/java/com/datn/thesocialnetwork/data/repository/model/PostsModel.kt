@@ -5,13 +5,10 @@ import com.datn.thesocialnetwork.core.util.FirebaseNode
 import kotlinx.android.parcel.Parcelize
 
 data class PostsModel(
-    var commentCount: Int = 0,
     var content: String = "",
     var createdTime: Long = 0L,
     val image: HashMap<String, PostsImage>? = null,
     var ownerId: String = "",
-    var reactCount: Int = 0,
-    var shareCount: Int = 0,
     var updatedTime: Long = 0L,
 )
 

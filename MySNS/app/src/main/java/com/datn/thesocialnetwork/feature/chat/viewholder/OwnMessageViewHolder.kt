@@ -9,13 +9,10 @@ import com.datn.thesocialnetwork.feature.chat.adapter.MessageClickListener
 import com.google.android.material.shape.CornerFamily
 
 class OwnMessageViewHolder private constructor(
-    private val binding: MessageOwnItemBinding
-) : MessageModelViewHolder<MessageOwnItemBinding>(binding)
-{
-    companion object
-    {
-        fun create(parent: ViewGroup): OwnMessageViewHolder
-        {
+    private val binding: MessageOwnItemBinding,
+) : MessageModelViewHolder<MessageOwnItemBinding>(binding) {
+    companion object {
+        fun create(parent: ViewGroup): OwnMessageViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val binding = MessageOwnItemBinding.inflate(layoutInflater, parent, false)
             return OwnMessageViewHolder(
@@ -28,43 +25,34 @@ class OwnMessageViewHolder private constructor(
 
     fun bind(
         message: MessageModel.OwnMessage,
-        messageClickListener: MessageClickListener
-    )
-    {
+        messageClickListener: MessageClickListener,
+    ) {
         bindRoutine(message, messageClickListener)
 
         with(binding)
         {
 
-            // region card styling
-
             val b = cardView.shapeAppearanceModel.toBuilder()
                 .setAllCorners(CornerFamily.ROUNDED, radius)
 
-            when (message.type)
-            {
-                MessageType.FIRST ->
-                {
+            when (message.type) {
+                MessageType.FIRST -> {
                     b.setTopRightCornerSize(0f)
                 }
-                MessageType.MIDDLE ->
-                {
+                MessageType.MIDDLE -> {
                     b.setTopRightCornerSize(0f)
                     b.setBottomRightCornerSize(0f)
                 }
-                MessageType.LAST ->
-                {
+                MessageType.LAST -> {
                     b.setBottomRightCornerSize(0f)
                 }
-                MessageType.SINGLE ->
-                {
+                MessageType.SINGLE -> {
 
                 }
             }
 
             cardView.shapeAppearanceModel = b.build()
 
-            // endregion
         }
 
     }

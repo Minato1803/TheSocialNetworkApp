@@ -8,6 +8,7 @@ import com.datn.thesocialnetwork.data.repository.PostRepository
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.LikeStatus
+import com.datn.thesocialnetwork.data.repository.model.post.status.MarkStatus
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelPost
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +39,9 @@ class DetailPostViewModel @Inject constructor(
     private val _likeStatus: MutableStateFlow<GetStatus<LikeStatus>> = MutableStateFlow(GetStatus.Loading)
     val likeStatus = _likeStatus.asStateFlow()
 
+    private val _markStatus: MutableStateFlow<GetStatus<MarkStatus>> = MutableStateFlow(GetStatus.Loading)
+    val markStatus = _markStatus.asStateFlow()
+
     private val _userStatus: MutableStateFlow<GetStatus<UserModel>> = MutableStateFlow(GetStatus.Loading)
     val userStatus = _userStatus.asStateFlow()
 
@@ -46,6 +50,7 @@ class DetailPostViewModel @Inject constructor(
 
     private var userListenerId: Int = -1
     private var likeListenerId: Int = -1
+    private var markListenerId: Int = -1
     private var commentListenerId: Int = -1
 
 
@@ -73,6 +78,13 @@ class DetailPostViewModel @Inject constructor(
             likeListenerId = FirebaseRepository.likeListenerId
             postRepository.getPostLikes(likeListenerId, post.first).collectLatest {
                 _likeStatus.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            markListenerId = FirebaseRepository.markListenerId
+            postRepository.getPostMarks(markListenerId, post.first).collectLatest {
+                _markStatus.value = it
             }
         }
 

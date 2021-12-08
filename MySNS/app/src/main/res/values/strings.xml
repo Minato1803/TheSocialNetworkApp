@@ -145,6 +145,8 @@
     <string name="no_mentions_user">Người này chưa được gắn thẻ trong bài viết nào.</string>
     <string name="no_likes_profile">Bạn chưa thích bài viết nào</string>
     <string name="no_liked_user">Người này chưa thích bài viết nào</string>
+    <string name="no_marks_profile">Bạn chưa lưu bài viết nào</string>
+    <string name="no_marked_user">Người này chưa lưu bài viết nào</string>
     <string name="you_are_currently_on_your_profile">Bạn đang ở trang cá nhân của bạn</string>
     <string name="comments">%s  bình luận</string>
     <string name="liked_counter">Số lượt thích</string>
@@ -169,4 +171,5 @@
     <string name="change_passwd_failed">Đã có lỗi xảy ra. %s</string>
     <string name="passwd_is_wrong">Mật khẩu sai.</string>
     <string name="not_owner_post">Bạn không có quyền chỉnh sửa!</string>
+    <string name="marked">Đã lưu</string>
 </resources>

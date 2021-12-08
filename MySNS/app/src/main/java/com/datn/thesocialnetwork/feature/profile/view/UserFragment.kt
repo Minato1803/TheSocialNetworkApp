@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
+import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.api.status.SearchFollowStatus
 import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.core.util.SystemUtils.showMessage
@@ -55,14 +56,13 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     @Inject
     lateinit var glide: RequestManager
     lateinit var mMainActivity: MainActivity
-    private val mProfileViewModel: ProfileViewModel by viewModels()
+//    private val mProfileViewModel: ProfileViewModel by viewModels()
     private var userModel: UserModel? = null
     private var isLoadFromDb: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mMainActivity = activity as MainActivity
-
         setHasOptionsMenu(true)
     }
 
@@ -75,9 +75,9 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     }
 
     private fun setObserveData() {
-        mProfileViewModel.updateFollowList()
+        viewModel.updateFollowList()
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.isSelectedUserFollowedByLoggedUser.collectLatest { isFollowedStatus ->
+            viewModel.isSelectedUserFollowedByLoggedUser.collectLatest { isFollowedStatus ->
                 when (isFollowedStatus) {
                     ProfileViewModel.IsUserFollowed.UNKNOWN -> {
                         userBinding.btnFollow.text = getString(R.string.follow)
@@ -99,13 +99,13 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
          * change btn state
          */
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.canDoFollowUnfollowOperation.collectLatest { canBeClicked ->
+            viewModel.canDoFollowUnfollowOperation.collectLatest { canBeClicked ->
                 userBinding.btnFollow.isEnabled = canBeClicked
             }
         }
 
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.userFollowersFlow.collectLatest { status ->
+            viewModel.userFollowersFlow.collectLatest { status ->
 
                 when (status) {
                     SearchFollowStatus.Loading, SearchFollowStatus.Sleep -> {
@@ -122,7 +122,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
          * Collect selected user following users
          */
         lifecycleScope.launchWhenStarted {
-            mProfileViewModel.userFollowingFlow.collectLatest { status ->
+            viewModel.userFollowingFlow.collectLatest { status ->
                 when (status) {
                     SearchFollowStatus.Loading, SearchFollowStatus.Sleep -> {
                         //loading
@@ -131,6 +131,30 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
                         userBinding.txtCounterFollowing.text = status.result.size.toString()
                     }
                 }
+            }
+        }
+
+        /**
+         * Collect number of posts
+         */
+        lifecycleScope.launchWhenStarted {
+            viewModel.uploadedPosts.collectLatest {
+                if (it is GetStatus.Success) {
+                    userBinding.txtCounterPosts.text = it.data.size.toString()
+                }
+            }
+        }
+        /**
+         * Collect selected category
+         */
+        lifecycleScope.launchWhenStarted {
+            viewModel.category.collectLatest { selected ->
+                userBinding.tabsPostType.getTabAt(
+                    categories.filterValues {
+                        it == selected
+                    }.keys.elementAt(0)
+                )?.select()
+
             }
         }
 
@@ -188,12 +212,12 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             mMainActivity.onBackPressed()
         }
         userBinding.btnFollow.setOnClickListener {
-            mProfileViewModel.followUnfollow()
+            viewModel.followUnfollow()
             setObserveData()
         }
         userBinding.btnMessage.setOnClickListener {
-            val messageFragment = MessageFragment.newInstance(userModel!!)
-            navigateFragment(messageFragment, "messageFragment")
+            MessageFragment.newInstance(userModel!!).show(childFragmentManager,"messageFragment")
+//            navigateFragment(messageFragment, "messageFragment")
         }
         //ToDo: open dialog list
         userBinding.linLayFollowers.setOnClickListener { openFollowers() }
@@ -202,7 +226,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
 
     private fun openFollowing() {
         openDialogWithListOfUsers(
-            statusFlow = mProfileViewModel.getFollowing(),
+            statusFlow = viewModel.getFollowing(),
             title = R.string.following,
             emptyText = R.string.user_have_no_following,
             errorText = R.string.something_went_wrong
@@ -211,7 +235,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
 
     private fun openFollowers() {
         openDialogWithListOfUsers(
-            statusFlow = mProfileViewModel.getFollowers(),
+            statusFlow = viewModel.getFollowers(),
             title = R.string.followers,
             emptyText = R.string.user_have_no_followers,
             errorText = R.string.something_went_wrong
@@ -256,8 +280,8 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
         navigateFragment(commentFragment, "commentFragment")
     }
 
-    override fun shareClick(postId: String) {
-        // todo: share
+    override fun markClick(postId: String, status: Boolean) {
+        viewModel.setMarkStatus(postId, status)
     }
 
     override fun likeCounterClick(postId: String) {
@@ -319,6 +343,12 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             .addToBackStack(null)
             .commit()
     }
+
+    private val categories = hashMapOf(
+        0 to ProfileViewModel.DisplayPostCategory.UPLOADED,
+        1 to ProfileViewModel.DisplayPostCategory.MENTIONS,
+        2 to ProfileViewModel.DisplayPostCategory.MARKED
+    )
 
     override fun onResume() {
         super.onResume()

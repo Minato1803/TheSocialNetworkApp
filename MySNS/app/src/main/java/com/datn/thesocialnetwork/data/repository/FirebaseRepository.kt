@@ -43,6 +43,11 @@ class FirebaseRepository @Inject constructor(
             @Synchronized private set
 
         @Volatile
+        var markListenerId: Int = 0
+            @Synchronized get() = field++
+            @Synchronized private set
+
+        @Volatile
         var commentCounterListenerId: Int = 0
             @Synchronized get() = field++
             @Synchronized private set

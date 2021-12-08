@@ -105,6 +105,11 @@ class ProfileViewModel @Inject constructor(
     )
     val likedPosts = _likedPosts.asStateFlow()
 
+    private var _markedPosts: MutableStateFlow<GetStatus<List<PostWithId>>> = MutableStateFlow(
+        GetStatus.Sleep
+    )
+    val markedPosts = _markedPosts.asStateFlow()
+
     @ExperimentalCoroutinesApi
     fun initUser(user: UserModel) {
         _isInitialized.value = true
@@ -144,6 +149,12 @@ class ProfileViewModel @Inject constructor(
                 _likedPosts.value = it
             }
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepository.getMarkedPostByUserId(user.uidUser).collectLatest {
+               _markedPosts.value = it
+            }
+        }
     }
 
     @ExperimentalCoroutinesApi
@@ -167,8 +178,6 @@ class ProfileViewModel @Inject constructor(
 
                             initUser(ModelMapping.mapToUserModel(userResponse))
                             liveUserModel.postValue(ModelMapping.mapToUserModel(userResponse))
-                        } else {
-                            //failed
                         }
                     }
 
@@ -195,12 +204,11 @@ class ProfileViewModel @Inject constructor(
                             if (user != null) {
                                 initUser(ModelMapping.mapToUserModel(user))
                                 liveUserModel.postValue(ModelMapping.mapToUserModel(user))
-                            } else {
-                                //fail
                             }
                         } else {
                             //not found or found many
                             _userNotFound.value = true
+                            Log.d("TAG", "many user has name")
                         }
                     }
 
@@ -228,7 +236,6 @@ class ProfileViewModel @Inject constructor(
                                 _selectedUser.value = ModelMapping.mapToUserModel(userResponse)
                             }
                         }
-
                         override fun onCancelled(error: DatabaseError) {
                             //cancel
                         }
@@ -324,8 +331,7 @@ class ProfileViewModel @Inject constructor(
     ) {
         UPLOADED(R.string.posts),
         MENTIONS(R.string.mentions),
-        LIKED(R.string.liked)
-
+        MARKED(R.string.marked)
     }
 }
 

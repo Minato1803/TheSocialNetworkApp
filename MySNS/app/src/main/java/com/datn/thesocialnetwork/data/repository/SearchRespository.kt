@@ -100,7 +100,7 @@ class SearchRespository @Inject constructor(
             send(SearchStatus.Interrupted)
             close()
         } else {
-            getHashtags(text).startAt(text, FirebaseNode.tag).endAt(text + "\uf8ff", FirebaseNode.tag).addValueEventListener(
+            getHashtags(text).equalTo(text).addValueEventListener(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val u = mutableListOf<SearchModel>()

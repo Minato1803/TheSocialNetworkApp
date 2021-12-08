@@ -265,20 +265,20 @@ class ChatRespository @Inject constructor(
 
         val vel1 = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                Log.d("getConversation", "sn ${snapshot.toString()}")
                 val r = snapshot.getValue(conversationsType)
 
                 r?.forEach { entry ->
-
+                    val idMsg = ""
                     val lastMsg: ChatMessage? = entry.value.msg?.maxByOrNull {
                         it.value.time
                     }?.value
-
+                    lastMsg?.id = entry.value.msg?.maxByOrNull { it.value.time }?.key.toString()
                     lastMsg?.let {
                         conversations.add(
                             ConversationItem(
                                 lastMessage = lastMsg,
                                 userId = entry.value.u2,
-                                isRead = it.isRead
                             )
                         )
                     }
@@ -302,13 +302,12 @@ class ChatRespository @Inject constructor(
                     val lastMsg: ChatMessage? = entry.value.msg?.maxByOrNull {
                         it.value.time
                     }?.value
-
+                    lastMsg?.id = entry.value.msg?.maxByOrNull { it.value.time }?.key.toString()
                     lastMsg?.let {
                         conversations.add(
                             ConversationItem(
                                 lastMessage = lastMsg,
                                 userId = entry.value.u1,
-                                isRead = it.isRead
                             )
                         )
                     }
@@ -332,5 +331,31 @@ class ChatRespository @Inject constructor(
             .addListenerForSingleValueEvent(vel2)
 
         awaitClose()
+    }
+
+    fun seenLastMessage(userModel: UserModel, conversationItem: ConversationItem) {
+        val key = getKeyFromTwoUsers(GlobalValue.USER!!.uidUser, userModel.uidUser)
+        val ref = getDatabaseChat().child(key)
+        val message = ChatMessage(
+            isRead = "true",
+            sender = conversationItem.lastMessage.sender,
+            textContent = conversationItem.lastMessage.textContent,
+            time = conversationItem.lastMessage.time,
+        )
+        Log.d("updateMessage", "id ${conversationItem.lastMessage.id}")
+        ref.addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.value != null) {
+                        val msgRef = ref.child(FirebaseNode.messageAllField)
+                            .child(conversationItem.lastMessage.id)
+                            .setValue(message.toHashMap)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("failed", "failed delete")
+                }
+            })
     }
 }

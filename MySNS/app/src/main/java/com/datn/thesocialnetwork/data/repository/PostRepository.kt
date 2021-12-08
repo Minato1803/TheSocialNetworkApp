@@ -12,13 +12,13 @@ import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.core.util.FirebaseNode
 import com.datn.thesocialnetwork.core.util.GlobalValue
-import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.data.datasource.firebase.FirebaseListener
 import com.datn.thesocialnetwork.data.repository.model.PostsImage
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.CommentModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.LikeStatus
+import com.datn.thesocialnetwork.data.repository.model.post.status.MarkStatus
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -43,18 +43,26 @@ class PostRepository @Inject constructor(
     private fun getDatabaseHashTag() = mFirebaseDb.getReference(FirebaseNode.hashTag)
     private fun getDatabaseMentions() = mFirebaseDb.getReference(FirebaseNode.mentions)
     private fun getDatabasePostLike() = mFirebaseDb.getReference(FirebaseNode.postLikes)
+    private fun getDatabasePostMark() = mFirebaseDb.getReference(FirebaseNode.postMarks)
     private fun getDatabasePostComment() = mFirebaseDb.getReference(FirebaseNode.comments)
     private fun getDatabaseReport() = mFirebaseDb.getReference(FirebaseNode.reportPost)
 
     private fun getPostsStorageRef(userId: String) =
         getStorage().child(Const.parentStorageFolder).child(FirebaseNode.post).child(userId)
+
     private fun getPostLikes(postId: String) = getDatabasePostLike().child(postId)
+    private fun getPostMarks(postId: String) = getDatabasePostMark().child(postId)
     private fun getPostComment(postId: String) = getDatabasePostComment().child(postId)
-    private fun getUserPost(userId: String) = getDatabasePost().orderByChild(FirebaseNode.postsOwner)
+    private fun getUserPost(userId: String) =
+        getDatabasePost().orderByChild(FirebaseNode.postsOwner)
             .equalTo(userId)
+
     fun getPostById(postId: String) = getDatabasePost().child(postId)
+
     /** interact*/
     fun getPostUserWhichLikes(postId: String, userId: String) = getPostLikes(postId).child(userId)
+
+    fun getPostUserWhichMarks(postId: String, userId: String) = getPostMarks(postId).child(userId)
 
 
     fun uploadPost(
@@ -91,9 +99,6 @@ class PostRepository @Inject constructor(
                                         FirebaseNode.postsOwner to GlobalValue.USER!!.uidUser,
                                         FirebaseNode.postsCreatedTime to System.currentTimeMillis(),
                                         FirebaseNode.postsUpdatedTime to System.currentTimeMillis(),
-                                        FirebaseNode.reactCount to 0,
-                                        FirebaseNode.commentCount to 0,
-                                        FirebaseNode.shareCount to 0
                                     )
                                     // save post
                                     getDatabasePost().child(postId).setValue(post)
@@ -107,13 +112,9 @@ class PostRepository @Inject constructor(
                                                     val tagRef =
                                                         getDatabaseHashTag().child(tag.lowercase(
                                                             Locale.getDefault()))
-                                                    val h = mapOf(
-                                                        postId to true
-                                                    )
+                                                    val h = mapOf(postId to true)
                                                     tagRef.updateChildren(h)
                                                 }
-                                            } else {
-                                                //no hashtag
                                             }
                                             /**
                                              * Saving mentions
@@ -123,14 +124,9 @@ class PostRepository @Inject constructor(
                                                     val mentionRef =
                                                         getDatabaseMentions().child(mention.lowercase(
                                                             Locale.getDefault()))
-
-                                                    val h = mapOf(
-                                                        postId to true
-                                                    )
+                                                    val h = mapOf(postId to true)
                                                     mentionRef.updateChildren(h)
                                                 }
-                                            } else {
-                                                //no mentions
                                             }
                                             //save image post
                                             var countSuccesss = 0
@@ -141,7 +137,8 @@ class PostRepository @Inject constructor(
                                                 val imageItem = PostsImage(image)
                                                 Log.d("UpImageDB", "$imageKey $imageItem")
                                                 if (imageKey != null) {
-                                                    imagePostsRef.child(imageKey).setValue(imageItem.toHashMap)
+                                                    imagePostsRef.child(imageKey)
+                                                        .setValue(imageItem.toHashMap)
                                                         .addOnFailureListener {
                                                             launch {
                                                                 send(FirebaseStatus.Failed(Message(R.string.image_post_was_not_uploaded)))
@@ -216,34 +213,24 @@ class PostRepository @Inject constructor(
 
         send(GetStatus.Loading)
 
-        /**
-         * first people that user follows has to be loaded
-         */
         followRespository.getListFollowing(userId).addListenerForSingleValueEvent(
-            object : ValueEventListener
-            {
-                override fun onDataChange(dataSnapshot: DataSnapshot)
-                {
+            object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
                     val followers = dataSnapshot.getValue(FirebaseNode.followedType)
 
-                    if (followers != null)
-                    {
+                    if (followers != null) {
                         val followingUsers = followers.map {
                             it.value.desId
                         }
 
-
                         var counter = 0
                         val allPosts = mutableListOf<PostWithId>()
 
-                        fun checkIfAllQueriesWereMade()
-                        {
-                            synchronized(counter)
-                            {
+                        fun checkIfAllQueriesWereMade() {
+                            synchronized(counter) {
                                 counter++
 
-                                if (counter == followingUsers.size)
-                                {
+                                if (counter == followingUsers.size) {
                                     launch {
                                         allPosts.sortByDescending { it.second.updatedTime }
                                         send(GetStatus.Success(allPosts))
@@ -253,46 +240,35 @@ class PostRepository @Inject constructor(
                             }
                         }
 
-                        /**
-                         * For every user that is observed
-                         * posts are loaded
-                         */
                         followingUsers.forEach { userId ->
-
                             getUserPost(userId).addListenerForSingleValueEvent(
-                                object : ValueEventListener
-                                {
-                                    override fun onDataChange(snapshot: DataSnapshot)
-                                    {
-
+                                object : ValueEventListener {
+                                    override fun onDataChange(snapshot: DataSnapshot) {
                                         val posts = snapshot.getValue(FirebaseNode.postsType)
                                         Log.d("postsSnapshot", "$posts")
                                         posts?.forEach { post ->
-                                            Log.d("TAG","${post.key} ${post.value}")
+                                            Log.d("TAG", "${post.key} ${post.value}")
                                             val images = post.value.image
                                             images?.forEach { image ->
                                                 image.value.id = image.key
                                             }
-                                            val postItem = PostWithId(post.key, post.value, images?.toList())
+                                            val postItem =
+                                                PostWithId(post.key, post.value, images?.toList())
                                             Log.d("postItemFollower", "$postItem")
                                             allPosts.add(postItem)
                                         }
-
                                         checkIfAllQueriesWereMade()
                                     }
 
-                                    override fun onCancelled(error: DatabaseError)
-                                    {
+                                    override fun onCancelled(error: DatabaseError) {
                                         checkIfAllQueriesWereMade()
                                     }
                                 }
                             )
 
                         }
-                        // endregion
 
-                    }
-                    else // user doesn't follow anyone
+                    } else // user doesn't follow anyone
                     {
                         launch {
                             send(GetStatus.Success(listOf()))
@@ -301,8 +277,7 @@ class PostRepository @Inject constructor(
                     }
                 }
 
-                override fun onCancelled(databaseError: DatabaseError)
-                {
+                override fun onCancelled(databaseError: DatabaseError) {
                     launch {
                         send(GetStatus.Failed(Message(R.string.followers_not_loaded)))
                         close()
@@ -315,20 +290,17 @@ class PostRepository @Inject constructor(
 
     @ExperimentalCoroutinesApi
     fun getUserPostsFlow(userId: String): Flow<GetStatus<List<PostWithId>>> = channelFlow {
-        Log.d("TAG","start get own post")
+        Log.d("TAG", "start get own post")
         send(GetStatus.Loading)
 
         getUserPost(userId).addListenerForSingleValueEvent(
-            object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     val posts = snapshot.getValue(FirebaseNode.postsType)
 
-                    if (posts != null)
-                    {
+                    if (posts != null) {
                         val listPost = mutableListOf<PostWithId>()
-                        posts.forEach{ post ->
+                        posts.forEach { post ->
                             val images = post.value.image
                             images?.forEach { image ->
                                 image.value.id = image.key
@@ -343,24 +315,18 @@ class PostRepository @Inject constructor(
                             send(GetStatus.Success(listPost))
                             close()
                         }
-                    }
-                    else
-                    {
-
+                    } else {
                         launch {
                             send(GetStatus.Success(listOf<PostWithId>()))
                             close()
                         }
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     // cancel
                 }
             }
         )
-
         awaitClose()
     }
 
@@ -369,34 +335,26 @@ class PostRepository @Inject constructor(
         send(GetStatus.Loading)
 
         getDatabaseMentions().child(username).addListenerForSingleValueEvent(
-            object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
 
                     val mentionIds: List<String> = snapshot.children.mapNotNull {
                         it.key
                     }
-                    if (mentionIds.isEmpty())
-                    {
+                    if (mentionIds.isEmpty()) {
                         launch {
-                            send(GetStatus.Success(listOf<PostWithId>()))
+                            send(GetStatus.Success(listOf()))
                             close()
                         }
-
                     }
                     val postToDisplay = mentionIds.size
                     var postQueried = 0
                     val posts: MutableList<PostWithId> = mutableListOf()
 
-
-                    fun sendDataAndCheckClose()
-                    {
+                    fun sendDataAndCheckClose() {
                         postQueried++
-
                         launch {
-                            if (postQueried == postToDisplay)
-                            {
+                            if (postQueried == postToDisplay) {
                                 send(GetStatus.Success(posts))
                                 close()
                             }
@@ -404,43 +362,29 @@ class PostRepository @Inject constructor(
                     }
 
                     mentionIds.forEach { id ->
-
                         getPostById(id).addListenerForSingleValueEvent(
-                            object : ValueEventListener
-                            {
-                                override fun onDataChange(snapshot: DataSnapshot)
-                                {
+                            object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
                                     val post = snapshot.getValue(PostsModel::class.java)
-                                    if (post != null)
-                                    {
-                                        val postItem = PostWithId(id,post,post.image?.toList())
+                                    if (post != null) {
+                                        val postItem = PostWithId(id, post, post.image?.toList())
                                         Log.d("postItemMentions", "$id $post ${post.image?.toList()}")
                                         posts.add(postItem)
                                     }
-                                    else
-                                    {
-                                        //wrong
-                                    }
                                     sendDataAndCheckClose()
                                 }
-
-                                override fun onCancelled(error: DatabaseError)
-                                {
+                                override fun onCancelled(error: DatabaseError) {
                                     sendDataAndCheckClose()
                                 }
                             }
                         )
                     }
-
                 }
-
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     close()
                 }
             }
         )
-
         awaitClose()
     }
 
@@ -449,35 +393,23 @@ class PostRepository @Inject constructor(
         send(GetStatus.Loading)
 
         getDatabasePostLike().orderByChild(userId).equalTo(true).addListenerForSingleValueEvent(
-
-            object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
-
-                    val likedIds: List<String> = snapshot.children.mapNotNull {
-                        it.key
-                    }
-
-                    if (likedIds.isEmpty())
-                    {
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val likedIds: List<String> = snapshot.children.mapNotNull { it.key }
+                    if (likedIds.isEmpty()) {
                         launch {
                             send(GetStatus.Success(listOf<PostWithId>()))
                             close()
                         }
-
                     }
 
                     val postToDisplay = likedIds.size
                     var postQueried = 0
                     val posts: MutableList<PostWithId> = mutableListOf()
-                    fun sendDataAndCheckClose()
-                    {
+                    fun sendDataAndCheckClose() {
                         postQueried++
-
                         launch {
-                            if (postQueried == postToDisplay)
-                            {
+                            if (postQueried == postToDisplay) {
                                 send(GetStatus.Success(posts))
                                 close()
                             }
@@ -486,40 +418,86 @@ class PostRepository @Inject constructor(
                     likedIds.forEach { id ->
 
                         getPostById(id).addListenerForSingleValueEvent(
-                            object : ValueEventListener
-                            {
-                                override fun onDataChange(snapshot: DataSnapshot)
-                                {
+                            object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
                                     val post = snapshot.getValue(PostsModel::class.java)
-                                    if (post != null)
-                                    {
-                                        val postItem = PostWithId(id,post,post.image?.toList())
+                                    if (post != null) {
+                                        val postItem = PostWithId(id, post, post.image?.toList())
                                         Log.d("postItemLiked", "$id $post ${post.image?.toList()}")
                                         posts.add(postItem)
-                                    }
-                                    else
-                                    {
-                                        //wrong
                                     }
                                     sendDataAndCheckClose()
                                 }
 
-                                override fun onCancelled(error: DatabaseError)
-                                {
+                                override fun onCancelled(error: DatabaseError) {
                                     sendDataAndCheckClose()
                                 }
                             }
                         )
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     close()
                 }
             }
         )
+        awaitClose()
+    }
 
+
+    @ExperimentalCoroutinesApi
+    fun getMarkedPostByUserId(userId: String): Flow<GetStatus<List<PostWithId>>> = channelFlow {
+        send(GetStatus.Loading)
+
+        getDatabasePostMark().orderByChild(userId).equalTo(true).addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val markIds: List<String> = snapshot.children.mapNotNull { it.key }
+                    if (markIds.isEmpty()) {
+                        launch {
+                            send(GetStatus.Success(listOf<PostWithId>()))
+                            close()
+                        }
+                    }
+
+                    val postToDisplay = markIds.size
+                    var postQueried = 0
+                    val posts: MutableList<PostWithId> = mutableListOf()
+                    fun sendDataAndCheckClose() {
+                        postQueried++
+                        launch {
+                            if (postQueried == postToDisplay) {
+                                send(GetStatus.Success(posts))
+                                close()
+                            }
+                        }
+                    }
+                    markIds.forEach { id ->
+
+                        getPostById(id).addListenerForSingleValueEvent(
+                            object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    val post = snapshot.getValue(PostsModel::class.java)
+                                    if (post != null) {
+                                        val postItem = PostWithId(id, post, post.image?.toList())
+                                        Log.d("postItemMarked", "$id $post ${post.image?.toList()}")
+                                        posts.add(postItem)
+                                    }
+                                    sendDataAndCheckClose()
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    sendDataAndCheckClose()
+                                }
+                            }
+                        )
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    close()
+                }
+            }
+        )
         awaitClose()
     }
 
@@ -529,32 +507,24 @@ class PostRepository @Inject constructor(
         send(GetStatus.Loading)
 
         getPostById(postId).addListenerForSingleValueEvent(
-            object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     val post = snapshot.getValue(PostsModel::class.java)
-
-                    if (post != null)
-                    {
+                    if (post != null) {
                         launch {
-                            val postItem = PostWithId(postId,post,post.image?.toList())
+                            val postItem = PostWithId(postId, post, post.image?.toList())
                             Log.d("postItemGet", "$postId $post ${post.image?.toList()}")
                             send(GetStatus.Success(postItem))
                             close()
                         }
-                    }
-                    else
-                    {
+                    } else {
                         launch {
                             send(GetStatus.Failed(Message(R.string.something_went_wrong)))
                             close()
                         }
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     launch {
                         send(GetStatus.Failed(Message(R.string.something_went_wrong)))
                         close()
@@ -562,7 +532,6 @@ class PostRepository @Inject constructor(
                 }
             }
         )
-
         awaitClose()
     }
 
@@ -577,46 +546,80 @@ class PostRepository @Inject constructor(
         ownerHash: Int,
         postId: String,
     ): Flow<GetStatus<LikeStatus>> {
-
         return channelFlow {
             send(GetStatus.Loading)
-
-            val dr = getPostLikes(postId)
-
-            val l = object : ValueEventListener {
+            val dbPostLike = getPostLikes(postId)
+            val valueEvent = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     launch {
-
-                        val v = GetStatus.Success(
+                        val status = GetStatus.Success(
                             LikeStatus(
-                                isPostLikeByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser)
-                                    .exists(),
+                                isPostLikeByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser).exists(),
                                 likeCounter = snapshot.childrenCount
                             )
                         )
-
-                        send(v)
+                        send(status)
                     }
                 }
-
                 override fun onCancelled(error: DatabaseError) {
                     launch {
-                        val v =
+                        val status =
                             GetStatus.Failed(Message(R.string.str_something_went_wrong))
-                        send(v)
+                        send(status)
                     }
                 }
             }
 
-            likeListeners[ownerHash] = FirebaseListener(l, dr)
+            likeListeners[ownerHash] = FirebaseListener(valueEvent, dbPostLike)
             likeListeners[ownerHash]?.addListener()
 
             awaitClose()
         }
     }
 
-    private val commentCounterListeners: HashMap<Int, FirebaseListener<GetStatus<Long>>> =
-        hashMapOf()
+    private val markListeners: HashMap<Int, FirebaseListener<GetStatus<MarkStatus>>> = hashMapOf()
+
+    fun removeMarkListener(ownerHash: Int) {
+        markListeners[ownerHash]?.removeListener()
+        markListeners.remove(ownerHash)
+    }
+
+    fun getPostMarks(
+        ownerHash: Int,
+        postId: String,
+    ): Flow<GetStatus<MarkStatus>> {
+        return channelFlow {
+            send(GetStatus.Loading)
+            val dbPostMark = getPostMarks(postId)
+            val valueEvent = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    launch {
+                        val status = GetStatus.Success(
+                            MarkStatus(
+                                isPostMarkByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser).exists(),
+                                markCounter = snapshot.childrenCount
+                            )
+                        )
+                        send(status)
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    launch {
+                        val status =
+                            GetStatus.Failed(Message(R.string.str_something_went_wrong))
+                        send(status)
+                    }
+                }
+            }
+
+            likeListeners[ownerHash] = FirebaseListener(valueEvent, dbPostMark)
+            likeListeners[ownerHash]?.addListener()
+
+            awaitClose()
+        }
+    }
+
+    private val commentCounterListeners: HashMap<Int, FirebaseListener<GetStatus<Long>>> = hashMapOf()
 
     fun removeCommentCounterListener(ownerHash: Int) {
         commentCounterListeners[ownerHash]?.removeListener()
@@ -630,29 +633,25 @@ class PostRepository @Inject constructor(
 
         send(GetStatus.Loading)
 
-        val dr = getPostComment(postId)
+        val dbPostComment = getPostComment(postId)
 
-        val l = object : ValueEventListener
-        {
-            override fun onDataChange(snapshot: DataSnapshot)
-            {
+        val valueEvent = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 launch {
-                    val v = GetStatus.Success(snapshot.childrenCount)
-                    send(v)
+                    val status = GetStatus.Success(snapshot.childrenCount)
+                    send(status)
                 }
             }
 
-            override fun onCancelled(error: DatabaseError)
-            {
+            override fun onCancelled(error: DatabaseError) {
                 launch {
-                    val v = GetStatus.Failed(Message(R.string.str_something_went_wrong))
-                    send(v)
+                    val status = GetStatus.Failed(Message(R.string.str_something_went_wrong))
+                    send(status)
                 }
             }
-
         }
 
-        commentCounterListeners[ownerHash] = FirebaseListener(l, dr)
+        commentCounterListeners[ownerHash] = FirebaseListener(valueEvent, dbPostComment)
         commentCounterListeners[ownerHash]?.addListener()
 
         awaitClose()
@@ -662,10 +661,8 @@ class PostRepository @Inject constructor(
         send(GetStatus.Loading)
         Log.d("TAG", "start get users who like this post")
         getPostLikes(postId).addListenerForSingleValueEvent(
-            object : ValueEventListener
-            {
-                override fun onDataChange(snapshot: DataSnapshot)
-                {
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     val like = snapshot.getValue(FirebaseNode.postsLikes)
                     Log.d("usersLike", like.toString())
                     launch {
@@ -677,32 +674,35 @@ class PostRepository @Inject constructor(
                         close()
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError)
-                {
+                override fun onCancelled(error: DatabaseError) {
                     launch {
                         send(GetStatus.Failed(Message(R.string.something_went_wrong)))
                         close()
                     }
                 }
-
             }
         )
 
         awaitClose()
     }
 
-    fun likeDislikePost(postId: String, like: Boolean)
-    {
-        if (like)
-        {
+    fun likeDislikePost(postId: String, like: Boolean) {
+        if (like) {
             Log.d("interact", "Like")
             getPostUserWhichLikes(postId, GlobalValue.USER!!.uidUser).setValue(true)
-        }
-        else
-        {
-            Log.d("interact","Dislike")
+        } else {
+            Log.d("interact", "Dislike")
             getPostUserWhichLikes(postId, GlobalValue.USER!!.uidUser).removeValue()
+        }
+    }
+
+    fun markUnmarkPost(postId: String, mark: Boolean) {
+        if (mark) {
+            Log.d("interact", "mark")
+            getPostUserWhichMarks(postId, GlobalValue.USER!!.uidUser).setValue(true)
+        } else {
+            Log.d("interact", "unmark")
+            getPostUserWhichMarks(postId, GlobalValue.USER!!.uidUser).removeValue()
         }
     }
 
@@ -715,54 +715,40 @@ class PostRepository @Inject constructor(
         oldMentions: List<String>,
     ): Flow<EventMessageStatus> = channelFlow {
         send(EventMessageStatus.Loading)
-
-        /**
-         * Remove hashtags
-         */
+        /**Remove hashtags*/
         oldHashtags.forEach { old ->
-            if (!newHashtags.contains(old))
-            {
-               getDatabaseHashTag().child(old).child(postId).removeValue()
+            if (!newHashtags.contains(old)) {
+                getDatabaseHashTag().child(old).child(postId).removeValue()
             }
         }
-        /**
-         * Add new hashtags
-         */
+        /**Add new hashtags*/
         newHashtags.forEach { new ->
-            if (!oldHashtags.contains(new))
-            {
+            if (!oldHashtags.contains(new)) {
                 val tagRef = getDatabaseHashTag().child(new.normalize())
-                val h = mapOf(
-                    postId to true
-                )
+                val h = mapOf(postId to true)
                 tagRef.updateChildren(h)
             }
         }
-        /**
-         * Remove mentions
-         */
+        /**Remove mentions*/
         oldMentions.forEach { old ->
-            if (!newMentions.contains(old))
-            {
+            if (!newMentions.contains(old)) {
                 getDatabaseMentions().child(old).child(postId).removeValue()
             }
         }
-        /**
-         * Add new mentions
-         */
+        /**Add new mentions*/
         newMentions.forEach { new ->
-            if (!oldMentions.contains(new))
-            {
+            if (!oldMentions.contains(new)) {
                 val mRef = getDatabaseMentions().child(new.normalize())
-                val h = mapOf(
-                    postId to true
-                )
+                val h = mapOf(postId to true)
                 mRef.updateChildren(h)
             }
         }
-        getDatabasePost().child(postId)
+
+        getDatabasePost()
+            .child(postId)
             .child(FirebaseNode.postsUpdatedTime)
             .setValue(System.currentTimeMillis())
+
         getDatabasePost().child(postId)
             .child(FirebaseNode.postscontent)
             .setValue(newDesc)
@@ -779,20 +765,15 @@ class PostRepository @Inject constructor(
         awaitClose()
     }
 
-    fun reportPost(postId: String, reportMessage: String)
-    {
-
+    fun reportPost(postId: String, reportMessage: String) {
         val key = postId + GlobalValue.USER!!.uidUser
-
         val report = hashMapOf(
             FirebaseNode.reportPostId to postId,
             FirebaseNode.reporter to GlobalValue.USER!!.uidUser,
             FirebaseNode.reportMessage to reportMessage,
             FirebaseNode.reportTime to System.currentTimeMillis(),
         )
-
         getDatabaseReport().child(key).setValue(report)
-
     }
 
     private var commentRef: DatabaseReference? = null
@@ -800,23 +781,18 @@ class PostRepository @Inject constructor(
 
     fun addComment(
         postId: String,
-        comment: String
+        comment: String,
     ): Flow<FirebaseStatus> = channelFlow {
-
         send(FirebaseStatus.Loading)
 
-        if (comment.isBlank())
-        {
+        if (comment.isBlank()) {
             send(FirebaseStatus.Failed(Message(R.string.comment_cannot_be_empty)))
             close()
-        }
-        else
-        {
+        } else {
             val commentDb = getPostComment(postId)
             val commentKey = commentDb.push().key
 
-            if (commentKey != null)
-            {
+            if (commentKey != null) {
                 val body = hashMapOf<String, Any>(
                     FirebaseNode.commentOwner to GlobalValue.USER!!.uidUser,
                     FirebaseNode.commentContent to comment,
@@ -836,50 +812,39 @@ class PostRepository @Inject constructor(
                             close()
                         }
                     }
-            }
-            else
-            {
+            } else {
                 send(FirebaseStatus.Failed(Message(R.string.something_went_wrong)))
                 close()
             }
         }
-
         awaitClose()
     }
 
     fun getComments(postId: String): Flow<DataStatus<CommentModel>> = channelFlow {
         send(DataStatus.Loading)
 
-        /**
-         * remove old listener
-         */
+        /**remove old listener*/
         commentListener?.let {
             commentRef?.removeEventListener(it)
         }
 
         commentRef = getPostComment(postId)
 
-        commentListener = object : ValueEventListener
-        {
-            override fun onDataChange(snapshot: DataSnapshot)
-            {
+        commentListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 val comments = snapshot.getValue(FirebaseNode.commentType)
-                if (comments != null)
-                {
+                if (comments != null) {
                     launch {
                         send(DataStatus.Success(comments))
                     }
-                }
-                else // no comments yet
+                } else // no comments yet
                 {
                     launch {
                         send(DataStatus.Success<CommentModel>(hashMapOf()))
                     }
                 }
             }
-
-            override fun onCancelled(error: DatabaseError)
-            {
+            override fun onCancelled(error: DatabaseError) {
 
             }
         }
@@ -889,8 +854,7 @@ class PostRepository @Inject constructor(
         awaitClose()
     }
 
-    fun removeCommentListener()
-    {
+    fun removeCommentListener() {
         commentListener?.let {
             commentRef?.removeEventListener(it)
         }

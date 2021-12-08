@@ -4,22 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?selectableItemBackground"
-    >
+    android:layout_marginBottom="@dimen/_8dp"
+    android:background="@color/white"
+    android:padding="@dimen/_8dp">
 
+    <ImageView
+        android:id="@+id/img_unread_dot"
+        android:layout_width="@dimen/_10dp"
+        android:layout_height="@dimen/_10dp"
+        android:layout_marginStart="@dimen/_8dp"
+        android:background="@drawable/roundcorner"
+        android:backgroundTint="@color/colorFF954CFB"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imgAvatar"
         style="@style/ShapeableImageViewAvatar"
-        android:layout_width="@dimen/_64dp"
-        android:layout_height="@dimen/_64dp"
+        android:layout_width="@dimen/_48dp"
+        android:layout_height="@dimen/_48dp"
+        android:layout_marginStart="@dimen/_8dp"
+        android:layout_marginBottom="@dimen/_8dp"
         android:contentDescription="@string/user_avatar"
         android:padding="@dimen/_4dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/img_unread_dot"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars"
-        />
+        tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/txtUsername"
@@ -27,29 +40,29 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8dp"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:textColor="@color/colorFF954CFB"
+        android:textSize="@dimen/_14sp"
         app:layout_constraintBottom_toTopOf="@id/gl"
         app:layout_constraintStart_toEndOf="@+id/imgAvatar"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="KhaiND9"
-        android:textColor="@color/colorFF954CFB"
-        />
+        tools:text="KhaiND9" />
 
     <TextView
         android:id="@+id/txtLastMsg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_8dp"
+        android:layout_marginEnd="@dimen/_8dp"
         android:ellipsize="end"
         android:lines="1"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_14sp"
         app:layout_constraintEnd_toStartOf="@+id/txtTime"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/imgAvatar"
         app:layout_constraintTop_toTopOf="@id/gl"
-        android:layout_marginEnd="@dimen/_8dp"
-        tools:text="new message"
-        android:textColor="@color/black"
-        />
+        tools:text="new message" />
 
     <TextView
         android:id="@+id/txtTime"
@@ -57,16 +70,16 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_16dp"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:textColor="@color/color333333"
+        android:textSize="@dimen/_13dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/gl"
-        tools:text="17:53"
-        />
+        tools:text="17:53" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/gl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5"
-        />
+        app:layout_constraintGuide_percent="0.5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -133,8 +133,8 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         navigateFragment(commentFragment, "commentFragment")
     }
 
-    override fun shareClick(postId: String) {
-        //todo: share
+    override fun markClick(postId: String, status: Boolean) {
+        viewModel.setMarkStatus(postId, status)
     }
 
     override fun likeCounterClick(postId: String) {
@@ -333,7 +333,7 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     private val categories = hashMapOf(
         0 to ProfileViewModel.DisplayPostCategory.UPLOADED,
         1 to ProfileViewModel.DisplayPostCategory.MENTIONS,
-        2 to ProfileViewModel.DisplayPostCategory.LIKED
+        2 to ProfileViewModel.DisplayPostCategory.MARKED
     )
 
 

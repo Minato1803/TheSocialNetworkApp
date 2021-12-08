@@ -16,6 +16,9 @@ import androidx.viewbinding.ViewBinding
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.listener.PostClickListener
+import com.datn.thesocialnetwork.core.util.GlobalValue
+import com.datn.thesocialnetwork.core.util.ModelMapping
+import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.core.util.ViewUtils.tryOpenUrl
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelPost
@@ -65,9 +68,8 @@ abstract class AbstractFragmentPost(
         viewModel.setLikeStatus(postId, status)
     }
 
-    override fun shareClick(postId: String)
-    {
-        //todo: share
+    override fun markClick(postId: String, status: Boolean) {
+        viewModel.setMarkStatus(postId, status)
     }
 
     private var searchUsersJob: Job? = null
@@ -95,13 +97,21 @@ abstract class AbstractFragmentPost(
 
     override fun menuReportClick(postId: String)
     {
-//        val d = LayoutInflater.from(requireContext())
-//            .inflate(R.layout.report_dialog, null, false)
-//
-//        val reportTextField = d.findViewById<TextInputEditText>(R.id.edTxtReportText)
+//        MaterialAlertDialogBuilder(requireContext())
+//            .setTitle(resources.getString(R.string.str_sign_out))
+//            .setMessage(resources.getString(R.string.log_out_confirmation))
+//            .setNeutralButton(resources.getString(R.string.cancel)) { _, _ ->
+//            }
+//            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+//                val userDetail = ModelMapping.createUserDetail(GlobalValue.USER!!.userDetail, onlineStatus = System.currentTimeMillis())
+//                viewModel.updateOnlineStatus(GlobalValue.USER!!.uidUser, userDetail)
+//                SystemUtils.signOut(mGoogleSignInClient, requireContext())
+//                sendToMainActivity()
+//            }
+//            .show()
 //
 //        materialAlertDialogBuilder.setView(d)
-//            .setTitle(getString(R.string.report_post))
+//            .setTitle(resources.getString(R.string.str_delete_post))
 //            .setMessage(getString(R.string.report_tip))
 //            .setPositiveButton(getString(R.string.report)) { dialog, _ ->
 //                val reportText = reportTextField.input

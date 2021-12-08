@@ -1,20 +1,12 @@
 package com.datn.thesocialnetwork.feature.chat.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.datn.thesocialnetwork.core.api.status.FirebaseStatus
 import com.datn.thesocialnetwork.core.api.status.GetStatus
-import com.datn.thesocialnetwork.core.util.GlobalValue
-import com.datn.thesocialnetwork.core.util.mapNeighbours
-import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.data.repository.ChatRespository
-import com.datn.thesocialnetwork.data.repository.FirebaseRepository
-import com.datn.thesocialnetwork.data.repository.UserRepository
 import com.datn.thesocialnetwork.data.repository.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -72,6 +64,10 @@ class ChatViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun seenLastMessage(user: UserModel, conversationItem: ConversationItem) {
+        repository.seenLastMessage(user, conversationItem)
     }
 
     init

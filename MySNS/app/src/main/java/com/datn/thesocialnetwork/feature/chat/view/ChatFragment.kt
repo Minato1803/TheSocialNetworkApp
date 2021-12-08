@@ -1,5 +1,6 @@
 package com.datn.thesocialnetwork.feature.chat.view
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -7,20 +8,18 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
-import com.datn.thesocialnetwork.core.util.SystemUtils
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
+import com.datn.thesocialnetwork.data.repository.model.ConversationItem
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.databinding.FragmentChatBinding
 import com.datn.thesocialnetwork.feature.chat.adapter.ConversationAdapter
 import com.datn.thesocialnetwork.feature.chat.viewmodel.ChatViewModel
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
-import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFragment
-import com.datn.thesocialnetwork.feature.profile.view.UserFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.badge.BadgeDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -32,7 +31,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     companion object {
         private const val USER_DATA = "USER_DATA"
         fun newInstance(
-            userModel: UserModel
+            userModel: UserModel,
         ): ChatFragment {
             val chatFragment = ChatFragment()
             val arg = Bundle()
@@ -49,8 +48,9 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     lateinit var binding: FragmentChatBinding
     lateinit var mMainActivity: MainActivity
     private val viewModel: ChatViewModel by activityViewModels()
-    private var userModel : UserModel? = null
-    lateinit var actionBarDrawerToggle : ActionBarDrawerToggle
+    private var userModel: UserModel? = null
+    lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    lateinit var badge_dashboard: BadgeDrawable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,47 +89,49 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         actionBarDrawerToggle.isDrawerIndicatorEnabled = true
         actionBarDrawerToggle.syncState()
 
+        badge_dashboard = mMainActivity.bd.bottomNavMain.getOrCreateBadge(R.id.navChat)
+        badge_dashboard.backgroundColor = Color.RED
+        badge_dashboard.badgeTextColor = Color.BLACK
+        badge_dashboard.maxCharacterCount = 9
+
         binding.rvConversations.adapter = conversationAdapter.apply {
             actionMessageClick = ::conversationClick
         }
     }
 
-    private fun conversationClick(user: UserModel)
-    {
-        val messageFragment = MessageFragment.newInstance(user)
-        navigateFragment(messageFragment,"messageFragment")
+    private fun conversationClick(user: UserModel, conversationItem: ConversationItem) {
+        viewModel.seenLastMessage(user, conversationItem)
+        Log.d("updateNoti", "seen success")
+        MessageFragment.newInstance(user).show(childFragmentManager, "messageFragment")
+//        navigateFragment(messageFragment,"messageFragment")
     }
 
     private fun setObserveData() {
         lifecycleScope.launchWhenStarted {
             viewModel.conversation.collectLatest {
-                when (it)
-                {
-                    GetStatus.Sleep ->
-                    {
+                when (it) {
+                    GetStatus.Sleep -> {
                         binding.proBarLoadingConversations.isVisible = false
                         binding.linLayEmptyState.isVisible = false
                         binding.linLayErrorState.isVisible = false
                         binding.rvConversations.isVisible = false
                     }
-                    GetStatus.Loading ->
-                    {
+                    GetStatus.Loading -> {
                         binding.proBarLoadingConversations.isVisible = true
                         binding.linLayEmptyState.isVisible = false
                         binding.linLayErrorState.isVisible = false
                         binding.rvConversations.isVisible = false
                     }
-                    is GetStatus.Success ->
-                    {
+                    is GetStatus.Success -> {
                         binding.proBarLoadingConversations.isVisible = false
                         binding.linLayEmptyState.isVisible = it.data.isEmpty()
                         binding.rvConversations.isVisible = it.data.isNotEmpty()
                         binding.linLayErrorState.isVisible = false
                         Log.d("AllListChat", "${it.data.toString()}")
                         conversationAdapter.submitList(it.data)
+                        setbadgeCount(it.data)
                     }
-                    is GetStatus.Failed ->
-                    {
+                    is GetStatus.Failed -> {
                         binding.proBarLoadingConversations.isVisible = false
                         binding.linLayEmptyState.isVisible = false
                         binding.linLayErrorState.isVisible = true
@@ -140,6 +142,22 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         }
         //
 
+    }
+
+    private fun setbadgeCount(data: List<ConversationItem>) {
+        var count = 0
+        data.forEach {
+            if (it.lastMessage.isRead == "false" && it.lastMessage.sender != GlobalValue.USER!!.uidUser) {
+                count++
+            }
+        }
+        if (count > 0) {
+            badge_dashboard.number = count
+            badge_dashboard.isVisible = true
+        } else {
+            badge_dashboard.clearNumber()
+            badge_dashboard.isVisible = false
+        }
     }
 
     private fun setEvent() {
@@ -162,10 +180,8 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId)
-        {
-            R.id.miAdd ->
-            {
+        return when (item.itemId) {
+            R.id.miAdd -> {
                 // create group chat
                 true
             }
@@ -174,14 +190,13 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     }
 
 
-    override fun onResume()
-    {
+    override fun onResume() {
         super.onResume()
         viewModel.updateConversations()
+        setObserveData()
     }
 
-    override fun onDestroyView()
-    {
+    override fun onDestroyView() {
         super.onDestroyView()
         conversationAdapter.cancelScopes()
     }

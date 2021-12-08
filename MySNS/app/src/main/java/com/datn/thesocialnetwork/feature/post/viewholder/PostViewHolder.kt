@@ -1,5 +1,6 @@
 package com.datn.thesocialnetwork.feature.post.viewholder
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +14,13 @@ import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.listener.PostClickListener
 import com.datn.thesocialnetwork.core.util.SystemUtils.formatWithSpaces
-import com.datn.thesocialnetwork.core.util.TimeUtils.getDateTimeFormat
 import com.datn.thesocialnetwork.core.util.TimeUtils.showTimeDetail
 import com.datn.thesocialnetwork.data.repository.FirebaseRepository
 import com.datn.thesocialnetwork.data.repository.model.PostsImage
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.LikeStatus
+import com.datn.thesocialnetwork.data.repository.model.post.status.MarkStatus
 import com.datn.thesocialnetwork.databinding.PostItemBinding
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.CoroutineScope
@@ -29,18 +30,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-typealias PostWithId = Triple<String, PostsModel,List<Pair<String,PostsImage>>?>
+typealias PostWithId = Triple<String, PostsModel, List<Pair<String, PostsImage>>?>
 
 class PostViewHolder private constructor(
     private val binding: PostItemBinding,
-    private val cancelListeners: (Int, Int, Int) -> Unit
-) : RecyclerView.ViewHolder(binding.root)
-{
-    companion object
-    {
+    private val cancelListeners: (Int, Int, Int, Int) -> Unit,
+) : RecyclerView.ViewHolder(binding.root) {
+    companion object {
 
-        fun create(parent: ViewGroup, cancelListeners: (Int, Int, Int) -> Unit): PostViewHolder
-        {
+        fun create(parent: ViewGroup, cancelListeners: (Int, Int, Int, Int) -> Unit): PostViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val binding = PostItemBinding.inflate(layoutInflater, parent, false)
 
@@ -48,7 +46,8 @@ class PostViewHolder private constructor(
                 binding,
                 cancelListeners
             ).apply {
-                baseDescLengthLines = binding.root.context.resources.getInteger(R.integer.max_lines_post_desc)
+                baseDescLengthLines =
+                    binding.root.context.resources.getInteger(R.integer.max_lines_post_desc)
 
                 binding.txtDesc.setOnClickListener {
                     isCollapsed = !isCollapsed
@@ -63,17 +62,16 @@ class PostViewHolder private constructor(
 
     private fun setOnClickListeners(
         post: PostWithId,
-        postClickListener: PostClickListener
-    )
-    {
+        postClickListener: PostClickListener,
+    ) {
         with(binding)
         {
             btnLike.setOnClickListener {
                 postClickListener.likeClick(post.first, !isPostLiked)
             }
 
-            btnShare.setOnClickListener {
-                postClickListener.shareClick(post.first)
+            btnMark.setOnClickListener {
+                postClickListener.markClick(post.first, !isPostMarked)
             }
 
             btnComment.setOnClickListener {
@@ -113,24 +111,18 @@ class PostViewHolder private constructor(
 
     private var baseDescLengthLines = -1
     private var isCollapsed: Boolean = true
-        set(value)
-        {
+        set(value) {
             field = value
-            binding.txtDesc.maxLines = if (value)
-            {
+            binding.txtDesc.maxLines = if (value) {
                 baseDescLengthLines
-            }
-            else
-            {
+            } else {
                 Int.MAX_VALUE
             }
         }
 
     private var isPostLiked = false
-        set(value)
-        {
+        set(value) {
             field = value
-
             if (value) // Post is liked
             {
                 with(binding)
@@ -143,8 +135,7 @@ class PostViewHolder private constructor(
                         setIconTintResource(R.color.red_border_line)
                     }
                 }
-            }
-            else // post is not liked
+            } else // post is not liked
             {
                 with(binding)
                 {
@@ -152,6 +143,35 @@ class PostViewHolder private constructor(
                         icon = ContextCompat.getDrawable(
                             context,
                             R.drawable.ic_heart
+                        )
+                        setIconTintResource(R.color.colorFF954CFB)
+                    }
+                }
+            }
+        }
+
+    private var isPostMarked = false
+        set(value) {
+            field = value
+            if (value) // Post is marked
+            {
+                with(binding)
+                {
+                    (btnMark as MaterialButton).apply {
+                        icon = ContextCompat.getDrawable(
+                            context,
+                            R.drawable.ic_marked
+                        )
+                    }
+                }
+            } else // post is not marked
+            {
+                with(binding)
+                {
+                    (btnMark as MaterialButton).apply {
+                        icon = ContextCompat.getDrawable(
+                            context,
+                            R.drawable.ic_mark
                         )
                         setIconTintResource(R.color.colorFF954CFB)
                     }
@@ -171,12 +191,15 @@ class PostViewHolder private constructor(
     private var commentCounterJob: Job? = null
     private var commentCounterListenerId: Int = -1
 
-    fun cancelJobs()
-    {
+    private var markJob: Job? = null
+    private var markListenerId: Int = -1
+
+    fun cancelJobs() {
         userJob?.cancel()
         likeJob?.cancel()
+        markJob?.cancel()
 
-        cancelListeners(userListenerId, likeListenerId, commentCounterListenerId)
+        cancelListeners(userListenerId, likeListenerId, markListenerId, commentCounterListenerId)
     }
 
     private lateinit var postClickListener: PostClickListener
@@ -191,10 +214,10 @@ class PostViewHolder private constructor(
         postClickListener: PostClickListener,
         userFlow: (Int, String) -> Flow<GetStatus<UserModel>>,
         likeFlow: (Int, String) -> Flow<GetStatus<LikeStatus>>,
+        markFlow: (Int, String) -> Flow<GetStatus<MarkStatus>>,
         commentCounterFlow: (Int, String) -> Flow<GetStatus<Long>>,
-        loggedUserId: String?
-    )
-    {
+        loggedUserId: String?,
+    ) {
         this.loggedUserId = loggedUserId
         this.postClickListener = postClickListener
         this.post = post
@@ -217,6 +240,13 @@ class PostViewHolder private constructor(
             }
         }
 
+        markJob = scope.launch {
+            markListenerId = FirebaseRepository.markListenerId
+            markFlow(markListenerId, post.first).collectLatest {
+                setMarkStatus(it)
+            }
+        }
+
         commentCounterJob = scope.launch {
             commentCounterListenerId = FirebaseRepository.commentCounterListenerId
             commentCounterFlow(commentCounterListenerId, post.first).collectLatest {
@@ -230,12 +260,12 @@ class PostViewHolder private constructor(
             /** bind photo to view pager*/
             itemFeedPhotos.adapter = DetailPostPhotosApdapter(post.third)
             itemFeedPhotoIndicator.setViewPager2(itemFeedPhotos)
-            if (post.third?.size  == 1) {
+            if (post.third?.size == 1) {
                 itemFeedPhotoIndicator.visibility = View.GONE
             } else {
                 itemFeedPhotoIndicator.visibility = View.VISIBLE
             }
-                txtDesc.text = post.second.content
+            txtDesc.text = post.second.content
             val timeDetail = showTimeDetail(post.second.updatedTime)
             txtTime.text = timeDetail
         }
@@ -243,21 +273,18 @@ class PostViewHolder private constructor(
         setOnClickListeners(post, postClickListener)
     }
 
-    private fun showPopupMenu(view: View)
-    {
+    private fun showPopupMenu(view: View) {
         val popupMenu = PopupMenu(view.context, view)
 
         popupMenu.inflate(R.menu.menu_post_dropdown_collapse)
 
         // desc can be collapsed
-        if (binding.txtDesc.lineCount > baseDescLengthLines)
-        {
+        if (binding.txtDesc.lineCount > baseDescLengthLines) {
             popupMenu.menu.findItem(R.id.mi_collapse).title = binding.root.context.getString(
                 if (isCollapsed) R.string.show_description
                 else R.string.collapse_description
             )
-        }
-        else // desc cannot be collapsed (too short)
+        } else // desc cannot be collapsed (too short)
         {
             popupMenu.menu.findItem(R.id.mi_collapse).isVisible = false
         }
@@ -266,20 +293,16 @@ class PostViewHolder private constructor(
 
         popupMenu.setOnMenuItemClickListener { menuItem ->
 
-            return@setOnMenuItemClickListener when (menuItem.itemId)
-            {
-                R.id.mi_report ->
-                {
+            return@setOnMenuItemClickListener when (menuItem.itemId) {
+                R.id.mi_report -> {
                     postClickListener.menuReportClick(post.first)
                     true
                 }
-                R.id.mi_collapse ->
-                {
+                R.id.mi_collapse -> {
                     isCollapsed = !isCollapsed
                     true
                 }
-                R.id.mi_edit ->
-                {
+                R.id.mi_edit -> {
                     postClickListener.menuEditClick(post)
                     true
                 }
@@ -289,42 +312,40 @@ class PostViewHolder private constructor(
         popupMenu.show()
     }
 
-    private fun setLikeStatus(status: GetStatus<LikeStatus>)
-    {
-        when (status)
-        {
+    private fun setLikeStatus(status: GetStatus<LikeStatus>) {
+        when (status) {
             GetStatus.Sleep -> Unit
-            is GetStatus.Failed ->
-            {
+            is GetStatus.Failed -> {
 
             }
-            GetStatus.Loading ->
-            {
-                binding.txtLikesCounter.text = binding.root.context.getString(R.string.str_loading_dot)
+            GetStatus.Loading -> {
+                binding.txtLikesCounter.text =
+                    binding.root.context.getString(R.string.str_loading_dot)
             }
-            is GetStatus.Success ->
-            {
+            is GetStatus.Success -> {
                 isPostLiked = status.data.isPostLikeByLoggedUser
                 binding.txtLikesCounter.text = status.data.likeCounter.toString()
             }
         }
     }
 
-
-    private fun setCommentStatus(commentStatus: GetStatus<Long>)
-    {
-        when (commentStatus)
-        {
-            is GetStatus.Failed ->
-            {
-
+    private fun setMarkStatus(status: GetStatus<MarkStatus>) {
+        when (status) {
+            GetStatus.Sleep -> Unit
+            is GetStatus.Failed -> { }
+            GetStatus.Loading -> { }
+            is GetStatus.Success -> {
+                isPostMarked = status.data.isPostMarkByLoggedUser
+                Log.d("Mark", "counter ${status.data.markCounter.toString()}")
             }
-            GetStatus.Loading ->
-            {
+        }
+    }
 
-            }
-            is GetStatus.Success ->
-            {
+    private fun setCommentStatus(commentStatus: GetStatus<Long>) {
+        when (commentStatus) {
+            is GetStatus.Failed -> { }
+            GetStatus.Loading -> { }
+            is GetStatus.Success -> {
                 binding.txtComments.text = binding.root.context.getString(
                     R.string.comments,
                     commentStatus.data.formatWithSpaces()
@@ -336,12 +357,9 @@ class PostViewHolder private constructor(
 
     private fun setUserData(
         status: GetStatus<UserModel>,
-    )
-    {
-        when (status)
-        {
-            is GetStatus.Failed ->
-            {
+    ) {
+        when (status) {
+            is GetStatus.Failed -> {
                 binding.imgAvatar.setImageDrawable(
                     ContextCompat.getDrawable(
                         binding.root.context,
@@ -349,12 +367,10 @@ class PostViewHolder private constructor(
                     )
                 )
             }
-            GetStatus.Loading ->
-            {
+            GetStatus.Loading -> {
                 binding.txtOwner.text = binding.root.context.getString(R.string.str_loading_dot)
             }
-            is GetStatus.Success ->
-            {
+            is GetStatus.Success -> {
                 with(binding)
                 {
                     txtOwner.text = status.data.userName

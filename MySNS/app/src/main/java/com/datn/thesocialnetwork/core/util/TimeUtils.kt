@@ -48,7 +48,10 @@ object TimeUtils {
         val diffHours = diff / (60 * 60 * 1000)
         val diffDay = diff / (60 * 60 * 1000 * 24)
 
-        if (diffSeconds < 60) {
+        if(diffSeconds < 30) {
+            return "vừa xong"
+        }
+        if (diffSeconds < 60 ) {
             return "$diffSeconds giây trước"
         }
         if (diffSeconds > 60 && diffMinutes < 60) {

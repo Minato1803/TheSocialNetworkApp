@@ -38,7 +38,7 @@ class MessagesViewModel @Inject constructor(
     )
     val sendingMessageStatus = _sendingMessageStatus.asStateFlow()
 
-    private lateinit var selectedUser: UserModel
+    lateinit var selectedUser: UserModel
     private lateinit var loggedUserId: String
 
 
@@ -91,9 +91,8 @@ class MessagesViewModel @Inject constructor(
                 val msg = ChatMessage(
                     textContent = it,
                     time = System.currentTimeMillis(),
-                    imageUrl = null,
                     sender = firebaseRepository.requireUser.uid,
-                    isRead = false
+                    isRead = "false"
                 )
 
                 viewModelScope.launch {

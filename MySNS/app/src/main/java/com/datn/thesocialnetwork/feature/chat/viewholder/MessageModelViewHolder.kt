@@ -5,15 +5,15 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.textview.MaterialTextView
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.util.SystemUtils.isOnlyEmoji
 import com.datn.thesocialnetwork.core.util.SystemUtils.px
-import com.datn.thesocialnetwork.core.util.TimeUtils.getDateTimeFormatFromMillis
+import com.datn.thesocialnetwork.core.util.TimeUtils
 import com.datn.thesocialnetwork.data.repository.model.MessageModel
 import com.datn.thesocialnetwork.data.repository.model.setMessageMargins
 import com.datn.thesocialnetwork.feature.chat.adapter.MessageClickListener
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.textview.MaterialTextView
 
 const val normalFontSize: Float = 14F
 const val emojiFontSize: Float = 28F
@@ -67,7 +67,7 @@ abstract class MessageModelViewHolder<T>(
         this.messageClickListener = messageClickListener
         this.message = message
         isTimeShown = false
-        txtTime.text = message.chatMessage.time.getDateTimeFormatFromMillis()
+        txtTime.text = TimeUtils.showTimeDetail(message.chatMessage.time)
         txtBody.text = message.chatMessage.textContent
 
         txtBody.textSize =

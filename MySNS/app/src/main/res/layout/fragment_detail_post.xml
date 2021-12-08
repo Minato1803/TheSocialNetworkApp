@@ -143,12 +143,12 @@
                         />
 
                     <Button
-                        android:id="@+id/btn_share"
+                        android:id="@+id/btn_Mark"
                         style="@style/IconButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        app:icon="@drawable/ic_share"
+                        app:icon="@drawable/ic_mark"
                         app:iconGravity="textStart"
                         />
 

@@ -63,9 +63,9 @@ object FirebaseNode {
 
     //message
     const val messageContent = "textContent"
-    const val messageImgUrl = "imageUrl"
     const val messageTime = "time"
     const val messageSender = "sender"
+    const val messageIsRead = "isRead"
     val messageType = object : GenericTypeIndicator<HashMap<String, ChatMessage>>() {}
 
     // chat
@@ -108,6 +108,9 @@ object FirebaseNode {
     // likes
     const val postLikes = "PostLikes"
     val postsLikes = object : GenericTypeIndicator<HashMap<String, Boolean>>() {}
+    // marks
+    const val postMarks = "PostMarks"
+    val postsMarks = object : GenericTypeIndicator<HashMap<String, Boolean>>() {}
 
     // comments
     const val comments = "Comments"

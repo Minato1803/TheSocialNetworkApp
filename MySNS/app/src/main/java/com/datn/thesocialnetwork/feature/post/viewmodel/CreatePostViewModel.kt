@@ -21,9 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CreatePostViewModel @Inject constructor(
     private val repository: PostRepository,
-    application: Application
-) : AndroidViewModel(application)
-{
+    application: Application,
+) : AndroidViewModel(application) {
     val _allImagesFromGallery: MutableStateFlow<List<Uri>> = MutableStateFlow(listOf())
 
     private val _selectedImage: MutableStateFlow<List<Uri>?> = MutableStateFlow(null)
@@ -34,20 +33,14 @@ class CreatePostViewModel @Inject constructor(
     val allImagesFromGallery: Flow<List<Image>?> = _allImagesFromGallery.combine(
         _selectedImage
     ) { all, selected ->
-        if (!wasImagesQueried)
-        {
+        if (!wasImagesQueried) {
             null
-        }
-        else
-        {
-            if (selected != null)
-            {
+        } else {
+            if (selected != null) {
                 all.map {
                     Image(it, it == selected)
                 }
-            }
-            else
-            {
+            } else {
                 all.map {
                     Image(it, false)
                 }
@@ -56,26 +49,21 @@ class CreatePostViewModel @Inject constructor(
     }
 
 
-
-    fun selectImageFromGallery(uriList: List<Uri>)
-    {
+    fun selectImageFromGallery(uriList: List<Uri>) {
         _capturedImage.value = null
         _selectedImage.value = uriList
     }
 
-    fun captureImage(uri: Uri)
-    {
+    fun captureImage(uri: Uri) {
         _capturedImage.value = uri
     }
 
-    fun unSelectImage()
-    {
+    fun unSelectImage() {
         _selectedImage.value = null
         _capturedImage.value = null
     }
 
-    fun getAllImages(): List<Uri>
-    {
+    fun getAllImages(): List<Uri> {
         wasImagesQueried = true
 
         val allImages = mutableListOf<Uri>()
@@ -96,11 +84,9 @@ class CreatePostViewModel @Inject constructor(
 
         cursor.use {
 
-            if (cursor != null)
-            {
+            if (cursor != null) {
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                while (cursor.moveToNext())
-                {
+                while (cursor.moveToNext()) {
                     allImages.add(
                         ContentUris.withAppendedId(
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -113,8 +99,7 @@ class CreatePostViewModel @Inject constructor(
         return allImages
     }
 
-    fun loadAllImagesFromGallery()
-    {
+    fun loadAllImagesFromGallery() {
         viewModelScope.launch {
             _allImagesFromGallery.value = withContext(Dispatchers.IO) {
                 getAllImages()
@@ -134,6 +119,4 @@ class CreatePostViewModel @Inject constructor(
         hashtags = hashtags,
         mentions = mentions,
     )
-
-
 }

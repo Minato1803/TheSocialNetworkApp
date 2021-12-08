@@ -27,11 +27,13 @@ class PostAdapter @Inject constructor(
     private fun cancelListeners(
         userListenerId: Int,
         likeListenerId: Int,
+        markListenerId: Int,
         commentListenerId: Int
     )
     {
         userRepository.removeUserListener(userListenerId)
         postRepository.removeLikeListener(likeListenerId)
+        postRepository.removeMarkListener(markListenerId)
         postRepository.removeCommentCounterListener(commentListenerId)
     }
 
@@ -50,6 +52,7 @@ class PostAdapter @Inject constructor(
         postClickListener = postClickListener,
         userFlow = userRepository::getUser,
         likeFlow = postRepository::getPostLikes,
+        markFlow = postRepository::getPostMarks,
         commentCounterFlow = postRepository::getCommentsCounter,
         loggedUserId = repository.loggedUser.value?.uid
     )

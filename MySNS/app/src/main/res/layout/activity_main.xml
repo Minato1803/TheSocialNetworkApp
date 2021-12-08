@@ -27,7 +27,6 @@
                     android:layout_height="?attr/actionBarSize"
                     android:background="@color/colorFF954CFB"
                     android:foregroundTint="#FFFFFF"
-                    app:layout_scrollFlags="scroll|enterAlways"
                     app:navigationIconTint="@color/white"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
             </com.google.android.material.appbar.AppBarLayout>

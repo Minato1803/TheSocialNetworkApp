@@ -8,7 +8,6 @@
     </shared>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="TIME" />
     <option name="TOOL_WINDOW_LOG_LEVEL" value="debug" />
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
@@ -35,76 +34,57 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e51ce4aa-de06-4acf-85ab-6d04a554251e" name="Default Changelist" comment="creater core app">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/viewholder/SimplePostViewHolder.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/viewmodel/SimplePostAdapter.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/viewmodel/TagViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/background_sender.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/simple_post_item.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_detail.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/post/status/MarkStatus.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/notification/APIService.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/notification/Client.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/notification/FirebaseMessaging.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/notification/NotiModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/notification/Notification.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/notification/ResponseNoti.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_mark.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_marked.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_unblocked_green.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/roundcorner.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/manager/CacheDataSourceFactory.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/manager/PlaybackManager.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/listener/PostClickListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/listener/PostClickListener.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/Const.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/Const.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/FragmentViewBindingDelegate.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/FragmentViewBindingDelegate.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/ModelMapping.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/ModelMapping.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/SystemUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/SystemUtils.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/TimeUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/TimeUtils.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/exhaustive.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/mapNeighbours.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/core/util/mapNeighbours.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/firebase/UserFirebase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/firebase/UserFirebase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/local/sharedprefs/LoginSharedPrefs.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/local/sharedprefs/LoginSharedPrefs.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/remote/model/UserResponse.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/datasource/remote/model/UserResponse.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/ChatRespository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/ChatRespository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/FollowRespository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/FollowRespository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/FirebaseRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/FirebaseRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/PostRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/PostRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/SearchRespository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/SearchRespository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/UserRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/UserRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/Conversation.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/Conversation.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/UserModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/UserModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/post/StateData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/post/StateData.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/post/status/commentModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/post/status/commentModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/PostsModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/model/PostsModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/adapter/ConversationAdapter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/adapter/ConversationAdapter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/adapter/MessageAdapter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/adapter/MessageAdapter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/view/ChatFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/view/ChatFragment.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/view/MessageFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/view/MessageFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/ConversationViewHolder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/ConversationViewHolder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/MessageModelViewHolder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/MessageModelViewHolder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/OtherMessageViewHolder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/OtherMessageViewHolder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/OwnMessageViewHolder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewholder/OwnMessageViewHolder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewmodel/ChatViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewmodel/ChatViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewmodel/MessagesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/chat/viewmodel/MessagesViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/home/view/HomeFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/home/view/HomeFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/home/viewmodel/HomeViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/home/viewmodel/HomeViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/login/view/LoginFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/login/view/LoginFragment.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/main/view/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/main/view/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/comment/view/CommentFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/comment/view/CommentFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/adapter/PostAdapter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/adapter/PostAdapter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/comment/viewholder/CommentViewHolder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/comment/viewholder/CommentViewHolder.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/detailpost/view/DetailPostFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/detailpost/view/DetailPostFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/detailpost/viewmodel/DetailPostViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/detailpost/viewmodel/DetailPostViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/view/AbstractFragmentPost.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/view/AbstractFragmentPost.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/view/AbstractFragmentRcv.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/view/AbstractFragmentRcv.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/view/StateRecycler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/view/StateRecycler.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/viewholder/PostViewHolder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/viewholder/PostViewHolder.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/view/ChangePasswdFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/view/ChangePasswdFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/view/EditProfileFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/view/EditProfileFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/view/EditProfileHelper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/view/EditProfileHelper.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/viewmodel/EditProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/editprofile/viewmodel/EditProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/follower/view/FollowerFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/viewmodel/CreatePostViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/viewmodel/CreatePostViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/viewmodel/ViewModelPost.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/post/viewmodel/ViewModelPost.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/view/AbstractDialog.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/view/AbstractDialog.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/view/ProfileFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/view/ProfileFragment.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/view/UserFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/view/UserFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/viewholder/RecyclerStateViewHolder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/viewholder/RecyclerStateViewHolder.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/viewmodel/ProfileViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/profile/viewmodel/ProfileViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/register/view/RegisterFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/register/view/RegisterFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/register/viewmodel/RegisterViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/register/viewmodel/RegisterViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/view/SearchFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/view/SearchFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/view/TagFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/view/TagFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/viewmodel/SearchViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/feature/search/viewmodel/SearchViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_change_passwd.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_change_passwd.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_chat.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_chat.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_comment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_comment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/conversation_item.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/conversation_item.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_detail_post.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_detail_post.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_profile.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_profile.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_search.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_search.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_tag.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_tag.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_user.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_user.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/item_comment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_comment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/message_other_item.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/message_other_item.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/message_own_item.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/message_own_item.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_message.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_message.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/post_item.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/post_item.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -154,13 +134,13 @@
       <list>
         <option value="Kotlin Sealed Class" />
         <option value="navigationResourceFile" />
-        <option value="Kotlin Data Class" />
         <option value="valueResourceFile" />
-        <option value="Kotlin Interface" />
         <option value="Kotlin Object" />
-        <option value="Kotlin Class" />
         <option value="layoutResourceFile" />
+        <option value="Kotlin Interface" />
+        <option value="Kotlin Class" />
         <option value="resourceFile" />
+        <option value="Kotlin Data Class" />
       </list>
     </option>
   </component>
@@ -174,8 +154,8 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="DeviceAndSnapshotComboBoxAction.selectedDevice" value="SerialNumber@R9AM910QPTJ" />
-    <property name="DeviceAndSnapshotComboBoxAction.selectionTime" value="2021-11-17T11:20:30.706415100Z" />
+    <property name="DeviceAndSnapshotComboBoxAction.selectedDevice" value="VirtualDevicePath@C:\Users\DELL\.android\avd\Android_Accelerated_x86_Oreo.avd" />
+    <property name="DeviceAndSnapshotComboBoxAction.selectionTime" value="2021-12-07T10:47:02.549539400Z" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="android-custom-viewC:/Users/DELL/.gradle/caches/modules-2/files-2.1/androidx.recyclerview/recyclerview/1.1.0/f2bdf79e1977939817f54a9d3e2f6bc52b63bdd0/recyclerview-1.1.0-sources.jar!/androidx/recyclerview/widget/RecyclerView.java_SELECTED" value="RecyclerView" />
     <property name="android-custom-viewC:/Users/DELL/.gradle/caches/modules-2/files-2.1/de.hdodenhof/circleimageview/3.1.0/e5635e59d66b172f3e99c6a7044dc9535c95d180/circleimageview-3.1.0-sources.jar!/de/hdodenhof/circleimageview/CircleImageView.java_SELECTED" value="CircleImageView" />
@@ -351,10 +331,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="503" y="214" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1637619125329" />
-    <state x="560" y="128" key="#com.intellij.ide.util.MemberChooser" timestamp="1638832279534">
+    <state x="560" y="128" key="#com.intellij.ide.util.MemberChooser" timestamp="1638919286929">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="560" y="128" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1638832279534" />
+    <state x="560" y="128" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1638919286929" />
     <state x="295" y="336" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1633178796364">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -375,18 +355,22 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="516" y="246" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1536.824@0.0.1536.824" timestamp="1638835881589" />
+    <state x="93" y="93" width="1350" height="638" key="AVDManager" timestamp="1638922192206">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="93" y="93" width="1350" height="638" key="AVDManager/0.0.1536.824@0.0.1536.824" timestamp="1638922192206" />
     <state x="349" y="167" key="AndroidCreateResourceDirectoryDialog" timestamp="1636500310803">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="349" y="167" key="AndroidCreateResourceDirectoryDialog/0.0.1536.824@0.0.1536.824" timestamp="1636500310803" />
-    <state x="434" y="318" width="838" height="446" key="AndroidCreateResourceFileDialog" timestamp="1638612062490">
+    <state x="434" y="318" width="838" height="446" key="AndroidCreateResourceFileDialog" timestamp="1638910862075">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="434" y="318" width="838" height="446" key="AndroidCreateResourceFileDialog/0.0.1536.824@0.0.1536.824" timestamp="1638612062490" />
-    <state x="987" y="9" key="AndroidCreateXmlResourceDialog" timestamp="1638537081496">
+    <state x="434" y="318" width="838" height="446" key="AndroidCreateResourceFileDialog/0.0.1536.824@0.0.1536.824" timestamp="1638910862075" />
+    <state x="987" y="9" key="AndroidCreateXmlResourceDialog" timestamp="1638919746031">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="987" y="9" key="AndroidCreateXmlResourceDialog/0.0.1536.824@0.0.1536.824" timestamp="1638537081496" />
+    <state x="987" y="9" key="AndroidCreateXmlResourceDialog/0.0.1536.824@0.0.1536.824" timestamp="1638919746031" />
     <state x="559" y="158" key="AndroidProcessChooserDialog" timestamp="1638401207143">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -399,22 +383,22 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="153" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1638542320302" />
-    <state width="1493" height="176" key="GridCell.Tab.0.bottom" timestamp="1638837262418">
+    <state width="1493" height="350" key="GridCell.Tab.0.bottom" timestamp="1638938778057">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="176" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1638837262418" />
-    <state width="1493" height="176" key="GridCell.Tab.0.center" timestamp="1638837262418">
+    <state width="1493" height="350" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1638938778057" />
+    <state width="1493" height="350" key="GridCell.Tab.0.center" timestamp="1638938778057">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="176" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1638837262418" />
-    <state width="1493" height="176" key="GridCell.Tab.0.left" timestamp="1638837262417">
+    <state width="1493" height="350" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1638938778057" />
+    <state width="1493" height="350" key="GridCell.Tab.0.left" timestamp="1638938778056">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="176" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1638837262417" />
-    <state width="1493" height="176" key="GridCell.Tab.0.right" timestamp="1638837262418">
+    <state width="1493" height="350" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1638938778056" />
+    <state width="1493" height="350" key="GridCell.Tab.0.right" timestamp="1638938778057">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="176" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1638837262418" />
+    <state width="1493" height="350" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1638938778057" />
     <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1633479538879">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -427,32 +411,21 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="482" y="256" key="edit.logcat.filter.dialog.dimensions/0.0.1536.824@0.0.1536.824" timestamp="1637741964524" />
-    <state x="433" y="135" width="841" height="534" key="find.popup" timestamp="1638834906388">
+    <state x="433" y="135" width="841" height="534" key="find.popup" timestamp="1638923095009">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="433" y="135" width="841" height="534" key="find.popup/0.0.1536.824@0.0.1536.824" timestamp="1638834906388" />
-    <state x="611" y="183" key="refactoring.ChangeSignatureDialog" timestamp="1637537296529">
+    <state x="433" y="135" width="841" height="534" key="find.popup/0.0.1536.824@0.0.1536.824" timestamp="1638923095009" />
+    <state x="611" y="183" key="refactoring.ChangeSignatureDialog" timestamp="1638879781019">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="611" y="183" key="refactoring.ChangeSignatureDialog/0.0.1536.824@0.0.1536.824" timestamp="1637537296529" />
-    <state x="425" y="187" width="672" height="677" key="run.anything.popup" timestamp="1638523770054">
+    <state x="611" y="183" key="refactoring.ChangeSignatureDialog/0.0.1536.824@0.0.1536.824" timestamp="1638879781019" />
+    <state x="425" y="187" width="672" height="677" key="run.anything.popup" timestamp="1638874330480">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="425" y="187" width="672" height="677" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1638523770054" />
+    <state x="425" y="187" width="672" height="677" key="run.anything.popup/0.0.1536.824@0.0.1536.824" timestamp="1638874330480" />
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1637930296525">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1637930296525" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/datn/thesocialnetwork/data/repository/PostRepository.kt</url>
-          <line>407</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

@@ -74,6 +74,7 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
     private var postModel: PostsModel? = null
     private var postId: String = ""
     private var isPostLiked = false
+    private var isPostMarked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -163,8 +164,8 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
             txtDesc.setOnHyperlinkClickListener { _, text -> linkClick(text.toString()) }
             txtDesc.setOnMentionClickListener { _, text -> mentionClick(text.toString()) }
 
-            btnShare.setOnClickListener {
-                shareClick(post.first)
+            btnMark.setOnClickListener {
+                viewModel.setMarkStatus(post.first, !isPostMarked)
             }
 
             linlayLikeCounter.setOnClickListener {
@@ -192,6 +193,23 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
                     is GetStatus.Success -> {
                         isPostLiked = it.data.isPostLikeByLoggedUser
                         binding.txtLikeCounter.text = it.data.likeCounter.formatWithSpaces()
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.markStatus.collectLatest {
+                when (it) {
+                    GetStatus.Sleep -> Unit
+                    is GetStatus.Failed -> {
+                        Log.d("failed", "loading mark")
+                    }
+                    GetStatus.Loading -> {
+                    }
+                    is GetStatus.Success -> {
+                        isPostMarked = it.data.isPostMarkByLoggedUser
+                        Log.d("Mark", "mark it")
                     }
                 }
             }

@@ -58,7 +58,11 @@ abstract class AbstractDialog(
     lateinit var likedAdapter: PostAdapter
 
     @Inject
+    lateinit var markedAdapter: PostAdapter
+
+    @Inject
     lateinit var imageLoader: ImageLoader
+
     private lateinit var materialAlertDialogBuilder: MaterialAlertDialogBuilder
     val profileBinding by viewBinding(FragmentProfileBinding::bind)
     val userBinding by viewBinding(FragmentUserBinding::bind)
@@ -70,7 +74,6 @@ abstract class AbstractDialog(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         materialAlertDialogBuilder = MaterialAlertDialogBuilder(requireContext())
-
         userAdapter.userClick = {
             alertDialog?.cancel()
             profileClick(it.uidUser)
@@ -150,6 +153,7 @@ abstract class AbstractDialog(
         uploadAdapter.postClickListener = this
         mentionedAdapter.postClickListener = this
         likedAdapter.postClickListener = this
+        markedAdapter.postClickListener = this
 
         val uploads = StateRecyclerData(
             viewModel.uploadedPosts,
@@ -171,17 +175,17 @@ abstract class AbstractDialog(
             )
         )
 
-        val liked = StateRecyclerData(
-            viewModel.likedPosts,
-            likedAdapter,
+        val marked = StateRecyclerData(
+            viewModel.markedPosts,
+            markedAdapter,
             StateData(
-                emptyStateIcon = R.drawable.ic_heart,
-                emptyStateText = if (isProfileFragment) R.string.no_likes_profile else R.string.no_liked_user,
+                emptyStateIcon = R.drawable.ic_mark,
+                emptyStateText = if (isProfileFragment) R.string.no_marks_profile else R.string.no_marked_user,
                 bottomRecyclerPadding = R.dimen._142dp
             )
         )
 
-        val recyclers = listOf(uploads, mentioned, liked)
+        val recyclers = mutableListOf(uploads, mentioned, marked)
 
         val adapter = PostCategoryAdapter(recyclers)
 

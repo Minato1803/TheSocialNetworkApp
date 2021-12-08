@@ -16,15 +16,13 @@ import javax.inject.Inject
 
 class ConversationAdapter @Inject constructor(
     private val imageLoader: ImageLoader,
-    private val repository: ChatRespository
-) : ListAdapter<ConversationItem, ConversationViewHolder>(ConversationDiffCallback)
-{
-    var actionMessageClick: (UserModel) -> Unit = {}
+    private val repository: ChatRespository,
+) : ListAdapter<ConversationItem, ConversationViewHolder>(ConversationDiffCallback) {
+    var actionMessageClick: (UserModel, ConversationItem) -> Unit = { userModel: UserModel, conversationItem: ConversationItem -> }
 
     private fun cancelListeners(
         userListenerId: Int,
-    )
-    {
+    ) {
         repository.removeUserListener(userListenerId)
     }
 
@@ -42,8 +40,7 @@ class ConversationAdapter @Inject constructor(
         userFlow = repository::getUser,
     )
 
-    fun cancelScopes()
-    {
+    fun cancelScopes() {
         holders.forEach { cancelScope ->
             cancelScope()
         }
