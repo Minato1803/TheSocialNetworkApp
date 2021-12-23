@@ -8,6 +8,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
@@ -22,7 +24,9 @@ import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.google.android.material.badge.BadgeDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -47,7 +51,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     private var bd: FragmentChatBinding? = null
     lateinit var binding: FragmentChatBinding
     lateinit var mMainActivity: MainActivity
-    private val viewModel: ChatViewModel by activityViewModels()
+    private val viewModel: ChatViewModel by viewModels()
     private var userModel: UserModel? = null
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     lateinit var badge_dashboard: BadgeDrawable
@@ -91,7 +95,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
         badge_dashboard = mMainActivity.bd.bottomNavMain.getOrCreateBadge(R.id.navChat)
         badge_dashboard.backgroundColor = Color.RED
-        badge_dashboard.badgeTextColor = Color.BLACK
+        badge_dashboard.badgeTextColor = Color.WHITE
         badge_dashboard.maxCharacterCount = 9
 
         binding.rvConversations.adapter = conversationAdapter.apply {
@@ -102,12 +106,14 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
     private fun conversationClick(user: UserModel, conversationItem: ConversationItem) {
         viewModel.seenLastMessage(user, conversationItem)
         Log.d("updateNoti", "seen success")
+        setObserveData()
         MessageFragment.newInstance(user).show(childFragmentManager, "messageFragment")
-//        navigateFragment(messageFragment,"messageFragment")
     }
 
+    var getConversation: Job? = null
     private fun setObserveData() {
-        lifecycleScope.launchWhenStarted {
+        viewModel.getConversations()
+        getConversation = lifecycleScope.launchWhenStarted {
             viewModel.conversation.collectLatest {
                 when (it) {
                     GetStatus.Sleep -> {
@@ -129,7 +135,7 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
                         binding.linLayErrorState.isVisible = false
                         Log.d("AllListChat", "${it.data.toString()}")
                         conversationAdapter.submitList(it.data)
-                        setbadgeCount(it.data)
+                        setBadgeCount(it.data)
                     }
                     is GetStatus.Failed -> {
                         binding.proBarLoadingConversations.isVisible = false
@@ -144,13 +150,15 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
 
     }
 
-    private fun setbadgeCount(data: List<ConversationItem>) {
+    private fun setBadgeCount(data: List<ConversationItem>) {
         var count = 0
         data.forEach {
-            if (it.lastMessage.isRead == "false" && it.lastMessage.sender != GlobalValue.USER!!.uidUser) {
+            Log.d("CountChat", "${it.lastMessage.isRead.toString()} ${it.lastMessage.sender.toString()}")
+            if (it.lastMessage.isRead == 0 && it.lastMessage.sender != GlobalValue.USER!!.uidUser) {
                 count++
             }
         }
+        Log.d("CountChat","${count.toString()}")
         if (count > 0) {
             badge_dashboard.number = count
             badge_dashboard.isVisible = true
@@ -194,6 +202,11 @@ class ChatFragment : Fragment(R.layout.fragment_chat) {
         super.onResume()
         viewModel.updateConversations()
         setObserveData()
+    }
+
+    override fun onStop() {
+        getConversation?.cancel()
+        super.onStop()
     }
 
     override fun onDestroyView() {

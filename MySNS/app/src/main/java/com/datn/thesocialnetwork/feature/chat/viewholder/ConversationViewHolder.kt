@@ -73,7 +73,7 @@ class ConversationViewHolder private constructor(
             }
         }
         //if message unread
-        if(conversationItem.lastMessage.isRead == "false" && conversationItem.lastMessage.sender != GlobalValue.USER!!.uidUser) {
+        if(conversationItem.lastMessage.isRead == 0 && conversationItem.lastMessage.sender != GlobalValue.USER!!.uidUser) {
             binding.imgUnreadDot.visibility = View.VISIBLE
             binding.txtLastMsg.typeface = Typeface.DEFAULT_BOLD
             binding.txtTime.typeface = Typeface.DEFAULT_BOLD
@@ -84,7 +84,10 @@ class ConversationViewHolder private constructor(
             binding.txtTime.typeface = Typeface.DEFAULT
             binding.txtUsername.typeface = Typeface.DEFAULT
         }
-        binding.txtLastMsg.text = conversationItem.lastMessage.textContent
+        if(conversationItem.lastMessage.sender != GlobalValue.USER!!.uidUser)
+            binding.txtLastMsg.text = conversationItem.lastMessage.textContent
+        else
+            binding.txtLastMsg.text = "Bạn: ${conversationItem.lastMessage.textContent}"
         binding.txtTime.text = TimeUtils.showTimeDetail(conversationItem.lastMessage.time)
 
         binding.root.setOnClickListener {

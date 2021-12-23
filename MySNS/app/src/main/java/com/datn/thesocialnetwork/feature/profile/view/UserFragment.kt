@@ -11,6 +11,7 @@ import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.core.api.status.SearchFollowStatus
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.core.util.SystemUtils.showMessage
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
@@ -22,10 +23,13 @@ import com.datn.thesocialnetwork.feature.chat.view.MessageFragment
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.post.detailpost.view.DetailPostFragment
 import com.datn.thesocialnetwork.feature.post.comment.view.CommentFragment
+import com.datn.thesocialnetwork.feature.post.editpost.view.EditPostFragment
+import com.datn.thesocialnetwork.feature.post.editpost.viewmodel.EditPostViewModel
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
 import com.datn.thesocialnetwork.feature.search.view.TagFragment
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -56,7 +60,9 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     @Inject
     lateinit var glide: RequestManager
     lateinit var mMainActivity: MainActivity
-//    private val mProfileViewModel: ProfileViewModel by viewModels()
+
+    //    private val mProfileViewModel: ProfileViewModel by viewModels()
+    private val editPostViewModel: EditPostViewModel by activityViewModels()
     private var userModel: UserModel? = null
     private var isLoadFromDb: Boolean = false
 
@@ -216,7 +222,7 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
             setObserveData()
         }
         userBinding.btnMessage.setOnClickListener {
-            MessageFragment.newInstance(userModel!!).show(childFragmentManager,"messageFragment")
+            MessageFragment.newInstance(userModel!!).show(childFragmentManager, "messageFragment")
 //            navigateFragment(messageFragment, "messageFragment")
         }
         //ToDo: open dialog list
@@ -294,6 +300,9 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
     }
 
     override fun imageClick(postWithId: PostWithId) {
+        if(postWithId.second.ownerId != GlobalValue.USER!!.uidUser) {
+            viewModel.setSeenStatus(postWithId.first)
+        }
         val detailPostFragment = DetailPostFragment.newInstance(postWithId.first)
         navigateFragment(detailPostFragment, "detailPostFragment")
     }
@@ -329,12 +338,38 @@ class UserFragment : AbstractDialog(R.layout.fragment_user) {
         }
     }
 
-    override fun menuReportClick(postId: String) {
+    override fun deletePostClick(post: PostWithId) {
         //todo: report dialog
+        if (post.second.ownerId == GlobalValue.USER!!.uidUser) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(resources.getString(R.string.str_delete_post))
+                .setMessage(resources.getString(R.string.delete_confirmation))
+                .setNeutralButton(resources.getString(R.string.cancel)) { _, _ ->
+                }
+                .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                    //delete post
+                    viewModel.deletePost(post.first)
+                    setObserveData()
+                }
+                .show()
+        } else {
+            userBinding.userLayout.showSnackbarGravity(
+                message = getString(R.string.not_allow)
+            )
+        }
     }
 
     override fun menuEditClick(post: PostWithId) {
-        //todo: not implement yet
+        Log.d("editPost", "${post.toString()}")
+        if (post.second.ownerId == GlobalValue.USER!!.uidUser) {
+            editPostViewModel.postWithId.postValue(post)
+            val editPostFragment = EditPostFragment.newInstance()
+            navigateFragment(editPostFragment, "editPostFragment")
+        } else {
+            userBinding.userLayout.showSnackbarGravity(
+                message = getString(R.string.not_allow)
+            )
+        }
     }
 
     private fun navigateFragment(fragment: Fragment, tag: String) {

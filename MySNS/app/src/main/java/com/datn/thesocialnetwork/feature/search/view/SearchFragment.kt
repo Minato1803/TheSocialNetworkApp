@@ -20,6 +20,7 @@ import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.DataStatus
 import com.datn.thesocialnetwork.core.api.status.SearchStatus
 import com.datn.thesocialnetwork.core.util.Const
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils.hideKeyboard
 import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
 import com.datn.thesocialnetwork.core.util.isFragmentAlive
@@ -274,10 +275,13 @@ class SearchFragment : Fragment() {
 //        TODO: postAdapter
         simplePostAdapter.apply {
             postListener = {
-                val detailPostFragment = DetailPostFragment.newInstance(it.first)
-                navigateFragment(detailPostFragment, "detailPostFragment")
-            }
+                if (it.second.ownerId != GlobalValue.USER!!.uidUser) {
+                    mSearchViewModel.setSeenStatus(it.first)
+                }
+            val detailPostFragment = DetailPostFragment.newInstance(it.first)
+            navigateFragment(detailPostFragment, "detailPostFragment")
         }
+    }
     }
 
     private fun selectUser(user: UserModel) {

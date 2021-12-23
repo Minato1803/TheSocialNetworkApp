@@ -243,7 +243,7 @@ class ChatRespository @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    fun getAllConversations(): Flow<GetStatus<List<ConversationItem>>> = channelFlow {
+    fun getAllConversations(): Flow<GetStatus<MutableList<ConversationItem>>> = channelFlow {
 
         send(GetStatus.Loading)
 
@@ -256,6 +256,7 @@ class ChatRespository @Inject constructor(
                 calls++
                 if (calls == 2) {
                     launch {
+                        Log.d("getConversation", "sn ${conversations.toString()}")
                         send(GetStatus.Success(conversations))
                         close()
                     }
@@ -265,8 +266,8 @@ class ChatRespository @Inject constructor(
 
         val vel1 = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                Log.d("getConversation", "sn ${snapshot.toString()}")
                 val r = snapshot.getValue(conversationsType)
+
 
                 r?.forEach { entry ->
                     val idMsg = ""
@@ -337,7 +338,7 @@ class ChatRespository @Inject constructor(
         val key = getKeyFromTwoUsers(GlobalValue.USER!!.uidUser, userModel.uidUser)
         val ref = getDatabaseChat().child(key)
         val message = ChatMessage(
-            isRead = "true",
+            isRead = 1,
             sender = conversationItem.lastMessage.sender,
             textContent = conversationItem.lastMessage.textContent,
             time = conversationItem.lastMessage.time,

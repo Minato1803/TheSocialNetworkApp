@@ -2,6 +2,7 @@ package com.datn.thesocialnetwork.feature.profile.editprofile.view
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Patterns
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -14,6 +15,7 @@ import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.LoadingScreen
 import com.datn.thesocialnetwork.core.api.Response
+import com.datn.thesocialnetwork.core.util.Const
 import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
@@ -86,22 +88,44 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
 
     private fun clickUpdate() {
         setDataInput()
-        setValidData()
-        val imgAvatarByte: ByteArray? = imgAvatarBitmap?.let { SystemUtils.convertBitmapToJPG(it) }
-        val userDetail = UserDetail(
-            userName = userName,
-            firstName = firstName,
-            lastName = lastName,
-            description = descrip,
-            birthday = birthday,
-            gender = gender,
-            avatarUrl = user.userDetail.avatarUrl
-        )
-        mEditProfileViewModel.updateUserDetail(user.uidUser, userDetail, imgAvatarByte)
+        if(setValidData()) {
+            val imgAvatarByte: ByteArray? = imgAvatarBitmap?.let { SystemUtils.convertBitmapToJPG(it) }
+            val userDetail = UserDetail(
+                userName = userName,
+                firstName = firstName,
+                lastName = lastName,
+                description = descrip,
+                birthday = birthday,
+                gender = gender,
+                avatarUrl = user.userDetail.avatarUrl
+            )
+            mEditProfileViewModel.updateUserDetail(user.uidUser, userDetail, imgAvatarByte)
+        }
     }
 
-    private fun setValidData() {
-        //
+    private fun setValidData(): Boolean {
+        var isValid = false
+        if(userName.isEmpty() && Regex(Const.REGEX_SPECIAL_CHAR).containsMatchIn(userName)) {
+            bd.edtEditUsername.error = "userName không hợp lệ!"
+            bd.edtEditUsername.isFocusable = true
+        } else if (
+            firstName.isEmpty() ||
+            (Regex(Const.REGEX_SPECIAL_CHAR).containsMatchIn(firstName) ||
+                    Regex(Const.REGEX_NUMBER).containsMatchIn(firstName))
+        ) {
+            bd.edtFirstName.error = "Tên không hợp lệ!"
+            bd.edtFirstName.isFocusable = true
+        } else if (
+            lastName.isEmpty() ||
+            (Regex(Const.REGEX_SPECIAL_CHAR).containsMatchIn(lastName)
+                    || Regex(Const.REGEX_NUMBER).containsMatchIn(lastName))
+        ) {
+            bd.edtFirstName.error = "Họ không hợp lệ!"
+            bd.edtFirstName.isFocusable = true
+        } else{
+            isValid = true
+        }
+        return isValid
     }
 
     private fun setDataInput() {
@@ -168,10 +192,15 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
         bd.imgAvatar.setOnClickListener { clickAvatar() }
         bd.tvGender.setOnClickListener { clickGender() }
         bd.tvBirthday.setOnClickListener { clickBirthDay() }
+        bd.butChangePasswd.setOnClickListener { clickChangePwd() }
         mMainActivity.bd.toolbar.setOnClickListener { clickActionbar() }
         mMainActivity.bd.toolbar.setNavigationOnClickListener {
             mMainActivity.onBackPressed()
         }
+    }
+
+    private fun clickChangePwd() {
+        ChangePasswdFragment.newInstance().show(childFragmentManager,"changePwdFragment")
     }
 
     private fun clickActionbar() {

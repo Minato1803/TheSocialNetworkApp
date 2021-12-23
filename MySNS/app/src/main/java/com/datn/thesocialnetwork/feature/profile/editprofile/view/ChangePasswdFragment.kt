@@ -19,11 +19,19 @@ import com.datn.thesocialnetwork.databinding.FragmentCreatePostBinding
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.profile.editprofile.viewmodel.EditProfileViewModel
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 
-
+@AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class ChangePasswdFragment : DialogFragment(R.layout.fragment_change_passwd) {
-    val viewModel: EditProfileViewModel by viewModels()
+
+    companion object {
+        fun newInstance() = ChangePasswdFragment()
+    }
+
+    private val viewModel: EditProfileViewModel by viewModels()
     private var _bd: FragmentChangePasswdBinding? = null
     lateinit var binding: FragmentChangePasswdBinding
     lateinit var mMainActivity: MainActivity

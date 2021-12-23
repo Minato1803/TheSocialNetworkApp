@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@ExperimentalCoroutinesApi
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val mApp: Application,
@@ -61,19 +62,16 @@ class EditProfileViewModel @Inject constructor(
     )
     val updateStatus = _updateStatus.asStateFlow()
 
-    @ExperimentalCoroutinesApi
-    fun changePasswd()
-    {
+
+    fun changePasswd() {
         val curr = currPasswd.value
         val new = newPasswd.value
         val conf = confirmPasswd.value
-        if (curr != null && new != null && conf != null)
-        {
+        if (curr != null && new != null && conf != null) {
             viewModelScope.launch {
                 mUserRepository.changePasswd(curr, new, conf).collectLatest {
                     _updateStatus.value = it
-                    if (it is EventMessageStatus.Success)
-                    {
+                    if (it is EventMessageStatus.Success) {
                         currPasswd.value = ""
                         newPasswd.value = ""
                         confirmPasswd.value = ""

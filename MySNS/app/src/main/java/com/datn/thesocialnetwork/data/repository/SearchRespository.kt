@@ -100,7 +100,7 @@ class SearchRespository @Inject constructor(
             send(SearchStatus.Interrupted)
             close()
         } else {
-            getHashtags(text).equalTo(text).addValueEventListener(
+            getHashtags(text).addListenerForSingleValueEvent(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val u = mutableListOf<SearchModel>()
@@ -135,9 +135,9 @@ class SearchRespository @Inject constructor(
 
     private fun getHashtags(tag: String) =
         getDatabaseTAG()
-            .orderByChild(tag)
-//            .startAt(tag)
-//            .endAt(tag + "\uf8ff")
+            .orderByKey()
+            .startAt(tag)
+            .endAt(tag + "\uf8ff")
 
     private fun getHashtag(tag: String) =
         getDatabaseTAG()

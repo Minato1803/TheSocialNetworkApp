@@ -45,6 +45,7 @@
                 app:layout_constraintStart_toEndOf="@+id/img_avartar"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="582 posts"
+                android:textStyle="bold"
                 />
 
 

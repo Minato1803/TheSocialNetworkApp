@@ -119,38 +119,38 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun loadDataInitUser(user: UserModel) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch{
             followRespository.getUserFollowersFlow(user.uidUser).collectLatest {
                 _userFollowersFlow.value = it
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             followRespository.getUserFollowingFlow(user.uidUser).collectLatest {
                 _userFollowingFlow.value = it
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch{
             Log.d("TAG", "get own post")
             postRepository.getUserPostsFlow(user.uidUser).collectLatest {
                 _uploadedPosts.value = it
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             postRepository.getMentionedPosts(user.userName.lowercase()).collectLatest {
                 _mentionPosts.value = it
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             postRepository.getLikedPostByUserId(user.uidUser).collectLatest {
                 _likedPosts.value = it
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch{
             postRepository.getMarkedPostByUserId(user.uidUser).collectLatest {
                _markedPosts.value = it
             }
@@ -163,8 +163,7 @@ class ProfileViewModel @Inject constructor(
     @ExperimentalCoroutinesApi
     fun initWithUserId(userId: String) {
         _isInitialized.value = true
-        Log.d("TAG",
-            "start get user from db")
+        Log.d("TAG", "start get user from db")
         userRespository.getUserByID(userId).child(userId)
             .addListenerForSingleValueEvent(
                 object : ValueEventListener {

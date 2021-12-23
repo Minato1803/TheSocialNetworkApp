@@ -19,6 +19,7 @@ import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.CommentModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.LikeStatus
 import com.datn.thesocialnetwork.data.repository.model.post.status.MarkStatus
+import com.datn.thesocialnetwork.data.repository.model.post.status.SeenStatus
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -44,6 +45,7 @@ class PostRepository @Inject constructor(
     private fun getDatabaseMentions() = mFirebaseDb.getReference(FirebaseNode.mentions)
     private fun getDatabasePostLike() = mFirebaseDb.getReference(FirebaseNode.postLikes)
     private fun getDatabasePostMark() = mFirebaseDb.getReference(FirebaseNode.postMarks)
+    private fun getDatabasePostSeen() = mFirebaseDb.getReference(FirebaseNode.postSeen)
     private fun getDatabasePostComment() = mFirebaseDb.getReference(FirebaseNode.comments)
     private fun getDatabaseReport() = mFirebaseDb.getReference(FirebaseNode.reportPost)
 
@@ -52,6 +54,7 @@ class PostRepository @Inject constructor(
 
     private fun getPostLikes(postId: String) = getDatabasePostLike().child(postId)
     private fun getPostMarks(postId: String) = getDatabasePostMark().child(postId)
+    private fun getPostSeen(postId: String) = getDatabasePostSeen().child(postId)
     private fun getPostComment(postId: String) = getDatabasePostComment().child(postId)
     private fun getUserPost(userId: String) =
         getDatabasePost().orderByChild(FirebaseNode.postsOwner)
@@ -63,6 +66,8 @@ class PostRepository @Inject constructor(
     fun getPostUserWhichLikes(postId: String, userId: String) = getPostLikes(postId).child(userId)
 
     fun getPostUserWhichMarks(postId: String, userId: String) = getPostMarks(postId).child(userId)
+
+    fun getPostUserWhichSeen(postId: String, userId: String) = getPostSeen(postId).child(userId)
 
 
     fun uploadPost(
@@ -322,6 +327,7 @@ class PostRepository @Inject constructor(
                         }
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     // cancel
                 }
@@ -368,11 +374,13 @@ class PostRepository @Inject constructor(
                                     val post = snapshot.getValue(PostsModel::class.java)
                                     if (post != null) {
                                         val postItem = PostWithId(id, post, post.image?.toList())
-                                        Log.d("postItemMentions", "$id $post ${post.image?.toList()}")
+                                        Log.d("postItemMentions",
+                                            "$id $post ${post.image?.toList()}")
                                         posts.add(postItem)
                                     }
                                     sendDataAndCheckClose()
                                 }
+
                                 override fun onCancelled(error: DatabaseError) {
                                     sendDataAndCheckClose()
                                 }
@@ -380,6 +388,7 @@ class PostRepository @Inject constructor(
                         )
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     close()
                 }
@@ -436,6 +445,7 @@ class PostRepository @Inject constructor(
                         )
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     close()
                 }
@@ -493,6 +503,7 @@ class PostRepository @Inject constructor(
                         )
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     close()
                 }
@@ -524,6 +535,7 @@ class PostRepository @Inject constructor(
                         }
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     launch {
                         send(GetStatus.Failed(Message(R.string.something_went_wrong)))
@@ -554,13 +566,15 @@ class PostRepository @Inject constructor(
                     launch {
                         val status = GetStatus.Success(
                             LikeStatus(
-                                isPostLikeByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser).exists(),
+                                isPostLikeByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser)
+                                    .exists(),
                                 likeCounter = snapshot.childrenCount
                             )
                         )
                         send(status)
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     launch {
                         val status =
@@ -596,13 +610,15 @@ class PostRepository @Inject constructor(
                     launch {
                         val status = GetStatus.Success(
                             MarkStatus(
-                                isPostMarkByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser).exists(),
+                                isPostMarkByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser)
+                                    .exists(),
                                 markCounter = snapshot.childrenCount
                             )
                         )
                         send(status)
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     launch {
                         val status =
@@ -619,7 +635,8 @@ class PostRepository @Inject constructor(
         }
     }
 
-    private val commentCounterListeners: HashMap<Int, FirebaseListener<GetStatus<Long>>> = hashMapOf()
+    private val commentCounterListeners: HashMap<Int, FirebaseListener<GetStatus<Long>>> =
+        hashMapOf()
 
     fun removeCommentCounterListener(ownerHash: Int) {
         commentCounterListeners[ownerHash]?.removeListener()
@@ -657,6 +674,51 @@ class PostRepository @Inject constructor(
         awaitClose()
     }
 
+
+    private val seenListeners: HashMap<Int, FirebaseListener<GetStatus<SeenStatus>>> = hashMapOf()
+
+    fun removeSeenListener(ownerHash: Int) {
+        seenListeners[ownerHash]?.removeListener()
+        seenListeners.remove(ownerHash)
+    }
+
+    fun getPostSeen(
+        ownerHash: Int,
+        postId: String,
+    ): Flow<GetStatus<SeenStatus>> {
+        return channelFlow {
+            send(GetStatus.Loading)
+            val dbPostSeen = getPostSeen(postId)
+            val valueEvent = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    launch {
+                        val status = GetStatus.Success(
+                            SeenStatus(
+                                isPostSeenByLoggedUser = snapshot.child(GlobalValue.USER!!.uidUser)
+                                    .exists(),
+                                seenCounter = snapshot.childrenCount
+                            )
+                        )
+                        send(status)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    launch {
+                        val status =
+                            GetStatus.Failed(Message(R.string.str_something_went_wrong))
+                        send(status)
+                    }
+                }
+            }
+
+            seenListeners[ownerHash] = FirebaseListener(valueEvent, dbPostSeen)
+            seenListeners[ownerHash]?.addListener()
+
+            awaitClose()
+        }
+    }
+
     fun getUsersWhoLikePost(postId: String): Flow<GetStatus<List<String>>> = channelFlow {
         send(GetStatus.Loading)
         Log.d("TAG", "start get users who like this post")
@@ -674,6 +736,37 @@ class PostRepository @Inject constructor(
                         close()
                     }
                 }
+
+                override fun onCancelled(error: DatabaseError) {
+                    launch {
+                        send(GetStatus.Failed(Message(R.string.something_went_wrong)))
+                        close()
+                    }
+                }
+            }
+        )
+
+        awaitClose()
+    }
+
+    fun getUsersWhoSeenPost(postId: String): Flow<GetStatus<List<String>>> = channelFlow {
+        send(GetStatus.Loading)
+        Log.d("TAG", "start get users who seen this post")
+        getPostSeen(postId).addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val like = snapshot.getValue(FirebaseNode.postsSeen)
+                    Log.d("usersSeen", like.toString())
+                    launch {
+                        send(
+                            GetStatus.Success(
+                                like?.keys?.toList() ?: listOf()
+                            )
+                        )
+                        close()
+                    }
+                }
+
                 override fun onCancelled(error: DatabaseError) {
                     launch {
                         send(GetStatus.Failed(Message(R.string.something_went_wrong)))
@@ -704,6 +797,11 @@ class PostRepository @Inject constructor(
             Log.d("interact", "unmark")
             getPostUserWhichMarks(postId, GlobalValue.USER!!.uidUser).removeValue()
         }
+    }
+
+    fun seenPost(postId: String) {
+        Log.d("interact", "seen")
+        getPostUserWhichSeen(postId, GlobalValue.USER!!.uidUser).setValue(true)
     }
 
     fun editPost(
@@ -776,6 +874,13 @@ class PostRepository @Inject constructor(
         getDatabaseReport().child(key).setValue(report)
     }
 
+    fun deletePost(postId: String) {
+        getDatabasePostLike().child(postId).removeValue()
+        getDatabasePostMark().child(postId).removeValue()
+        getDatabasePostComment().child(postId).removeValue()
+        getDatabasePost().child(postId).removeValue()
+    }
+
     private var commentRef: DatabaseReference? = null
     private var commentListener: ValueEventListener? = null
 
@@ -844,6 +949,7 @@ class PostRepository @Inject constructor(
                     }
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
 
             }

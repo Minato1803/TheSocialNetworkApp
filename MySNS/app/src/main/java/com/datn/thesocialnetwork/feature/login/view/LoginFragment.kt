@@ -19,6 +19,7 @@ import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserDetail
 import com.datn.thesocialnetwork.data.datasource.remote.model.UserResponse
 import com.datn.thesocialnetwork.databinding.FragmentLoginBinding
+import com.datn.thesocialnetwork.feature.forgotpwd.view.ForgotPwdFragment
 import com.datn.thesocialnetwork.feature.login.viewmodel.LoginViewModel
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.profile.viewmodel.ProfileViewModel
@@ -30,6 +31,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class LoginFragment : Fragment() {
 
     private lateinit var bd: FragmentLoginBinding
@@ -128,6 +130,10 @@ class LoginFragment : Fragment() {
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(id, fragRegister, "sendToRegister")
                 .commit()
+        }
+        
+        bd.btnForgotPwd.setOnClickListener {
+            ForgotPwdFragment.newInstance().show(childFragmentManager, "forgotpwdFragment")
         }
     }
 

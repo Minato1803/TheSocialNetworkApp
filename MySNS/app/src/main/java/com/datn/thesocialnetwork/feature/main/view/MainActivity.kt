@@ -12,6 +12,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
@@ -42,6 +43,7 @@ import com.google.firebase.iid.FirebaseInstanceId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -113,9 +115,9 @@ class MainActivity : AppCompatActivity() {
             GlobalValue.USER!!.userDetail.onlineStatus = 0
             GlobalValue.USER_DETAIL!!.onlineStatus = 0
 
-            chatViewModel.updateConversations()
+            chatViewModel.getConversations()
             setObserveChatList()
-            updateToken(FirebaseInstanceId.getInstance().token)
+//            updateToken(FirebaseInstanceId.getInstance().token)
         } else {
             SystemUtils.signOut(mGoogleSignInClient, this)
         }
@@ -140,7 +142,7 @@ class MainActivity : AppCompatActivity() {
 
         badge_dashboard = bd.bottomNavMain.getOrCreateBadge(R.id.navChat)
         badge_dashboard.backgroundColor = Color.RED
-        badge_dashboard.badgeTextColor = Color.BLACK
+        badge_dashboard.badgeTextColor = Color.WHITE
         badge_dashboard.maxCharacterCount = 9
         badge_dashboard.clearNumber()
         badge_dashboard.isVisible = false
@@ -161,10 +163,11 @@ class MainActivity : AppCompatActivity() {
     private fun setbadgeCount(data: List<ConversationItem>) {
         var count = 0
         data.forEach {
-            if (it.lastMessage.isRead == "false" && it.lastMessage.sender != GlobalValue.USER!!.uidUser) {
+            if (it.lastMessage.isRead == 0 && it.lastMessage.sender != GlobalValue.USER!!.uidUser) {
                 count++
             }
         }
+        Log.d("CountChat","${count.toString()}")
         if (count > 0) {
             badge_dashboard.number = count
             badge_dashboard.isVisible = true

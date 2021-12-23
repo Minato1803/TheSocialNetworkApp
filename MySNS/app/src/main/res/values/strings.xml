@@ -148,7 +148,8 @@
     <string name="no_marks_profile">Bạn chưa lưu bài viết nào</string>
     <string name="no_marked_user">Người này chưa lưu bài viết nào</string>
     <string name="you_are_currently_on_your_profile">Bạn đang ở trang cá nhân của bạn</string>
-    <string name="comments">%s  bình luận</string>
+    <string name="comments">%s bình luận</string>
+    <string name="seenPost">%s người xem</string>
     <string name="liked_counter">Số lượt thích</string>
     <string name="currently_on_this_profile">Đang xem trang cá nhân hiện tại</string>
     <string name="users_that_like_post">Những người đã thích</string>
@@ -162,7 +163,7 @@
     <string name="write_first_comment">Hãy là người bình luận đầu tiên.</string>
     <string name="comment_cannot_be_empty">Bình luận không được để trống</string>
     <string name="comment_posted">Đã đăng bình luận</string>
-    <string name="posts_counter">%d bài viết</string>
+    <string name="posts_counter">%d bài viết phù hợp</string>
     <string name="currently_on_this_tag">Bạn đang ở trang hashtag này</string>
     <string name="show_more">thêm</string>
     <string name="passwords_are_not_the_same">Nhập lại mật khẩu không đúng!</string>
@@ -172,4 +173,12 @@
     <string name="passwd_is_wrong">Mật khẩu sai.</string>
     <string name="not_owner_post">Bạn không có quyền chỉnh sửa!</string>
     <string name="marked">Đã lưu</string>
+    <string name="str_delete_post">Xóa bài đăng</string>
+    <string name="delete_confirmation">Bạn có chắc muốn xóa?</string>
+    <string name="not_allow">Bạn không có quyền thực hiện hành động này</string>
+    <string name="delete_post">Xóa bài viết</string>
+    <string name="users_that_seen_post">Những người đã xem</string>
+    <string name="empty_users_Seen_post">Chưa có ai xem bài đăng này</string>
+    <string name="something_went_wrong_loading_users_that_seen_post">Có lỗi xảy ra</string>
+    <string name="str_forgot_pwd">Quên mật khẩu</string>
 </resources>

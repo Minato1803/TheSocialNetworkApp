@@ -71,9 +71,9 @@ class MessageFragment : DialogFragment(R.layout.fragment_message) {
 
     private var userModel: UserModel? = null
 
-    val apiService =
-        Client.getRetrofit("https://fcm.googleapis.com/")?.create(APIService::class.java)
-    var notify: Boolean = false
+//    val apiService =
+//        Client.getRetrofit("https://fcm.googleapis.com/")?.create(APIService::class.java)
+//    var notify: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -221,7 +221,7 @@ class MessageFragment : DialogFragment(R.layout.fragment_message) {
                     toPosition: Int,
                     itemCount: Int,
                 ) {
-                    binding!!.rvMessages.smoothScrollToPosition(0)
+                    binding.rvMessages.smoothScrollToPosition(0)
                 }
 
                 override fun onItemRangeInserted(
@@ -251,13 +251,13 @@ class MessageFragment : DialogFragment(R.layout.fragment_message) {
 
     private fun setEvent() {
         binding.butSend.setOnClickListener {
-            notify = true
+//            notify = true
             viewModel.messageText.value = binding.edTxtMessage.text.toString().trim()
             viewModel.sendMessage()
             setObserveData()
-            sendNotification(viewModel.selectedUser.uidUser,
-                GlobalValue.USER?.userDetail!!.userName,
-                binding.edTxtMessage.text.toString().trim())
+//            sendNotification(viewModel.selectedUser.uidUser,
+//                GlobalValue.USER?.userDetail!!.userName,
+//                binding.edTxtMessage.text.toString().trim())
         }
 
         binding.imgBack.setOnClickListener {
@@ -265,42 +265,42 @@ class MessageFragment : DialogFragment(R.layout.fragment_message) {
         }
     }
 
-    private fun sendNotification(uidReceiver: String, userName: String, message: String) {
-        val allTokens = FirebaseDatabase.getInstance().getReference("Tokens")
-        val query: Query = allTokens.orderByKey().equalTo(uidReceiver)
-        query.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (ds in dataSnapshot.children) {
-                    val token: Token? = ds.getValue(Token::class.java)
-                    val data = NotiModel(
-                        "" + GlobalValue.USER!!.uidUser,
-                        "$userName: $message",
-                        "New Message",
-                        "" + uidReceiver,
-                        "ChatNotification",
-                        R.drawable.ic_profile_24)
-                    val sender = token?.let { Sender(data, it.token) }
-                    if (sender != null) {
-                        apiService?.sendNotification(sender)
-                            ?.enqueue(object : retrofit2.Callback<ResponseNoti> {
-                                override fun onResponse(
-                                    call: Call<ResponseNoti>,
-                                    response: Response<ResponseNoti>,
-                                ) {
-                                    Log.d("sendNotiSucc", "${response.message().toString()}")
-                                }
-
-                                override fun onFailure(call: Call<ResponseNoti>, t: Throwable) {
-                                    Log.d("sendNotiFail", "${t.message.toString()}")
-                                }
-                            })
-                    }
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
-    }
+//    private fun sendNotification(uidReceiver: String, userName: String, message: String) {
+//        val allTokens = FirebaseDatabase.getInstance().getReference("Tokens")
+//        val query: Query = allTokens.orderByKey().equalTo(uidReceiver)
+//        query.addValueEventListener(object : ValueEventListener {
+//            override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                for (ds in dataSnapshot.children) {
+//                    val token: Token? = ds.getValue(Token::class.java)
+//                    val data = NotiModel(
+//                        "" + GlobalValue.USER!!.uidUser,
+//                        "$userName: $message",
+//                        "New Message",
+//                        "" + uidReceiver,
+//                        "ChatNotification",
+//                        R.drawable.ic_profile_24)
+//                    val sender = token?.let { Sender(data, it.token) }
+//                    if (sender != null) {
+//                        apiService?.sendNotification(sender)
+//                            ?.enqueue(object : retrofit2.Callback<ResponseNoti> {
+//                                override fun onResponse(
+//                                    call: Call<ResponseNoti>,
+//                                    response: Response<ResponseNoti>,
+//                                ) {
+//                                    Log.d("sendNotiSucc", "${response.message().toString()}")
+//                                }
+//
+//                                override fun onFailure(call: Call<ResponseNoti>, t: Throwable) {
+//                                    Log.d("sendNotiFail", "${t.message.toString()}")
+//                                }
+//                            })
+//                    }
+//                }
+//            }
+//
+//            override fun onCancelled(databaseError: DatabaseError) {}
+//        })
+//    }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

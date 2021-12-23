@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.datn.thesocialnetwork.core.api.status.DataStatus
 import com.datn.thesocialnetwork.core.api.status.SearchStatus
+import com.datn.thesocialnetwork.data.repository.PostRepository
 import com.datn.thesocialnetwork.data.repository.SearchRespository
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
 import com.datn.thesocialnetwork.feature.search.view.SearchFragment
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 class SearchViewModel @Inject constructor(
     private val mApp: Application,
-    private val respository: SearchRespository
+    private val respository: SearchRespository,
+    private val postRepository: PostRepository,
 ) : AndroidViewModel(mApp) {
 
     private val searchTypesArray = enumValues<SearchFragment.SearchType>()
@@ -76,4 +78,6 @@ class SearchViewModel @Inject constructor(
     {
         currentQuery = null
     }
+
+    fun setSeenStatus(postId: String) = postRepository.seenPost(postId)
 }

@@ -24,8 +24,10 @@ import com.datn.thesocialnetwork.feature.profile.editprofile.view.EditProfileFra
 import com.datn.thesocialnetwork.feature.register.viewmodel.RegisterViewModel
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @AndroidEntryPoint
+@ExperimentalCoroutinesApi
 class RegisterFragment : Fragment() {
 
     private lateinit var bd: FragmentRegisterBinding

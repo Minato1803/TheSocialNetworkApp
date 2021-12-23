@@ -15,10 +15,10 @@ data class ConversationItem(
 ) // last message
 
 data class ChatMessage(
-    val isRead: String = "false",
-    val sender: String = "",
-    val textContent: String? = null,
-    val time: Long = 0L,
+    var isRead: Int = 0,
+    var sender: String = "",
+    var textContent: String? = null,
+    var time: Long = 0L,
 ) {
     var id: String = ""
 

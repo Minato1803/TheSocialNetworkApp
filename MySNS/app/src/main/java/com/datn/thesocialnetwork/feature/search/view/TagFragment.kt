@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import com.datn.thesocialnetwork.R
 import com.datn.thesocialnetwork.core.api.status.GetStatus
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.SystemUtils.normalize
 import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
@@ -50,12 +51,12 @@ class TagFragment : AbstractFragmentRcv(
         private const val TAG_DATA = "TAG_DATA"
         fun newInstance(
             tagModel: TagModel,
-        ): MessageFragment {
-            val messageFragment = MessageFragment()
+        ): TagFragment {
+            val tagFragment = TagFragment()
             val arg = Bundle()
             arg.putParcelable(TAG_DATA, tagModel)
-            messageFragment.arguments = arg
-            return messageFragment
+            tagFragment.arguments = arg
+            return tagFragment
         }
     }
 
@@ -143,6 +144,9 @@ class TagFragment : AbstractFragmentRcv(
     }
 
     override fun imageClick(postWithId: PostWithId) {
+        if(postWithId.second.ownerId != GlobalValue.USER!!.uidUser) {
+            viewModel.setSeenStatus(postWithId.first)
+        }
         val detailPostFragment = DetailPostFragment.newInstance(postWithId.first)
         navigateFragment(detailPostFragment, "detailPostFragment")
     }

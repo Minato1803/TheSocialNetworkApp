@@ -175,6 +175,8 @@ class EditPostFragment : Fragment(R.layout.fragment_edit_post) {
             }
         }
 
+
+
         mMainActivity.bd.toolbar.setNavigationOnClickListener {
             mMainActivity.onBackPressed()
         }

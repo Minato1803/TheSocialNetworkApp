@@ -52,6 +52,11 @@ class FirebaseRepository @Inject constructor(
             @Synchronized get() = field++
             @Synchronized private set
 
+        @Volatile
+        var seenListenerId: Int = 0
+            @Synchronized get() = field++
+            @Synchronized private set
+
     }
 
     fun getDatabaseUser(uidUser: String) = mFirebaseDb.getReference(FirebaseNode.user).child(uidUser)

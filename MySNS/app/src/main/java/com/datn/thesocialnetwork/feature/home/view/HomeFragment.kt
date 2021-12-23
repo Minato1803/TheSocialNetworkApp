@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.fragment.app.activityViewModels
 import com.datn.thesocialnetwork.R
+import com.datn.thesocialnetwork.core.util.GlobalValue
 import com.datn.thesocialnetwork.core.util.ViewUtils.setActionBarTitle
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.core.util.ViewUtils.viewBinding
@@ -20,6 +21,8 @@ import com.datn.thesocialnetwork.feature.home.viewmodel.HomeViewModel
 import com.datn.thesocialnetwork.feature.main.view.MainActivity
 import com.datn.thesocialnetwork.feature.post.comment.view.CommentFragment
 import com.datn.thesocialnetwork.feature.post.detailpost.view.DetailPostFragment
+import com.datn.thesocialnetwork.feature.post.editpost.view.EditPostFragment
+import com.datn.thesocialnetwork.feature.post.editpost.viewmodel.EditPostViewModel
 import com.datn.thesocialnetwork.feature.post.view.AbstractFragmentRcv
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelStateRcv
@@ -39,6 +42,7 @@ class HomeFragment() : AbstractFragmentRcv(
 ) {
 
     override val viewModel: HomeViewModel by activityViewModels()
+    private val editPostViewModel: EditPostViewModel by activityViewModels()
     override val binding by viewBinding(FragmentHomeBinding::bind)
     lateinit var mMainActivity: MainActivity
     lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
@@ -73,6 +77,9 @@ class HomeFragment() : AbstractFragmentRcv(
 
     override fun imageClick(postWithId: PostWithId) {
         //todo: detail post
+        if(postWithId.second.ownerId != GlobalValue.USER!!.uidUser) {
+            viewModel.setSeenStatus(postWithId.first)
+        }
         val detailPostFragment = DetailPostFragment.newInstance(postWithId.first)
         navigateFragment(detailPostFragment,"detailPostFragment")
     }
@@ -101,8 +108,15 @@ class HomeFragment() : AbstractFragmentRcv(
     }
 
     override fun menuEditClick(post: PostWithId) {
-        val detailPostFragment = DetailPostFragment.newInstance(post.first)
-        navigateFragment(detailPostFragment,"detailPostFragment")
+        if(post.second.ownerId == GlobalValue.USER!!.uidUser) {
+            editPostViewModel.postWithId.postValue(post)
+            val editPostFragment = EditPostFragment.newInstance()
+            navigateFragment(editPostFragment, "editPostFragment")
+        } else {
+            binding.homeLayout.showSnackbarGravity(
+                message = getString(R.string.not_allow)
+            )
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

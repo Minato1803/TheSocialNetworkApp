@@ -38,8 +38,9 @@
             android:layout_marginTop="@dimen/_5dp">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 style="@style/modifiedEditText"
-                android:background="@android:color/transparent"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:hint="@string/str_email"/>
@@ -54,7 +55,6 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_username"
                 style="@style/modifiedEditText"
-                android:background="@android:color/transparent"
                 android:inputType="text"
                 android:maxLines="1"
                 android:hint="@string/str_username"/>
@@ -77,7 +77,6 @@
                     android:id="@+id/edt_firstName"
                     style="@style/modifiedEditText"
                     android:layout_width="140dp"
-                    android:background="@android:color/transparent"
                     android:hint="@string/str_firstName"
                     android:inputType="text"
                     android:maxLines="1" />
@@ -96,7 +95,6 @@
                     android:id="@+id/edt_lastName"
                     style="@style/modifiedEditText"
                     android:layout_width="211dp"
-                    android:background="@android:color/transparent"
                     android:hint="@string/str_lastName"
                     android:inputType="text"
                     android:maxLines="1" />
@@ -113,7 +111,6 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_password"
                 style="@style/modifiedEditText"
-                android:background="@android:color/transparent"
                 android:hint="@string/str_password"
                 android:autofillHints="@string/str_password"
                 android:maxLines="1"
@@ -130,7 +127,6 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_confirmPassword"
                 style="@style/modifiedEditText"
-                android:background="@android:color/transparent"
                 android:hint="@string/str_confirm_password"
                 android:autofillHints="@string/str_password"
                 android:maxLines="1"

@@ -22,7 +22,7 @@ interface PostClickListener {
 
     fun mentionClick(mention: String)
 
-    fun menuReportClick(postId: String)
+    fun deletePostClick(post: PostWithId)
 
     fun menuEditClick(post: PostWithId)
 }

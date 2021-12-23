@@ -37,7 +37,7 @@ object Const {
 object FirebaseNode {
     const val user = "user"
     const val follow = "follow"
-    const val tag = "hashTags"
+    const val tag = "Hashtags"
     const val chat = "chat"
     const val post = "posts"
 
@@ -69,7 +69,6 @@ object FirebaseNode {
     val messageType = object : GenericTypeIndicator<HashMap<String, ChatMessage>>() {}
 
     // chat
-    const val messageName = "Messages"
     const val messageUser1 = "u1"
     const val messageUser2 = "u2"
     const val messageAllField = "msg"
@@ -111,6 +110,10 @@ object FirebaseNode {
     // marks
     const val postMarks = "PostMarks"
     val postsMarks = object : GenericTypeIndicator<HashMap<String, Boolean>>() {}
+
+    // marks
+    const val postSeen = "PostSeen"
+    val postsSeen = object : GenericTypeIndicator<HashMap<String, Boolean>>() {}
 
     // comments
     const val comments = "Comments"

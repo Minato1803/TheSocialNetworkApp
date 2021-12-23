@@ -183,7 +183,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#B3FFFFFF"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/imgAvatar"
@@ -207,7 +208,9 @@
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                         app:layout_constraintStart_toEndOf="@+id/imgAvatar"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:text="Jack Megan"
+                        tools:text="KhaiND9"
+                        android:textColor="@color/colorFF954CFB"
+                        android:textStyle="bold"
                         />
 
                     <TextView
@@ -220,6 +223,19 @@
                         app:layout_constraintStart_toEndOf="@+id/imgAvatar"
                         app:layout_constraintTop_toBottomOf="@+id/txtOwner"
                         tools:text="34 minutes ago"
+                        />
+
+                    <TextView
+                        android:id="@+id/txtSeen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/_8dp"
+                        android:layout_marginTop="@dimen/_4dp"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                        app:layout_constraintTop_toBottomOf="@+id/txtOwner"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBaseline_toBaselineOf="@id/txtTime"
+                        tools:text="34 người xem"
                         />
 
                     <com.hendraanggrian.appcompat.widget.SocialTextView

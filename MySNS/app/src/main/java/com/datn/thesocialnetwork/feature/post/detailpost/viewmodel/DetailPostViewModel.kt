@@ -6,9 +6,11 @@ import com.datn.thesocialnetwork.core.api.status.GetStatus
 import com.datn.thesocialnetwork.data.repository.FirebaseRepository
 import com.datn.thesocialnetwork.data.repository.PostRepository
 import com.datn.thesocialnetwork.data.repository.model.PostsModel
+import com.datn.thesocialnetwork.data.repository.model.SeenModel
 import com.datn.thesocialnetwork.data.repository.model.UserModel
 import com.datn.thesocialnetwork.data.repository.model.post.status.LikeStatus
 import com.datn.thesocialnetwork.data.repository.model.post.status.MarkStatus
+import com.datn.thesocialnetwork.data.repository.model.post.status.SeenStatus
 import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelPost
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,10 +50,14 @@ class DetailPostViewModel @Inject constructor(
     private val _commentStatus: MutableStateFlow<GetStatus<Long>> = MutableStateFlow(GetStatus.Loading)
     val commentStatus = _commentStatus.asStateFlow()
 
+    private val _seenStatus: MutableStateFlow<GetStatus<SeenStatus>> = MutableStateFlow(GetStatus.Loading)
+    val seenStatus = _seenStatus.asStateFlow()
+
     private var userListenerId: Int = -1
     private var likeListenerId: Int = -1
     private var markListenerId: Int = -1
     private var commentListenerId: Int = -1
+    private var seenListenerId: Int = -1
 
 
     private val _post: MutableStateFlow<GetStatus<PostWithId>> = MutableStateFlow(GetStatus.Sleep)
@@ -101,6 +107,13 @@ class DetailPostViewModel @Inject constructor(
                 _commentStatus.value = it
             }
         }
+
+        viewModelScope.launch {
+            seenListenerId = FirebaseRepository.seenListenerId
+            postRepository.getPostSeen(seenListenerId, post.first).collectLatest {
+                _seenStatus.value = it
+            }
+        }
     }
 
     override fun onCleared()
@@ -108,6 +121,8 @@ class DetailPostViewModel @Inject constructor(
         super.onCleared()
         repository.removeUserListener(userListenerId)
         postRepository.removeLikeListener(likeListenerId)
+        postRepository.removeMarkListener(markListenerId)
         postRepository.removeCommentCounterListener(commentListenerId)
+        postRepository.removeSeenListener(seenListenerId)
     }
 }

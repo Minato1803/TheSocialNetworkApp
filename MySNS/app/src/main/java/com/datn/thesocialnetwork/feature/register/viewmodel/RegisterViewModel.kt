@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalTime
@@ -29,6 +30,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
+@ExperimentalCoroutinesApi
 class RegisterViewModel @Inject constructor(
     private val mApp: Application,
     private val mUserRepository: UserRepository,
@@ -90,6 +92,7 @@ class RegisterViewModel @Inject constructor(
                 }
             }
         }
+
 
     private suspend fun signUp(
         userResponse: UserResponse,

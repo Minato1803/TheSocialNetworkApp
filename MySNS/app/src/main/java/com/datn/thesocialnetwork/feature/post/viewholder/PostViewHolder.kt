@@ -294,8 +294,8 @@ class PostViewHolder private constructor(
         popupMenu.setOnMenuItemClickListener { menuItem ->
 
             return@setOnMenuItemClickListener when (menuItem.itemId) {
-                R.id.mi_report -> {
-                    postClickListener.menuReportClick(post.first)
+                R.id.mi_delete -> {
+                    postClickListener.deletePostClick(post)
                     true
                 }
                 R.id.mi_collapse -> {

@@ -38,7 +38,9 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             app:layout_constraintStart_toEndOf="@+id/imgAvatar"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Jack Megan"
+            android:textColor="@color/colorFF954CFB"
+            android:textStyle="bold"
+            tools:text="KhaiND9"
             />
 
         <TextView

@@ -21,6 +21,7 @@ import com.datn.thesocialnetwork.core.util.ModelMapping
 import com.datn.thesocialnetwork.core.util.SystemUtils
 import com.datn.thesocialnetwork.core.util.ViewUtils.showSnackbarGravity
 import com.datn.thesocialnetwork.core.util.ViewUtils.tryOpenUrl
+import com.datn.thesocialnetwork.feature.post.viewholder.PostWithId
 import com.datn.thesocialnetwork.feature.post.viewmodel.ViewModelPost
 import com.datn.thesocialnetwork.feature.profile.adapter.UserAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -95,35 +96,18 @@ abstract class AbstractFragmentPost(
         }
     }
 
-    override fun menuReportClick(postId: String)
+    override fun deletePostClick(post: PostWithId)
     {
-//        MaterialAlertDialogBuilder(requireContext())
-//            .setTitle(resources.getString(R.string.str_sign_out))
-//            .setMessage(resources.getString(R.string.log_out_confirmation))
-//            .setNeutralButton(resources.getString(R.string.cancel)) { _, _ ->
-//            }
-//            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-//                val userDetail = ModelMapping.createUserDetail(GlobalValue.USER!!.userDetail, onlineStatus = System.currentTimeMillis())
-//                viewModel.updateOnlineStatus(GlobalValue.USER!!.uidUser, userDetail)
-//                SystemUtils.signOut(mGoogleSignInClient, requireContext())
-//                sendToMainActivity()
-//            }
-//            .show()
-//
-//        materialAlertDialogBuilder.setView(d)
-//            .setTitle(resources.getString(R.string.str_delete_post))
-//            .setMessage(getString(R.string.report_tip))
-//            .setPositiveButton(getString(R.string.report)) { dialog, _ ->
-//                val reportText = reportTextField.input
-//                Timber.d("Report send $reportText")
-//                dialog.dismiss()
-//                viewModel.reportPost(postId, reportText)
-//                showSnackbar(R.string.thanks_for_reporting)
-//            }
-//            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-//                dialog.dismiss()
-//            }
-//            .show()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resources.getString(R.string.str_delete_post))
+            .setMessage(resources.getString(R.string.delete_confirmation))
+            .setNeutralButton(resources.getString(R.string.cancel)) { _, _ ->
+            }
+            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                //delete post
+                viewModel.deletePost(post.first)
+            }
+            .show()
     }
 
     override fun onDestroy()

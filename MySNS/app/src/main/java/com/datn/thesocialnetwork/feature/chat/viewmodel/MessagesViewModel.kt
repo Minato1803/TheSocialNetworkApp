@@ -89,10 +89,10 @@ class MessagesViewModel @Inject constructor(
         messageText.value?.let {
             if (it.isNotBlank()) {
                 val msg = ChatMessage(
+                    isRead = 0,
+                    sender = firebaseRepository.requireUser.uid,
                     textContent = it,
                     time = System.currentTimeMillis(),
-                    sender = firebaseRepository.requireUser.uid,
-                    isRead = "false"
                 )
 
                 viewModelScope.launch {
@@ -106,7 +106,7 @@ class MessagesViewModel @Inject constructor(
 
     @ExperimentalCoroutinesApi
     fun deleteMessage(message: ChatMessage) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.deleteMessage(selectedUser.uidUser, message)
         }
     }

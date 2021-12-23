@@ -16,4 +16,7 @@ abstract class ViewModelPost(
     fun setMarkStatus(postId: String, status: Boolean) = postRepository.markUnmarkPost(postId, status)
     fun reportPost(postId: String, reportMessage: String) = postRepository.reportPost(postId, reportMessage)
     fun getUsersThatLikePost(postId: String) = postRepository.getUsersWhoLikePost(postId)
+    fun getUsersThatSeenPost(postId: String) = postRepository.getUsersWhoSeenPost(postId)
+    fun deletePost(postId: String) = postRepository.deletePost(postId)
+    fun setSeenStatus(postId: String) = postRepository.seenPost(postId)
 }

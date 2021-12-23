@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
+
 @ExperimentalCoroutinesApi
 class UserRepository @Inject constructor(
     private val mUserFirebase: UserFirebase,

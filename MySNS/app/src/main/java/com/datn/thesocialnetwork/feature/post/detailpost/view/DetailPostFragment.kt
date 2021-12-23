@@ -171,11 +171,23 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
             linlayLikeCounter.setOnClickListener {
                 likeCounterClick(post.first)
             }
+            txtSeen.setOnClickListener {
+                seenCounterClick(post.first)
+            }
         }
 
         mMainActivity.bd.toolbar.setNavigationOnClickListener {
             mMainActivity.onBackPressed()
         }
+    }
+
+    private fun seenCounterClick(first: String) {
+        openDialogWithListOfUsers(
+            statusFlow = viewModel.getUsersThatSeenPost(postId),
+            title = R.string.users_that_seen_post,
+            emptyText = R.string.empty_users_Seen_post,
+            errorText = R.string.something_went_wrong_loading_users_that_seen_post
+        )
     }
 
     private fun setObserveData() {
@@ -272,6 +284,23 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
                     }
                     is GetStatus.Failed -> {
                         Log.d("failed", "loading post ")
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.seenStatus.collectLatest {
+                when (it) {
+                    GetStatus.Sleep -> Unit
+                    is GetStatus.Failed -> {
+                        Log.d("failed", "loading seen")
+                    }
+                    GetStatus.Loading -> {
+                        binding.txtSeen.text = getString(R.string.str_loading_dot)
+                    }
+                    is GetStatus.Success -> {
+                        binding.txtLikeCounter.text = it.data.seenCounter.formatWithSpaces()
                     }
                 }
             }
@@ -373,6 +402,11 @@ class DetailPostFragment : AbstractFragmentPost(R.layout.fragment_detail_post) {
         loadImage(post.third)
         binding.txtDesc.text = post.second.content
         binding.txtTime.text = post.second.createdTime.getDateTimeFormatFromMillis()
+        if(post.second.ownerId == GlobalValue.USER!!.uidUser) {
+            binding.txtSeen.visibility = View.VISIBLE
+        } else {
+            binding.txtSeen.visibility = View.GONE
+        }
     }
 
     private fun loadImage(listImage: List<Pair<String, PostsImage>>?) {

@@ -1,5 +1,6 @@
 package com.datn.thesocialnetwork.feature.chat.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.datn.thesocialnetwork.core.api.status.GetStatus
@@ -16,51 +17,46 @@ import javax.inject.Inject
 @HiltViewModel
 @ExperimentalCoroutinesApi
 class ChatViewModel @Inject constructor(
-    private val repository: ChatRespository
-) : ViewModel()
-{
+    private val repository: ChatRespository,
+) : ViewModel() {
 
-    private val _conversations: MutableStateFlow<GetStatus<List<ConversationItem>>> = MutableStateFlow(
-        GetStatus.Sleep
-    )
+    private val _conversations: MutableStateFlow<GetStatus<MutableList<ConversationItem>>> =
+        MutableStateFlow(
+            GetStatus.Sleep
+        )
     val conversation = _conversations.asStateFlow()
 
-    @ExperimentalCoroutinesApi
-    private fun getConversations()
-    {
+    fun getConversations() {
         viewModelScope.launch {
             repository.getAllConversations().collectLatest { status ->
-                when (status)
-                {
-                    GetStatus.Sleep ->
-                    {
+                when (status) {
+                    GetStatus.Sleep -> {
                         _conversations.value = GetStatus.Sleep
                     }
-                    GetStatus.Loading ->
-                    {
+                    GetStatus.Loading -> {
                         _conversations.value = GetStatus.Loading
                     }
-                    is GetStatus.Failed ->
-                    {
+                    is GetStatus.Failed -> {
                         _conversations.value = GetStatus.Failed(status.message)
                     }
-                    is GetStatus.Success ->
-                    {
-                        _conversations.value = GetStatus.Success(status.data.sortedByDescending { it.lastMessage.time })
+                    is GetStatus.Success -> {
+                        _conversations.value =
+                            GetStatus.Success(status.data.sortedByDescending { it.lastMessage.time }
+                                .toMutableList())
                     }
                 }
             }
         }
     }
 
-    @ExperimentalCoroutinesApi
-    fun updateConversations()
-    {
+    fun updateConversations() {
         viewModelScope.launch {
             repository.getAllConversations().collectLatest { status ->
-                if (status is GetStatus.Success)
-                {
-                    _conversations.value = GetStatus.Success(status.data.sortedByDescending { it.lastMessage.time })
+                if (status is GetStatus.Success) {
+                    _conversations.value =
+                        GetStatus.Success(status.data.sortedByDescending { it.lastMessage.time }
+                            .toMutableList())
+                    Log.d("listConversation", "${_conversations.value.toString()}")
                 }
             }
         }
@@ -70,8 +66,7 @@ class ChatViewModel @Inject constructor(
         repository.seenLastMessage(user, conversationItem)
     }
 
-    init
-    {
+    init {
         getConversations()
     }
 }

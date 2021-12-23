@@ -147,6 +147,9 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
     }
 
     override fun imageClick(postWithId: PostWithId) {
+        if(postWithId.second.ownerId != GlobalValue.USER!!.uidUser) {
+            viewModel.setSeenStatus(postWithId.first)
+        }
         val detailPostFragment = DetailPostFragment.newInstance(postWithId.first)
         navigateFragment(detailPostFragment, "detailPostFragment")
     }
@@ -184,16 +187,38 @@ class ProfileFragment : AbstractDialog(R.layout.fragment_profile) {
         }
     }
 
-    override fun menuReportClick(postId: String) {
-        //TODO("Not yet implemented")
+    override fun deletePostClick(post: PostWithId) {
+        if(post.second.ownerId == GlobalValue.USER!!.uidUser) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(resources.getString(R.string.str_delete_post))
+                .setMessage(resources.getString(R.string.delete_confirmation))
+                .setNeutralButton(resources.getString(R.string.cancel)) { _, _ ->
+                }
+                .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                    //delete post
+                    viewModel.deletePost(post.first)
+                    setObserveData()
+                }
+                .show()
+        } else {
+            profileBinding.userLayout.showSnackbarGravity(
+                message = getString(R.string.not_allow)
+            )
+        }
     }
 
     override fun menuEditClick(post: PostWithId) {
         //todo: editpost
         Log.d("editPost", "${post.toString()}")
-        editPostViewModel.postWithId.postValue(post)
-        val editPostFragment = EditPostFragment.newInstance()
-        navigateFragment(editPostFragment, "editPostFragment")
+        if(post.second.ownerId == GlobalValue.USER!!.uidUser) {
+            editPostViewModel.postWithId.postValue(post)
+            val editPostFragment = EditPostFragment.newInstance()
+            navigateFragment(editPostFragment, "editPostFragment")
+        } else {
+            profileBinding.userLayout.showSnackbarGravity(
+                message = getString(R.string.not_allow)
+            )
+        }
     }
 
     private fun setObserveData() {
